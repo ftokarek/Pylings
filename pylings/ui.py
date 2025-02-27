@@ -1,0 +1,108 @@
+from shutil import get_terminal_size
+from sys import stdout
+from pylings.constants import (
+    CLEAR_SCREEN, CHECK, CURRENT, DONE, GREEN, 
+    HINT, HYPERLINK, LIST, NAVIGATE, NEXT,
+    PENDING, QUIT, RED, RESET, RESET_COLOR,
+    SELECT, SELECTOR
+)
+from pylings.key_input import KeyInput
+
+class UIManager:
+    """Manages the user interface display for Pylings."""
+    def __init__(self, exercise_manager):
+        """Initializes the UIManager with an exercise manager."""
+        self.exercise_manager = exercise_manager
+
+    def show_menu(self):
+        """Displays the main menu and exercise output."""
+        total = len(self.exercise_manager.exercises)
+        completed = self.exercise_manager.completed_count
+        term_width = get_terminal_size().columns
+        print(CLEAR_SCREEN, end="",flush=True)
+        
+        if self.exercise_manager.current_exercise:
+            self.exercise_manager.print_exercise_output()
+
+        self.progress_bar(completed, total, term_width)
+        
+        print(f"\nCurrent exercise: {HYPERLINK(self.exercise_manager.current_exercise)}\n")
+        if self.exercise_manager.current_exercise and self.exercise_manager.exercises[self.exercise_manager.current_exercise.name]["status"] == "DONE":
+            print(f"\n{NEXT}/ {HINT} / {RESET} / {LIST} / {QUIT}")
+        else:
+            print(f"\n{HINT} / {RESET} / {LIST} / {QUIT}")
+
+    def progress_bar(self, progress, total, term_width):
+        """Displays a progress bar."""
+        PREFIX = "Progress: ["
+        POSTFIX = f"]   {progress}/{total}  "
+        width = term_width - len(PREFIX) - len(POSTFIX)
+        filled = (width * progress) // total
+        stdout.write(PREFIX + GREEN + "#" * filled + RED + "-" * (width - filled) + RESET_COLOR + POSTFIX + "\n")
+
+    def format_status(self, exercise, selected=False):
+        """Formats the display line for an exercise with aligned selector and padding length."""
+        status = f"{DONE}" if self.exercise_manager.exercises[exercise.name]["status"] == "DONE" else f"{PENDING}"
+        current = f"{CURRENT}" if exercise == self.exercise_manager.current_exercise else "       "
+        name = f"{exercise.name}"
+        selector = f"{SELECTOR}" if selected else " "
+        path_str = f"{HYPERLINK(exercise)}"
+
+        # Use precomputed padding length from ExerciseManager
+        padding_length = self.exercise_manager.padding - len(str(exercise)) + 2
+        padding = " " * padding_length
+        padding_name = " " * (self.exercise_manager.padding_name - len(exercise.name) + 2)
+        return f" {selector} {current}   {status}    {name}{padding_name}     {path_str}{padding}{selector}"
+
+    def show_all_exercises(self):
+        """Displays an interactive list of all exercises and their completion status."""
+        exercises = list(self.exercise_manager.exercises.values())
+        total = len(exercises)
+        completed = self.exercise_manager.completed_count
+        key_input = KeyInput()
+        term_width = get_terminal_size().columns
+        current_row = next((idx for idx, ex in enumerate(exercises) if ex["path"] == self.exercise_manager.current_exercise), 0)
+
+        try:
+            while True:
+                print(CLEAR_SCREEN, end="", flush=True)
+                print("   Current   State      Name\t\t\t  Path")
+                for idx, ex in enumerate(exercises):
+                    print(self.format_status(ex["path"],selected=(idx == current_row)))
+
+                self.progress_bar(completed, total, term_width)
+                print(f"\n{NAVIGATE} / {SELECT} / {RESET} / {CHECK} / {QUIT}")
+
+                key = key_input.get_key()
+
+                if key in (b'H', b'\x1b[A') and current_row > 0:
+                    current_row -= 1
+                elif key in (b'P', b'\x1b[B') and current_row < len(exercises) - 1:
+                    current_row += 1
+                elif key in (b'G', b'\x1b[H') and current_row > 0:
+                    current_row = 0
+                elif key in (b'O', 'G') and current_row < len(exercises) - 1:
+                    current_row = len(exercises) - 1
+                elif key in ("r", b'r'):
+                    self.exercise_manager.current_exercise = exercises[current_row]["path"]
+                    self.exercise_manager.reset_exercise()
+                elif key in ("s", b's'):
+                    self.exercise_manager.current_exercise = exercises[current_row]["path"]
+                    self.exercise_manager.show_hint = False
+
+                    # Run the selected exercise immediately
+                    self.exercise_manager.update_exercise_output()
+
+                    # Restart the watcher for the new selection
+                    if self.exercise_manager.watcher:
+                        print("Restarting watcher for the newly selected exercise...")
+                        self.exercise_manager.watcher.restart(str(self.exercise_manager.current_exercise.parent))
+                    break
+                elif key in ("c", b'c'):
+                        self.exercise_manager.check_all_exercises(exercises)
+                elif key in ("q", b'q'):
+                    break
+                print("\n")
+
+        finally:
+            print(CLEAR_SCREEN, end="")

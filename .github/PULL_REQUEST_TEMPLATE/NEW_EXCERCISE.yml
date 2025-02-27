@@ -1,0 +1,105 @@
+name: New Exercise Pull Request
+description: Submit a new exercise along with all necessary components for review.
+title: "[New Exercise] <EXERCISE_NAME>"
+labels: ["new exercise", "enhancement"]
+assignees: []
+
+body:
+  - type: input
+    id: exercise_name
+    attributes:
+      label: Exercise Name
+      description: Provide the name of the exercise file (e.g., `errors2.py`).
+      placeholder: "errors2.py"
+    validations:
+      required: true
+
+  - type: input
+    id: directory
+    attributes:
+      label: Directory
+      description: Specify the folder where this exercise should be located (e.g., `08_errors`).
+      placeholder: "08_errors"
+    validations:
+      required: true
+
+  - type: textarea
+    id: objective
+    attributes:
+      label: Objective
+      description: Describe the learning objectives of the exercise. What should the user learn or practice?
+      placeholder: "This exercise introduces handling multiple exceptions using try, except, else, and finally blocks."
+    validations:
+      required: true
+
+  - type: textarea
+    id: exercise_content
+    attributes:
+      label: Exercise File (with TODOs)
+      description: Provide the code template for the exercise. Include clear TODO comments where the user need to write their code.
+      placeholder: |
+        """
+        Add the exercise template code here.
+        Make sure to include clear TODOs.
+        """
+
+  - type: textarea
+    id: solution
+    attributes:
+      label: Solution File
+      description: Provide the complete solution for the exercise.
+      placeholder: |
+        """
+        Add the full working solution for the exercise here.
+        """
+
+  - type: textarea
+    id: back_file
+    attributes:
+      label: Back File (Optional)
+      description: Provide explanations, hints, or background information for the exercise.
+      placeholder: |
+        """
+        Use this space for additional explanations, instructions, or background information.
+        """
+
+  - type: textarea
+    id: config_toml
+    attributes:
+      label: config.toml Entry
+      description: Provide the `config.toml` entry for this exercise. Include hints and metadata.
+      placeholder: |
+        [exercise_EXERCISE_NAME]
+        name = "EXERCISE_NAME"
+        dir = "DIRECTORY"
+        hint = """
+        Provide hints for the user to complete the exercise.
+        """
+
+  - type: checkboxes
+    id: files_check
+    attributes:
+      label: Required Files Checklist
+      description: Ensure all necessary files and entries are included.
+      options:
+        - label: Exercise file (.py)
+          required: true
+        - label: Solution file (.py)
+          required: true
+        - label: Back file (.py)
+          required: true
+        - label: config.toml entry
+          required: true
+
+  - type: checkboxes
+    id: final_review
+    attributes:
+      label: Final Review Checklist
+      description: Verify everything is ready for review.
+      options:
+        - label: All tests pass without errors.
+          required: true
+        - label: Code follows PEP8 formatting guidelines.
+          required: true
+        - label: Proper documentation and comments have been added where necessary.
+          required: true

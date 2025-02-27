@@ -1,0 +1,70 @@
+name: New Feature Request
+description: Suggest a new feature or enhancement for the project.
+title: "[Feature] <FEATURE_NAME>"
+labels: ["feature", "enhancement"]
+assignees: []
+
+body:
+  - type: input
+    id: feature_name
+    attributes:
+      label: Feature Name
+      description: Provide a concise name for the feature.
+      placeholder: "Custom Error Handler"
+    validations:
+      required: true
+
+  - type: textarea
+    id: feature_description
+    attributes:
+      label: Feature Description
+      description: Describe the feature in detail. What functionality will it add? Why is it important?
+      placeholder: |
+        "Describe the feature you would like to implement. Explain the purpose and what problem it solves."
+    validations:
+      required: true
+
+  - type: textarea
+    id: motivation
+    attributes:
+      label: Motivation
+      description: Why should this feature be added? What value does it bring to the project?
+      placeholder: |
+        "Explain how this feature will improve the project. Who benefits from it and why?"
+    validations:
+      required: true
+
+  - type: textarea
+    id: proposed_solution
+    attributes:
+      label: Proposed Solution
+      description: Describe your proposed implementation. How would you go about adding this feature?
+      placeholder: |
+        "Describe how you plan to implement the feature. Mention any specific libraries, tools, or techniques you would use."
+    validations:
+      required: false
+
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: Alternatives Considered
+      description: List any alternative solutions or features you've considered.
+      placeholder: |
+        "Have you considered any alternative implementations? If so, why did you choose this one?"
+    validations:
+      required: false
+
+  - type: checkboxes
+    id: requirements
+    attributes:
+      label: Feature Requirements Checklist
+      description: Ensure that you have covered all necessary details for this feature request.
+      options:
+        - label: The feature aligns with the project's goals.
+          required: true
+        - label: A clear use case has been provided.
+          required: true
+        - label: Potential impact on existing code has been considered.
+          required: true
+        - label: Dependencies or additional resources are documented.
+          required: false

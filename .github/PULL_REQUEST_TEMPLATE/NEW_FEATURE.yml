@@ -1,0 +1,82 @@
+name: New Feature Pull Request
+description: Submit a new feature implementation for review.
+title: "[Feature] <FEATURE_NAME>"
+labels: ["feature", "enhancement"]
+assignees: []
+
+body:
+  - type: input
+    id: feature_name
+    attributes:
+      label: Feature Name
+      description: Provide a concise name for the feature.
+      placeholder: "Custom Error Handler"
+    validations:
+      required: true
+
+  - type: textarea
+    id: feature_description
+    attributes:
+      label: Feature Description
+      description: Describe the feature you have implemented. What functionality does it add? Why is it important?
+      placeholder: |
+        "Provide a detailed description of the feature and its purpose."
+    validations:
+      required: true
+
+  - type: textarea
+    id: implementation_details
+    attributes:
+      label: Implementation Details
+      description: Describe how you implemented this feature. Mention any libraries, patterns, or special considerations.
+      placeholder: |
+        "Explain the approach you took to implement this feature and any challenges you encountered."
+    validations:
+      required: true
+
+  - type: textarea
+    id: testing
+    attributes:
+      label: Testing Information
+      description: Describe how you tested the feature to ensure functionality. Mention test cases and results.
+      placeholder: |
+        "Provide details on how you verified the feature works as expected. Include any test scripts, unit tests, or manual testing steps used."
+    validations:
+      required: true
+
+  - type: textarea
+    id: documentation
+    attributes:
+      label: Documentation Updates
+      description: Provide links or details about any related documentation updates for this feature.
+      placeholder: |
+        "Link to relevant documentation updates or describe what changes were made to documentation."
+    validations:
+      required: false
+
+  - type: textarea
+    id: dependencies
+    attributes:
+      label: Dependencies
+      description: List any new dependencies added with this feature.
+      placeholder: |
+        "List any libraries, tools, or resources added with this feature and explain why they were necessary."
+    validations:
+      required: false
+
+  - type: checkboxes
+    id: pr_checklist
+    attributes:
+      label: Feature Submission Checklist
+      description: Ensure all necessary elements are included in this pull request.
+      options:
+        - label: The feature aligns with the project’s goals.
+          required: true
+        - label: All new code follows PEP8 formatting standards.
+          required: true
+        - label: Tests have been written and pass successfully.
+          required: true
+        - label: Documentation has been updated accordingly.
+          required: true
+        - label: No unnecessary files are included in this PR.
+          required: true

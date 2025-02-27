@@ -1,0 +1,92 @@
+name: Bug Report
+description: Report a bug or unexpected behavior in the project.
+title: "[Bug] <SHORT_DESCRIPTION>"
+labels: ["bug", "needs-triage"]
+assignees: []
+
+body:
+  - type: input
+    id: bug_summary
+    attributes:
+      label: Bug Summary
+      description: Provide a short summary of the bug.
+      placeholder: "Division by zero error in safe_divide function."
+    validations:
+      required: true
+
+  - type: input
+    id: issue_reference
+    attributes:
+      label: Related Pull Request (if applicable)
+      description: Provide the pull request number if this bug is related to a past PR.
+      placeholder: "PR #42"
+    validations:
+      required: false
+
+  - type: textarea
+    id: expected_behavior
+    attributes:
+      label: Expected Behavior
+      description: Describe what you expected to happen.
+      placeholder: |
+        "Describe the correct behavior you expected when running the code."
+    validations:
+      required: true
+
+  - type: textarea
+    id: actual_behavior
+    attributes:
+      label: Actual Behavior
+      description: Describe what actually happened, including any error messages.
+      placeholder: |
+        "Describe the unexpected behavior or errors encountered."
+    validations:
+      required: true
+
+  - type: textarea
+    id: steps_to_reproduce
+    attributes:
+      label: Steps to Reproduce
+      description: Provide clear steps to reproduce the issue.
+      placeholder: |
+        "1. Run `python script.py` with input X.
+         2. Observe output Y instead of expected output Z."
+    validations:
+      required: true
+
+  - type: textarea
+    id: logs_and_screenshots
+    attributes:
+      label: Logs, Screenshots, or Tracebacks
+      description: Attach any relevant logs, error messages, or screenshots.
+      placeholder: |
+        "Paste logs or error messages here, or attach screenshots if applicable."
+    validations:
+      required: false
+
+  - type: textarea
+    id: environment
+    attributes:
+      label: Environment Details
+      description: Provide details about your system, Python version, and dependencies.
+      placeholder: |
+        - OS: Windows 10 / macOS / Linux
+        - Python Version: 3.10
+        - Package Versions: list dependencies if applicable
+    validations:
+      required: true
+
+  - type: checkboxes
+    id: bug_checklist
+    attributes:
+      label: Bug Report Checklist
+      description: Ensure all necessary details are included in this bug report.
+      options:
+        - label: I have checked existing issues to ensure this bug has not been reported.
+          required: true
+        - label: I have provided clear steps to reproduce the issue.
+          required: true
+        - label: I have included logs, error messages, or screenshots where applicable.
+          required: false
+        - label: I have specified my system environment details.
+          required: true

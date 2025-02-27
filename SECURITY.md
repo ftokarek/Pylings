@@ -1,0 +1,3 @@
+The Python Security Response Team (PSRT) is responsible for handling vulnerability reports for CPython and pip, see [https://devguide.python.org/developer-workflow/psrt/](https://devguide.python.org/developer-workflow/psrt/) and [https://www.python.org/dev/security/](https://www.python.org/dev/security/). 
+
+For third party, reports should be directed towards their corresponding distribution security contact.
