@@ -68,7 +68,7 @@ While working with Pylings, please use a modern terminal for the best user exper
 The default terminal on Linux and Mac should be sufficient too, you can even use a terminal multiplexer such as [tmux](https://github.com/tmux/tmux) or [zellij](https://github.com/zellij-org/zellij)
 
 > [!IMPORTANT]
-> There are some rendering issues, with Linux based terminals and some multitplexers. You will need to referesh the terminal to get the format back (press <kbd>return</kbd> key), every time the terminal loses focus and is rendered again.
+> There are some rendering issues, with Linux based terminals and some terminal multiplexers. You will need to referesh the terminal to get the format back (press <kbd>return</kbd> key), every time the terminal loses focus and is rendered again.
 
 ## Doing Exercises
 
@@ -105,11 +105,11 @@ Once installed, activate the virtual environment:
   venv/Scripts/activate
   ```
 
-Then, run the `pylings`:
+- Then, run the `pylings`:
 
-```
-pylings
-```
+  ```
+  pylings
+  ```
 
 > [!TIP]
 > 
@@ -134,6 +134,7 @@ You can open an interactive list of all exercises by pressing `l` after launchin
 - See the status of all exercises (done or pending)
 - `s`: Continue at selected exercise, allowing you to tempoarily skipping exercises or revisitng a previous one
 - `r`: Resets the current selected exercise back to its pending state, live!
+- `c`: Checks all exercises and updates the state, incase you modify outside of pylings.
 
 See the footer of the list for all possibilities. 
 
