@@ -113,19 +113,23 @@ Once installed, activate the virtual environment:
 
 > [!TIP]
 > 
-> Pylings takes as of v1.0.0 takes one of three possible arguments:
+> Pylings takes as of v1.0.0 takes one of three possible commands and two arguments:
 >
-> - `--run`, will launch pylings from the supplied exericse if it exists
->   - `pylings --run exercise/01_variables/variables1.py`
+> - `run`, will launch pylings from the supplied exericse if it exists
+>   - `pylings run exercise/01_variables/variables1.py`
 >   - If first time, you will be greeted with start up message
 > 
 > When [contributing](#contributing) you should ensure your supplied exercises run as intended, you can use: 
 > 
-> - `--solution`, will try to run supplied solution, if it exists, to test if it works, pylings will close afterwards.
->   - `pylings --solution solutions/01_variables/variables1.py`
+> - `solution`, will try to run supplied solution, if it exists, to test if it works, pylings will close afterwards.
+>   - `pylings solution solutions/01_variables/variables1.py`
 > 
-> - `--test`, will test supplied exercise, output will be displayed, if it exists.
->   - `pylings --test exercise/01_variables/variables1.py`
+> - `dry-run`, will run the supplied exercise non-interactively, output will be displayed, if it exists.
+>   - `pylings dry-run exercise/01_variables/variables1.py`
+>
+> - `-v`,`--version`, will return version, licence and repo address
+>
+> - `-h`, `--help`, will return helper message
 
 ### List mode
 

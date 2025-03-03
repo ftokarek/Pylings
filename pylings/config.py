@@ -37,9 +37,11 @@ class ConfigManager:
 
     def check_first_time(self):
         """Checks and handles the first-time setup, then updates the firsttime flag."""
-        args = PylingsUtils.parse_args()  # Define args at the beginning of main()
-        num_args = len(argv) - 1  # Define args at the beginning of main()
-        if num_args == 0 or args.run:
+        args = PylingsUtils.parse_args()  # Parse arguments first
+        num_args = len(argv) - 1  # Check if any command-line arguments exist
+
+        # Ensure args.command exists before checking for run
+        if num_args == 0 or (args.command == "run" and hasattr(args, "file")):
             try:
                 with open(FIRSTTIME_FILE, "r+", encoding="utf-8") as f:
                     lines = f.readlines()
@@ -50,7 +52,6 @@ class ConfigManager:
                             welcome_message = self.config["settings"]["welcome_message"]
                             print(CLEAR_SCREEN, end="", flush=True)
                             print("Welcome message:", welcome_message)  # Debug print
-                            #print(welcome_message, flush=True)
                             input("\nPress Enter to continue...")  # Wait for user input
 
                             # Replace firsttime=true with firsttime=false
@@ -61,7 +62,8 @@ class ConfigManager:
             except FileNotFoundError:
                 print(f"Error: The file {FIRSTTIME_FILE} does not exist.")
                 return None
-            return None
+        return None
+
 
     def get_hint(self, current_exercise):
         """Retrieves the hint for the given exercise from the config file.

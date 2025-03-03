@@ -1,13 +1,31 @@
 from os import name, path, getpid, getenv
 from psutil import pid_exists
 from sys import prefix, exit
-from argparse import ArgumentParser
+from argparse import ArgumentParser, RawTextHelpFormatter
 from pathlib import Path
+import toml
+from pylings.constants import PYPROJECT_FILE, REPOSITORY
 
 class PylingsUtils:
     """Utility class for virtual environment management and argument handling."""
 
     LOCK_FILE = path.join(prefix, ".pylings.lock")  # Lock file in virtual environment directory
+
+    @staticmethod
+    def get_pylings_info():
+        """Reads the Pylings version and license from pyproject.toml."""
+        pyproject_path = PYPROJECT_FILE
+
+        if pyproject_path.exists():
+            try:
+                pyproject_data = toml.load(pyproject_path)
+                version = pyproject_data["project"].get("version", "Unknown Version")
+                license_text = pyproject_data["project"].get("license", {}).get("text", "Unknown License")
+                return version, license_text
+            except Exception as e:
+                print(f"Error reading version info: {e}")
+                return "Unknown Version", "Unknown License"
+        return "Unknown Version", "Unknown License"
 
     @staticmethod
     def is_in_virtual_env():
@@ -17,7 +35,7 @@ class PylingsUtils:
     @staticmethod
     def print_venv_instruction():
         """Print instructions on how to activate the virtual environment."""
-        print("\n❌ To use pylings you must be run inside a virtual environment!")
+        print("\nTo use pylings you must be run inside a virtual environment!")
         if name == "nt":  # Windows
             print("➡ To activate the venv, run:")
             print("   source venv\\Scripts\\activate")
@@ -40,12 +58,29 @@ class PylingsUtils:
 
     @staticmethod
     def parse_args():
-        """Parse command-line arguments."""
-        parser = ArgumentParser(description="Run Pylings exercises.")
-        parser.add_argument('--solution', type=str, help='Path to the solution exercise to test and exit')
-        parser.add_argument('--test', type=str, help='Path to the exercise to test and exit')
-        parser.add_argument('--run', type=str, help='Path to the exercise to run pylings with')
+        """Parse command-line arguments with Rustlings-style output."""
+        parser = ArgumentParser(
+            prog="pylings",
+            description="Pylings is a collection of small exercises to get you used to writing and reading Python code.",
+            formatter_class=RawTextHelpFormatter,
+        )
+
+        parser.add_argument("-v", "--version", action="store_true", help="Get version and information about Pylings.")
+
+        subparsers = parser.add_subparsers(dest="command")
+
+        run_parser = subparsers.add_parser("run", help="Run pylings at the supploed exercise.")
+        run_parser.add_argument("file", type=str, help="Path to the exercise file.")
+
+        dry_parser = subparsers.add_parser("dry-run", help="Dry-run an exercise non-interactively.")
+        dry_parser.add_argument("file", type=str, help="Path to the exercise file.")
+
+        solutions_parser = subparsers.add_parser("solution", help="Check solution for supplied exercise non-interactively.")
+        solutions_parser.add_argument("file", type=str, help="Path to the solution file.")
+
         return parser.parse_args()
+
+
     
     @staticmethod
     def get_lock_file_path():
@@ -84,7 +119,8 @@ class PylingsUtils:
 
     @staticmethod
     def handle_args(args, exercise_manager, watcher):
-        """Handle command-line arguments for testing and running exercises."""
+        """Handle command-line arguments for running and testing exercises."""
+
         def shutdown():
             """Shut down after handling an argument."""
             if watcher:
@@ -92,37 +128,49 @@ class PylingsUtils:
             PylingsUtils.print_exit_message()
             exit(0)
 
-        if args.test:
-            exercise_path = Path(args.test)
+         # Handle `--version` before checking commands
+        if args.version:
+            version, license_text = PylingsUtils.get_pylings_info()
+            print(f"\nPylings Version: {version}")
+            print(f"Licence: {license_text}")
+            print(f"Repo: {REPOSITORY}")
+            exit(0)
+
+        # Ensure a command was provided
+        if not args.command:
+            return False  # No command was provided, continue interactive mode
+
+        if args.command == "dry-run":
+            exercise_path = Path(args.file)
             if exercise_path.exists() and exercise_path.is_file():
                 exercise_manager.current_exercise = exercise_path
                 exercise_manager.update_exercise_output()
                 exercise_manager.print_exercise_output()
                 shutdown()
             else:
-                print(f"Invalid exercise path: {args.test}")
+                print(f"Invalid exercise path: {args.file}")
                 shutdown()
 
-        if args.solution:
-            solution_path = Path(args.solution)
+        elif args.command == "solution":
+            solution_path = Path(args.file)
             if solution_path.exists() and solution_path.is_file():
                 result = exercise_manager.run_exercise(solution_path)
                 output = result.stdout if result.returncode == 0 else result.stderr
-                print(f"{output}")
+                print(output)
                 shutdown()
             else:
-                print(f"Invalid solution path: {args.solution}")
+                print(f"Invalid solution path: {args.file}")
                 shutdown()
 
-        if args.run:
-            exercise_path = Path(args.run)
+        elif args.command == "run":
+            exercise_path = Path(args.file)
             if exercise_path.exists() and exercise_path.is_file():
                 exercise_manager.current_exercise = exercise_path
                 exercise_manager.update_exercise_output()
                 exercise_manager.print_exercise_output()
                 return False  # Continue running the program
             else:
-                print(f"Invalid exercise path: {args.run}")
+                print(f"Invalid exercise path: {args.file}")
                 shutdown()
 
         return False  # No valid argument provided
