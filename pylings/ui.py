@@ -17,21 +17,26 @@ class UIManager:
     def show_menu(self):
         """Displays the main menu and exercise output."""
         total = len(self.exercise_manager.exercises)
-        completed = self.exercise_manager.completed_count
+        completed_count = self.exercise_manager.completed_count
+        completed_flag = self.exercise_manager.completed_flag
+
         term_width = get_terminal_size().columns
         print(CLEAR_SCREEN, end="",flush=True)
         
         if self.exercise_manager.current_exercise:
             self.exercise_manager.print_exercise_output()
 
-        self.progress_bar(completed, total, term_width)
+        if completed_count == total and completed_flag == True :  # If all exercises are done, show the finish message instead of output
+            self.exercise_manager.finish()
+
+        self.progress_bar(completed_count, total, term_width)
         
         print(f"\nCurrent exercise: {HYPERLINK(self.exercise_manager.current_exercise)}\n")
         if self.exercise_manager.current_exercise and self.exercise_manager.exercises[self.exercise_manager.current_exercise.name]["status"] == "DONE":
             print(f"\n{NEXT}/ {HINT} / {RESET} / {LIST} / {QUIT}")
         else:
             print(f"\n{HINT} / {RESET} / {LIST} / {QUIT}")
-
+        
     def progress_bar(self, progress, total, term_width):
         """Displays a progress bar."""
         PREFIX = "Progress: ["

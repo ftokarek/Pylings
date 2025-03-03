@@ -46,6 +46,7 @@ GIT_MESSAGE = f"If you forked pylings you can use {UNDERLINE}git{RESET_UNDERLINE
 HINT_TITLE = f"{GREEN}{UNDERLINE}Hint:{RESET_UNDERLINE}{RESET_COLOR}"
 NO_HINT_MESSAGE = f"{RED}No hint found for the current exercise.{RESET_COLOR}"
 NO_EXERCISE_MESSAGE = f"{RED}No current exercise selected.{RESET_COLOR}"
+REPOSITORY=f"{HYPERLINK("https://github.com/CompEng0001/pylings")}"
 
 # LIST STATUS FORMATTING
 CURRENT = f"{RED}>>>>>>>{RESET_COLOR}"
@@ -62,3 +63,34 @@ LIST = f"{LIGHT_BLUE}l{RESET_COLOR}:list"
 QUIT = f"{LIGHT_BLUE}q{RESET_COLOR}:quit ?"
 NAVIGATE =f"{LIGHT_BLUE}↑/↓/home/end{RESET_COLOR}:navigate"
 SELECT =f"{LIGHT_BLUE}s{RESET_COLOR}:select"
+
+
+# End
+FINISHED = f"""{GREEN}
++---------------------------------------------------------+
+|            You made it to the Fi-Ni!-sh line!            |
++---------------------------------------------------------+
+
+                                                       .
+        .++         \\/                             :***-
+   -=.   +@=        .:                             .+@=.
+    -*+-.:+%*:     :*=                           :+#*:
+      :=**+*@@#=:. :#+             ::  .:   .:=*%@%+:
+         .:-*@@@@%#+##=:-=--=+----*%%*#*+=+*%@@@@@*:
+             =#@@@%#%@@@@@@@@@@@@@@@@@@#-:..=**=..
+               -#=  -#@@%@@@@@@@@@@@%@#-
+               .:    :*@@@@@@@@@@@@@@@=
+                      -@@#**%@@#++*@@@-
+                     .=@@-   ##:   #@@=
+                      =@@%%%%%%%%%%@@@=
+                      -@@@@@@@@@@@@@@@+
+                      :#@@@@@@@@@@@@%#=.
+                       .+*%@@@@@@@#-.
+                          .::=#*:..
+
+\nCongratulations, you have successfully completed all pyling exercises!
+\nThank you for learning Python with Pylings
+\nIf you'd like to contribute or add more exercises, vist the repository\n:
+  - {REPOSITORY}"
+{RESET_COLOR}
+"""

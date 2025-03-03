@@ -5,7 +5,7 @@ from pylings.config import ConfigManager
 from pylings.constants import (
      BACKUP_DIR, DONE_MESSAGE, EXERCISE_DONE, EXERCISE_ERROR, 
      EXERCISE_OUTPUT,EXERCISES_DIR, GIT_MESSAGE, GIT_ADD, GIT_COMMIT,
-     HYPERLINK, SOLUTIONS_DIR,SOLUTION_LINK
+     FINISHED, HYPERLINK, SOLUTIONS_DIR, SOLUTION_LINK
 )
 
 class ExerciseManager:
@@ -16,6 +16,7 @@ class ExerciseManager:
         self.exercises = {}  # Dictionary to store exercise state
         self.current_exercise = None
         self.completed_count = 0
+        self.completed_flag = False
         self.config_manager = ConfigManager()
         self.first_time = self.config_manager.check_first_time()
         self.watcher = None  # Reference to watcher for restarting
@@ -95,9 +96,16 @@ class ExerciseManager:
             self.exercises[self.current_exercise.name]["output"] = result.stdout if result.returncode == 0 else ""
             self.exercises[self.current_exercise.name]["error"] = result.stderr if result.returncode != 0 else None
 
-            # Update completed count if status changes from PENDING to DONE
+            # Update completed count if status changes
             if prev_status != "DONE" and new_status == "DONE":
                 self.completed_count += 1
+            elif prev_status == "DONE" and new_status != "DONE":
+                self.completed_count -= 1
+
+            # If all exercises are completed and finish() hasn't been called yet
+            if self.completed_count == len(self.exercises) and not self.completed_flag:
+                self.finish()
+                self.completed_flag = True  # Ensure finish() is only called once
 
     def check_all_exercises(self, exercises):
         """Updates all exercises without changing the currently selected exercise."""
@@ -121,8 +129,6 @@ class ExerciseManager:
 
         # Restore the originally selected exercise
         self.current_exercise = current_exercise_path
-
-        
 
     def get_next_pending_exercise(self):
         """Finds the next exercise that is still PENDING."""
@@ -160,6 +166,7 @@ class ExerciseManager:
 
                 # Decrement completed count if a completed exercise is reset
                 if prev_status == "DONE":
+                    self.completed_flag = False
                     self.completed_count -= 1
             else:
                 print(f"No backup found for {self.current_exercise}.")
@@ -212,3 +219,6 @@ class ExerciseManager:
     def toggle_hint(self):
         """Toggles the hint display flag."""
         self.show_hint = not self.show_hint
+
+    def finish(self):
+        print(f"{FINISHED}")
