@@ -9,52 +9,7 @@ from pylings.constants import PYPROJECT_FILE, REPOSITORY
 class PylingsUtils:
     """Utility class for virtual environment management and argument handling."""
 
-    LOCK_FILE = path.join(prefix, ".pylings.lock")  # Lock file in virtual environment directory
-
-    @staticmethod
-    def get_pylings_info():
-        """Reads the Pylings version and license from pyproject.toml."""
-        pyproject_path = PYPROJECT_FILE
-
-        if pyproject_path.exists():
-            try:
-                pyproject_data = toml.load(pyproject_path)
-                version = pyproject_data["project"].get("version", "Unknown Version")
-                license_text = pyproject_data["project"].get("license", {}).get("text", "Unknown License")
-                return version, license_text
-            except Exception as e:
-                print(f"Error reading version info: {e}")
-                return "Unknown Version", "Unknown License"
-        return "Unknown Version", "Unknown License"
-
-    @staticmethod
-    def is_in_virtual_env():
-        """Check if the script is running inside a virtual environment."""
-        return getenv("VIRTUAL_ENV") is not None
-
-    @staticmethod
-    def print_venv_instruction():
-        """Print instructions on how to activate the virtual environment."""
-        print("\nTo use pylings you must be run inside a virtual environment!")
-        if name == "nt":  # Windows
-            print("➡ To activate the venv, run:")
-            print("   source venv\\Scripts\\activate")
-        else:  # macOS/Linux
-            print("➡ To activate the venv, run:")
-            print("   source venv/bin/activate")
-        exit(1)  # Exit since we are not in a venv
-
-    @staticmethod
-    def print_exit_message():
-        print("\nThanks for using Pylings!")
-        print("➡ Remember to run `deactivate` to exit the virtual environment")
-        if name == "nt":  # Windows
-            print("➡ When you come back, run:")
-            print("  ➡ source venv/Scripts/activate")
-        else:  # macOS/Linux
-            print("➡ When you come back, run:")
-            print("  ➡ source venv/bin/activate")
-        exit(1)
+    LOCK_FILE = path.join(prefix, ".pylings.lock")
 
     @staticmethod
     def parse_args():
@@ -81,42 +36,6 @@ class PylingsUtils:
         return parser.parse_args()
 
 
-    
-    @staticmethod
-    def get_lock_file_path():
-        """Returns the path for the lock file in the virtual environment."""
-        return path.join(prefix, ".pylings.lock")
-
-    @staticmethod
-    def ensure_single_instance():
-        """Ensure only one instance of Pylings runs in the current virtual environment."""
-        lock_file = PylingsUtils.get_lock_file_path()
-
-        if path.exists(lock_file):
-            with open(lock_file, "r") as f:
-                pid = int(f.read().strip())
-                if pid_exists(pid):
-                    print(f"Another instance of Pylings is already running (PID {pid}). Exiting.")
-                    exit(1)
-                else:
-                    PylingsUtils.overwrite_lock_file(lock_file)
-
-        else:
-            # Lock file doesn't exist, create it
-            PylingsUtils.create_lock_file(lock_file)
-
-    @staticmethod
-    def create_lock_file(lock_file):
-        """Create a lock file with the current PID."""
-        with open(lock_file, "w") as f:
-            f.write(str(getpid()))
-
-    @staticmethod
-    def overwrite_lock_file(lock_file):
-        """Overwrite the stale lock file with the current PID."""
-        with open(lock_file, "w") as f:
-            f.write(str(getpid()))
-
     @staticmethod
     def handle_args(args, exercise_manager, watcher):
         """Handle command-line arguments for running and testing exercises."""
@@ -128,7 +47,7 @@ class PylingsUtils:
             PylingsUtils.print_exit_message()
             exit(0)
 
-         # Handle `--version` before checking commands
+          
         if args.version:
             version, license_text = PylingsUtils.get_pylings_info()
             print(f"\nPylings Version: {version}")
@@ -136,9 +55,9 @@ class PylingsUtils:
             print(f"Repo: {REPOSITORY}")
             exit(0)
 
-        # Ensure a command was provided
+         
         if not args.command:
-            return False  # No command was provided, continue interactive mode
+            return False   
 
         if args.command == "dry-run":
             exercise_path = Path(args.file)
@@ -168,9 +87,90 @@ class PylingsUtils:
                 exercise_manager.current_exercise = exercise_path
                 exercise_manager.update_exercise_output()
                 exercise_manager.print_exercise_output()
-                return False  # Continue running the program
+                return False   
             else:
                 print(f"Invalid exercise path: {args.file}")
                 shutdown()
 
-        return False  # No valid argument provided
+        return False   
+
+    @staticmethod
+    def get_pylings_info():
+        """Reads the Pylings version and license from pyproject.toml."""
+        pyproject_path = PYPROJECT_FILE
+
+        if pyproject_path.exists():
+            try:
+                pyproject_data = toml.load(pyproject_path)
+                version = pyproject_data["project"].get("version", "Unknown Version")
+                license_text = pyproject_data["project"].get("license", {}).get("text", "Unknown License")
+                return version, license_text
+            except Exception as e:
+                print(f"Error reading version info: {e}")
+                return "Unknown Version", "Unknown License"
+        return "Unknown Version", "Unknown License"
+
+    @staticmethod
+    def is_in_virtual_env():
+        """Check if the script is running inside a virtual environment."""
+        return getenv("VIRTUAL_ENV") is not None
+
+    @staticmethod
+    def create_lock_file(lock_file):
+        """Create a lock file with the current PID."""
+        with open(lock_file, "w") as f:
+            f.write(str(getpid()))
+
+    @staticmethod
+    def get_lock_file_path():
+        """Returns the path for the lock file in the virtual environment."""
+        return path.join(prefix, ".pylings.lock")
+
+
+    @staticmethod
+    def overwrite_lock_file(lock_file):
+        """Overwrite the stale lock file with the current PID."""
+        with open(lock_file, "w") as f:
+            f.write(str(getpid()))
+
+    @staticmethod
+    def ensure_single_instance():
+        """Ensure only one instance of Pylings runs in the current virtual environment."""
+        lock_file = PylingsUtils.get_lock_file_path()
+
+        if path.exists(lock_file):
+            with open(lock_file, "r") as f:
+                pid = int(f.read().strip())
+                if pid_exists(pid):
+                    print(f"Another instance of Pylings is already running (PID {pid}). Exiting.")
+                    exit(1)
+                else:
+                    PylingsUtils.overwrite_lock_file(lock_file)
+
+        else:
+             
+            PylingsUtils.create_lock_file(lock_file)
+
+    @staticmethod
+    def print_venv_instruction():
+        """Print instructions on how to activate the virtual environment."""
+        print("\nTo use pylings you must be run inside a virtual environment!")
+        if name == "nt":   
+            print("➡ To activate the venv, run:")
+            print("   source venv\\Scripts\\activate")
+        else:
+            print("➡ To activate the venv, run:")
+            print("   source venv/bin/activate")
+        exit(1)   
+
+    @staticmethod
+    def print_exit_message():
+        print("\nThanks for using Pylings!")
+        print("➡ Remember to run `deactivate` to exit the virtual environment")
+        if name == "nt":   
+            print("➡ When you come back, run:")
+            print("  ➡ source venv/Scripts/activate")
+        else:
+            print("➡ When you come back, run:")
+            print("  ➡ source venv/bin/activate")
+        exit(1)

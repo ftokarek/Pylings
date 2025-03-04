@@ -19,29 +19,29 @@ def shutdown(exercise_manager, watcher):
 
 def main():
     """Main function to run the Pylings application."""
-    # Check if we are inside a virtual environment
+     
     if not PylingsUtils.is_in_virtual_env():
         PylingsUtils.print_venv_instruction()
 
-    PylingsUtils.ensure_single_instance()  # Check for running instance
+    PylingsUtils.ensure_single_instance()   
 
     exercise_manager = ExerciseManager()
     ui_manager = UIManager(exercise_manager)
     key_input = KeyInput()
 
-    # Run watcher in a separate thread to avoid blocking main loop
+     
     watcher = Watcher(exercise_manager, ui_manager)
-    exercise_manager.watcher = watcher  # Pass watcher back to ExerciseManager
+    exercise_manager.watcher = watcher   
     watcher_thread = Thread(target=watcher.start, daemon=True)
 
     if exercise_manager.current_exercise:
         watcher_thread.start()
     
-    args = PylingsUtils.parse_args()  # Define args at the beginning of main()
+    args = PylingsUtils.parse_args()
     
-    # Handle arguments through utility method
+     
     if PylingsUtils.handle_args(args, exercise_manager, watcher):
-        return  #Exit if a test or run argument was successfully handled
+        return   
     
     try:
         while True:

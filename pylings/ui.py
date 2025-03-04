@@ -1,10 +1,10 @@
 from shutil import get_terminal_size
 from sys import stdout
 from pylings.constants import (
-    CLEAR_SCREEN, CHECK, CURRENT, DONE, GREEN, 
-    HINT, HYPERLINK, LIST, NAVIGATE, NEXT,
-    PENDING, QUIT, RED, RESET, RESET_COLOR,
-    SELECT, SELECTOR
+    CLEAR_SCREEN, CHECK, CURRENT, DONE, DONE_MESSAGE, EXERCISE_DONE, EXERCISE_OUTPUT,
+    EXERCISE_ERROR, GREEN, GIT_ADD, GIT_COMMIT, GIT_MESSAGE,
+    HINT, HYPERLINK, LIST, NAVIGATE, NEXT, PENDING,
+    QUIT, RED, RESET, RESET_COLOR, SELECT, SELECTOR, SOLUTION_LINK
 )
 from pylings.key_input import KeyInput
 
@@ -24,9 +24,9 @@ class UIManager:
         print(CLEAR_SCREEN, end="",flush=True)
         
         if self.exercise_manager.current_exercise:
-            self.exercise_manager.print_exercise_output()
+            self.print_exercise_output(self.exercise_manager)
 
-        if completed_count == total and completed_flag == True :  # If all exercises are done, show the finish message instead of output
+        if completed_count == total and completed_flag == True :
             self.exercise_manager.finish()
 
         self.progress_bar(completed_count, total, term_width)
@@ -36,7 +36,36 @@ class UIManager:
             print(f"\n{NEXT}/ {HINT} / {RESET} / {LIST} / {QUIT}")
         else:
             print(f"\n{HINT} / {RESET} / {LIST} / {QUIT}")
-        
+
+    def print_exercise_output(self,exercise_manager):
+        """Displays the output of the current exercise."""
+        if self.exercise_manager.current_exercise:
+            ex_data = self.exercise_manager.exercises[self.exercise_manager.current_exercise.name]
+            if ex_data["status"] == "DONE":
+                print(f"\n{EXERCISE_OUTPUT(ex_data['output'])}")
+                print(f"\n\n{EXERCISE_DONE}")
+                print(
+                    f"{SOLUTION_LINK(self.exercise_manager.get_solution())}"
+                )
+                print(
+                    f"{DONE_MESSAGE}"
+                )
+                print(
+                    f"{GIT_MESSAGE}"
+                )
+                print(
+                    f"\n\t{GIT_ADD(self.exercise_manager.current_exercise)}"
+                )
+                print(
+                    f'\n\t{GIT_COMMIT(self.exercise_manager.current_exercise.name)}\n'
+                )
+            else:
+                print(f"{EXERCISE_ERROR(ex_data['error'])}")
+                if self.exercise_manager.show_hint:
+                    print(f"\n{ex_data['hint']}\n")
+        else:
+            print("No current exercise.")
+
     def progress_bar(self, progress, total, term_width):
         """Displays a progress bar."""
         PREFIX = "Progress: ["
@@ -53,7 +82,6 @@ class UIManager:
         selector = f"{SELECTOR}" if selected else " "
         path_str = f"{HYPERLINK(exercise)}"
 
-        # Use precomputed padding length from ExerciseManager
         padding_length = self.exercise_manager.padding - len(str(exercise)) + 2
         padding = " " * padding_length
         padding_name = " " * (self.exercise_manager.padding_name - len(exercise.name) + 2)
@@ -94,11 +122,8 @@ class UIManager:
                 elif key in ("s", b's'):
                     self.exercise_manager.current_exercise = exercises[current_row]["path"]
                     self.exercise_manager.show_hint = False
-
-                    # Run the selected exercise immediately
                     self.exercise_manager.update_exercise_output()
 
-                    # Restart the watcher for the new selection
                     if self.exercise_manager.watcher:
                         print("Restarting watcher for the newly selected exercise...")
                         self.exercise_manager.watcher.restart(str(self.exercise_manager.current_exercise.parent))

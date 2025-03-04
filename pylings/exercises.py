@@ -3,9 +3,8 @@ import subprocess
 from sys import exit
 from pylings.config import ConfigManager
 from pylings.constants import (
-     BACKUP_DIR, DONE_MESSAGE, EXERCISE_DONE, EXERCISE_ERROR, 
-     EXERCISE_OUTPUT,EXERCISES_DIR, GIT_MESSAGE, GIT_ADD, GIT_COMMIT,
-     FINISHED, HYPERLINK, SOLUTIONS_DIR, SOLUTION_LINK
+     BACKUP_DIR, DONE_MESSAGE, EXERCISES_DIR,
+     FINISHED, HYPERLINK, SOLUTIONS_DIR
 )
 
 class ExerciseManager:
@@ -13,22 +12,21 @@ class ExerciseManager:
 
     def __init__(self):
         """Initializes the ExerciseManager and precomputes exercise states."""
-        self.exercises = {}  # Dictionary to store exercise state
+        self.exercises = {}
         self.current_exercise = None
         self.completed_count = 0
         self.completed_flag = False
         self.config_manager = ConfigManager()
         self.first_time = self.config_manager.check_first_time()
-        self.watcher = None  # Reference to watcher for restarting
-        self.show_hint = False  # Flag to control hint display
+        self.watcher = None  
+        self.show_hint = False  
         self.initialize_exercises()
         self.padding = len(str(max(EXERCISES_DIR.rglob("*.py"), key=lambda x: len(str(x)))))
-        self.padding_name = len(max(EXERCISES_DIR.rglob("*.py"), key=lambda x: len(x.name)).name)  # Set padding by fetching longest filename
+        self.padding_name = len(max(EXERCISES_DIR.rglob("*.py"), key=lambda x: len(x.name)).name)
         
     def initialize_exercises(self):
         """Runs all exercises at launch and stores their state."""
         exercises = sorted(EXERCISES_DIR.rglob("*.py"))
-         # Set padding by directly fetching the longest path
 
         for ex in exercises:
             result = self.run_exercise(ex)
@@ -39,25 +37,17 @@ class ExerciseManager:
                 "status": status,
                 "output": result.stdout if result.returncode == 0 else "",
                 "error": result.stderr if result.returncode != 0 else None,
-                "hint": self.config_manager.get_hint(ex)  # Fetch hint from config
+                "hint": self.config_manager.get_hint(ex)
             }
 
             if status == "DONE":
                 self.completed_count += 1
 
-        # Ensure first exercise is intro1.py if first time, else pick first pending exercise
         intro_exercise = EXERCISES_DIR / "00_intro" / "intro1.py"
         if self.first_time and intro_exercise.exists():
             self.current_exercise = intro_exercise
         else:
             self.current_exercise = self.get_next_pending_exercise()
-
-    def shutdown_due_to_timeout(self):
-            """Shuts down the application gracefully after timeout."""
-            print("\nApplication timed out due to inactivity. Exiting...")
-            if self.watcher:
-                self.watcher.stop()
-            exit(0)
 
     def run_exercise(self, exercise):
         """Runs an exercise file and captures its output and errors with a timeout."""
@@ -69,12 +59,12 @@ class ExerciseManager:
                 text=True
             )
             try:
-                stdout, stderr = process.communicate(timeout=10)  # 10-second timeout
+                stdout, stderr = process.communicate(timeout=10)
                 return subprocess.CompletedProcess(
                     args=[exercise], returncode=process.returncode, stdout=stdout, stderr=stderr
                 )
             except subprocess.TimeoutExpired:
-                process.kill()  # Forcefully terminate the process
+                process.kill()
                 stdout, stderr = process.communicate()
                 return subprocess.CompletedProcess(
                     args=[exercise], returncode=1, stdout=stdout, stderr="Exercise timed out due to possible infinite loop."
@@ -96,46 +86,21 @@ class ExerciseManager:
             self.exercises[self.current_exercise.name]["output"] = result.stdout if result.returncode == 0 else ""
             self.exercises[self.current_exercise.name]["error"] = result.stderr if result.returncode != 0 else None
 
-            # Update completed count if status changes
             if prev_status != "DONE" and new_status == "DONE":
                 self.completed_count += 1
             elif prev_status == "DONE" and new_status != "DONE":
                 self.completed_count -= 1
 
-            # If all exercises are completed and finish() hasn't been called yet
             if self.completed_count == len(self.exercises) and not self.completed_flag:
                 self.finish()
-                self.completed_flag = True  # Ensure finish() is only called once
-
-    def check_all_exercises(self, exercises):
-        """Updates all exercises without changing the currently selected exercise."""
-        current_exercise_path = self.current_exercise  # Preserve current selection
-
-        for ex in exercises:
-            result = self.run_exercise(ex["path"])  # Run the exercise
-            prev_status = ex["status"]
-            new_status = "DONE" if result.returncode == 0 else "PENDING"
-
-            # Update exercise details
-            ex["status"] = new_status
-            ex["output"] = result.stdout if result.returncode == 0 else ""
-            ex["error"] = result.stderr if result.returncode != 0 else None
-
-            # Update completed count
-            if prev_status != "DONE" and new_status == "DONE":
-                self.completed_count += 1
-            elif prev_status == "DONE" and new_status != "DONE":
-                self.completed_count -= 1
-
-        # Restore the originally selected exercise
-        self.current_exercise = current_exercise_path
+                self.completed_flag = True
 
     def get_next_pending_exercise(self):
         """Finds the next exercise that is still PENDING."""
         for ex_data in self.exercises.values():
             if ex_data["status"] == "PENDING":
                 return ex_data["path"]
-        return None  # No pending exercises left
+        return None
 
     def next_exercise(self):
         """Advances to the next exercise in the list and restarts the watcher."""
@@ -143,11 +108,10 @@ class ExerciseManager:
         current_index = next((i for i, ex in enumerate(exercises) if ex["path"] == self.current_exercise), None)
 
         if current_index is not None and current_index + 1 < len(exercises):
-            # Move to the next exercise in the list
+
             self.current_exercise = exercises[current_index + 1]["path"]
             self.show_hint = False
 
-            # Run the exercise and restart watcher
             self.update_exercise_output()
             if self.watcher:
                 self.watcher.restart(str(self.current_exercise.parent))
@@ -164,7 +128,6 @@ class ExerciseManager:
                 prev_status = self.exercises[self.current_exercise.name]["status"]
                 self.update_exercise_output()
 
-                # Decrement completed count if a completed exercise is reset
                 if prev_status == "DONE":
                     self.completed_flag = False
                     self.completed_count -= 1
@@ -172,35 +135,27 @@ class ExerciseManager:
                 print(f"No backup found for {self.current_exercise}.")
         else:
             print("No current exercise to reset.")
+    
+    def check_all_exercises(self, exercises):
+        """Updates all exercises without changing the currently selected exercise."""
+        current_exercise_path = self.current_exercise
 
-    def print_exercise_output(self):
-        """Displays the output of the current exercise."""
-        if self.current_exercise:
-            ex_data = self.exercises[self.current_exercise.name]
-            if ex_data["status"] == "DONE":
-                print(f"\n{EXERCISE_OUTPUT(ex_data['output'])}")
-                print(f"\n\n{EXERCISE_DONE}")
-                print(
-                    f"{SOLUTION_LINK(self.get_solution())}"
-                )
-                print(
-                    f"{DONE_MESSAGE}"
-                )
-                print(
-                    f"{GIT_MESSAGE}"
-                )
-                print(
-                    f"\n\t{GIT_ADD(self.current_exercise)}"
-                )
-                print(
-                    f'\n\t{GIT_COMMIT(self.current_exercise.name)}\n'
-                )
-            else:
-                print(f"{EXERCISE_ERROR(ex_data['error'])}")
-                if self.show_hint:
-                    print(f"\n{ex_data['hint']}\n")
-        else:
-            print("No current exercise.")
+        for ex in exercises:
+            result = self.run_exercise(ex["path"])
+            prev_status = ex["status"]
+            new_status = "DONE" if result.returncode == 0 else "PENDING"
+
+            ex["status"] = new_status
+            ex["output"] = result.stdout if result.returncode == 0 else ""
+            ex["error"] = result.stderr if result.returncode != 0 else None
+
+            if prev_status != "DONE" and new_status == "DONE":
+                self.completed_count += 1
+            elif prev_status == "DONE" and new_status != "DONE":
+                self.completed_count -= 1
+
+        self.current_exercise = current_exercise_path
+
 
     def get_solution(self):
         """Return the solution file path for the given current exercise."""

@@ -37,24 +37,23 @@ class ConfigManager:
 
     def check_first_time(self):
         """Checks and handles the first-time setup, then updates the firsttime flag."""
-        args = PylingsUtils.parse_args()  # Parse arguments first
-        num_args = len(argv) - 1  # Check if any command-line arguments exist
+        args = PylingsUtils.parse_args()
+        num_args = len(argv) - 1   
 
-        # Ensure args.command exists before checking for run
         if num_args == 0 or (args.command == "run" and hasattr(args, "file")):
             try:
                 with open(FIRSTTIME_FILE, "r+", encoding="utf-8") as f:
                     lines = f.readlines()
-                    f.seek(0)  # Go back to the start of the file for writing
+                    f.seek(0)   
                     for line in lines:
                         if "firsttime=true" in line:
-                            # Display the welcome message if firsttime is true
+                             
                             welcome_message = self.config["settings"]["welcome_message"]
                             print(CLEAR_SCREEN, end="", flush=True)
-                            print("Welcome message:", welcome_message)  # Debug print
-                            input("\nPress Enter to continue...")  # Wait for user input
+                            print("Welcome message:", welcome_message)
+                            input("\nPress Enter to continue...")
 
-                            # Replace firsttime=true with firsttime=false
+                             
                             f.write(line.replace("firsttime=true", "firsttime=false"))
                             return True
                         else:

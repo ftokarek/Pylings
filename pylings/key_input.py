@@ -27,7 +27,7 @@ class KeyInput:
         if platform.startswith('win'):
             key = msvcrt.getch()
             if key in [b'\xe0', b'\x00']:
-                key = msvcrt.getch()  # Get the actual key code after the prefix
+                key = msvcrt.getch()
             else:
                 return key.decode('utf-8')
             return key
@@ -38,7 +38,7 @@ class KeyInput:
                 tty.setraw(fd)
                 key = stdin.read(1)
                 if key == '\x1b':
-                    key += stdin.read(2)  # Read full escape sequence for arrow keys
+                    key += stdin.read(2)
             finally:
                 termios.tcsetattr(fd, termios.TCSADRAIN, old_settings)
             return key.encode() if isinstance(key, str) else key
