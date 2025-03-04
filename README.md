@@ -75,18 +75,18 @@ The default terminal on Linux and Mac should be sufficient too, you can even use
 The exercises are sorted by topic and can be found in the subdirectory `exercises/<topic>`.
 For every topic, there is an additional `README.md` file with some resources to get you started on the topic.
 
-We highly recommend that you have a look at them before you start 📚️
+We highly recommend that you have a look at them before you start.
 
 Most exercises contain an error that keeps them from compiling, and it's up to you to fix it!
 
 ![](./images/exercise_pending.png)
 
-Some exercises contain tests that need to pass for the exercise to be done ✅
+Some exercises contain tests that need to pass for the exercise to be done
 
 ![](./images/exercise_finished.png)
 
 Search for `TODO` to find out what you need to change.
-Ask for hints by entering `h` 💡
+Ask for hints by entering `h`
 
 
 ### Running Pylings
