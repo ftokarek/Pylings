@@ -1,7 +1,7 @@
 from shutil import get_terminal_size
 from sys import stdout
 from pylings.constants import (
-    CLEAR_SCREEN, CHECK, CURRENT, DONE, DONE_MESSAGE, EXERCISE_DONE, EXERCISE_OUTPUT,
+    CLEAR_SCREEN, CHECK, CURRENT, DISABLE_WRAP, DONE, DONE_MESSAGE, EXERCISE_DONE, EXERCISE_OUTPUT,
     EXERCISE_ERROR, GREEN, GIT_ADD, GIT_COMMIT, GIT_MESSAGE,
     HINT, HYPERLINK, LIST, NAVIGATE, NEXT, PENDING,
     QUIT, RED, RESET, RESET_COLOR, SELECT, SELECTOR, SOLUTION_LINK
@@ -33,45 +33,46 @@ class UIManager:
         
         print(f"\nCurrent exercise: {HYPERLINK(self.exercise_manager.current_exercise)}\n")
         if self.exercise_manager.current_exercise and self.exercise_manager.exercises[self.exercise_manager.current_exercise.name]["status"] == "DONE":
-            print(f"\n{NEXT}/ {HINT} / {RESET} / {LIST} / {QUIT}")
+            print(f"\n{DISABLE_WRAP}{NEXT}/ {HINT} / {RESET} / {LIST} / {QUIT}")
         else:
-            print(f"\n{HINT} / {RESET} / {LIST} / {QUIT}")
+            print(f"\n{DISABLE_WRAP}{HINT} / {RESET} / {LIST} / {QUIT}")
 
     def print_exercise_output(self,exercise_manager):
         """Displays the output of the current exercise."""
         if self.exercise_manager.current_exercise:
             ex_data = self.exercise_manager.exercises[self.exercise_manager.current_exercise.name]
             if ex_data["status"] == "DONE":
-                print(f"\n{EXERCISE_OUTPUT(ex_data['output'])}")
-                print(f"\n\n{EXERCISE_DONE}")
+                print(f"\n{DISABLE_WRAP}{EXERCISE_OUTPUT(ex_data['output'])}")
+                print(f"\n\n{DISABLE_WRAP}{EXERCISE_DONE}")
                 print(
-                    f"{SOLUTION_LINK(self.exercise_manager.get_solution())}"
+                    f"{DISABLE_WRAP}{SOLUTION_LINK(self.exercise_manager.get_solution())}"
                 )
                 print(
-                    f"{DONE_MESSAGE}"
+                    f"{DISABLE_WRAP}{DONE_MESSAGE}"
                 )
                 print(
-                    f"{GIT_MESSAGE}"
+                    f"{DISABLE_WRAP}{GIT_MESSAGE}"
                 )
                 print(
-                    f"\n\t{GIT_ADD(self.exercise_manager.current_exercise)}"
+                    f"\n\t{DISABLE_WRAP}{GIT_ADD(self.exercise_manager.current_exercise)}"
                 )
                 print(
-                    f'\n\t{GIT_COMMIT(self.exercise_manager.current_exercise.name)}\n'
+                    f'\n\t{DISABLE_WRAP}{GIT_COMMIT(self.exercise_manager.current_exercise.name)}\n'
                 )
             else:
-                print(f"{EXERCISE_ERROR(ex_data['error'])}")
+                print(f"{DISABLE_WRAP}{EXERCISE_ERROR(ex_data['error'])}")
                 if self.exercise_manager.show_hint:
-                    print(f"\n{ex_data['hint']}\n")
+                    print(f"\n{DISABLE_WRAP}{ex_data['hint']}\n")
         else:
             print("No current exercise.")
 
     def progress_bar(self, progress, total, term_width):
         """Displays a progress bar."""
-        PREFIX = "Progress: ["
+        PREFIX = f"Progress: ["
         POSTFIX = f"]   {progress}/{total}  "
         width = term_width - len(PREFIX) - len(POSTFIX)
         filled = (width * progress) // total
+        stdout.write(DISABLE_WRAP)
         stdout.write(PREFIX + GREEN + "#" * filled + RED + "-" * (width - filled) + RESET_COLOR + POSTFIX + "\n")
 
     def format_status(self, exercise, selected=False):
@@ -85,7 +86,7 @@ class UIManager:
         padding_length = self.exercise_manager.padding - len(str(exercise)) + 2
         padding = " " * padding_length
         padding_name = " " * (self.exercise_manager.padding_name - len(exercise.name) + 2)
-        return f" {selector} {current}   {status}    {name}{padding_name}     {path_str}{padding}{selector}"
+        return f"{DISABLE_WRAP} {selector} {current}   {status}    {name}{padding_name}     {path_str}{padding}{selector}"
 
     def show_all_exercises(self):
         """Displays an interactive list of all exercises and their completion status."""
@@ -101,10 +102,10 @@ class UIManager:
                 print(CLEAR_SCREEN, end="", flush=True)
                 print("   Current   State      Name\t\t\t  Path")
                 for idx, ex in enumerate(exercises):
-                    print(self.format_status(ex["path"],selected=(idx == current_row)))
+                    print(f"{self.format_status(ex["path"],selected=(idx == current_row))}")
 
                 self.progress_bar(completed, total, term_width)
-                print(f"\n{NAVIGATE} / {SELECT} / {RESET} / {CHECK} / {QUIT}")
+                print(f"\n{DISABLE_WRAP}{NAVIGATE} / {SELECT} / {RESET} / {CHECK} / {QUIT}")
 
                 key = key_input.get_key()
 
