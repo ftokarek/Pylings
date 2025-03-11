@@ -8,8 +8,6 @@ In Python, a set is an unordered collection of unique items:
 - Sets are unordered, meaning there is no indexing or ordering of elements.
 - Sets support various operations like union, intersection, difference, and more.
 
-  FIXME
-
 """
 
 # TODO: Initialize a list of items with some duplicates
