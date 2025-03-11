@@ -47,24 +47,22 @@ class PylingsUtils:
             PylingsUtils.print_exit_message()
             exit(0)
 
-          
         if args.version:
             version, license_text = PylingsUtils.get_pylings_info()
             print(f"\nPylings Version: {version}")
             print(f"Licence: {license_text}")
             print(f"Repo: {REPOSITORY}")
             exit(0)
-
-         
+      
         if not args.command:
             return False   
 
         if args.command == "dry-run":
             exercise_path = Path(args.file)
             if exercise_path.exists() and exercise_path.is_file():
-                exercise_manager.current_exercise = exercise_path
-                exercise_manager.update_exercise_output()
-                exercise_manager.print_exercise_output()
+                result = exercise_manager.run_exercise(exercise_path)
+                output = result.stdout if result.returncode == 0 else result.stderr
+                print(output)
                 shutdown()
             else:
                 print(f"Invalid exercise path: {args.file}")
@@ -86,7 +84,6 @@ class PylingsUtils:
             if exercise_path.exists() and exercise_path.is_file():
                 exercise_manager.current_exercise = exercise_path
                 exercise_manager.update_exercise_output()
-                exercise_manager.print_exercise_output()
                 return False   
             else:
                 print(f"Invalid exercise path: {args.file}")

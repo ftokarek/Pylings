@@ -48,6 +48,20 @@ hint = """
 - Are you doing the calculations correctly?
 """
 
+[exercise_variables3]
+name = "variables3"
+dir = "01_variables"
+hint = """
+
+"""
+
+[exercise_variables4]
+name = "variables4"
+dir = "01_variables"
+hint = """
+
+"""
+
 [exercise_data_structures1]
 name = "data_structures1"
 dir = "02_data_structures"
