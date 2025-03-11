@@ -11,8 +11,6 @@ In Python, a dictionary is an unordered collection of key-value pairs:
 
 - Dictionaries allow fast access to values when you know the key.
 
-  FIXME
-
 """
 
 # TODO: Initialize a dictionary with programming book titles as keys and a dictionary of details (author, year, price) as values:
