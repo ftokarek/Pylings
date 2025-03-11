@@ -8,6 +8,27 @@ set -e
 # Detect OS
 OS=$(uname)
 
+# Path to venv/<bin/Scripts>/activate
+ACTIVATE_SCRIPT=""
+
+# Path to virutal python
+VENV_PYTHON=""
+
+MOTD_MESSAGE=$(cat << 'EOF'
+\033[1;32m
+
+Welcome to Pylings!
+
+Learn Python interactively to solve exercises.
+
+These exercises usually contain some compiler or logic errors which cause the exercise to fail compilation or testing.
+
+Find all errors and fix them!.
+
+Type pylings to get started! \033[0m
+EOF
+)
+
 # Detect Python Interpreter (after OS detection)
 detect_python() {
     if [[ "$OS" =~ CYGWIN*|MINGW*|MSYS* ]] && command -v py &>/dev/null; then
@@ -45,38 +66,19 @@ setup_venv() {
     $PYTHON -m venv venv
 }
 
-# Get the correct Python inside venv
-venv_python() {
-    if [[ "$OS" =~ CYGWIN*|MINGW*|MSYS* ]]; then
-        echo "venv/Scripts/python"
-    else
-        echo "venv/bin/python"
-    fi
-}
-
-# Install Python dependencies inside the venv
-install_dependencies() {
-    VENV_PYTHON=$(venv_python)
-    if [ -f "requirements.txt" ]; then
-        echo "Installing Python dependencies in virtual environment..."
-        $VENV_PYTHON -m pip install -r requirements.txt
-    else
-        echo "No requirements.txt found. Skipping Python dependencies installation."
-    fi
-}
-
 # Add alias to the venv activation script
 set_venv_vars() {
-    VENV_PYTHON=$(venv_python)
-    PYTHON_ENV_VAR="export PYTHON="${VENV_PYTHON}""
-    ALIAS_CMD="alias pylings=\"$VENV_PYTHON pylings.py\""
-    MOTD_MESSAGE='echo -e "\n\033[1;32mWelcome to Pylings!\n\nLearn Python interactively to solve exercises.\n\nThese exercises usually contain some compiler or logic errors which cause the exercise to fail compilation or testing.\n\nFind all errors and fix them!.\n\nType pylings to get started! \033[0m\n"'
 
     if [[ "$OS" =~ CYGWIN*|MINGW*|MSYS* ]]; then
         ACTIVATE_SCRIPT="venv/Scripts/activate"
+        VENV_PYTHON="venv/Scripts/python"
     else
         ACTIVATE_SCRIPT="venv/bin/activate"
+        VENV_PYTHON="venv/bin/python"
     fi
+
+    PYTHON_ENV_VAR="export PYTHON="${VENV_PYTHON}""
+    ALIAS_CMD="alias pylings=\"$VENV_PYTHON pylings.py\""
 
     echo "$ALIAS_CMD" >> "$ACTIVATE_SCRIPT"
 
@@ -89,20 +91,29 @@ set_venv_vars() {
     echo -e "firsttime=true" > "venv/.firsttime"
 }
 
+# Install Python dependencies inside the venv
+install_dependencies() {
+    if [ -f "requirements.txt" ]; then
+        echo "Installing Python dependencies in virtual environment..."
+        $VENV_PYTHON -m pip install -r requirements.txt
+    else
+        echo "No requirements.txt found. Skipping Python dependencies installation."
+    fi
+}
+
 # Print completion message
 print_completion() {
+    echo
     echo "✅ Pylings setup complete!"
-    echo "Your virtual environment has been activated automatically."
     echo
     echo "📌 To manually enter the virtual environment again later, use:"
-    echo -e "\t source venv/bin/activate  # (Linux/macOS)"
-    echo -e "\t source venv/Scripts/activate   # (Windows)"
+    echo -e "\n\t source ${ACTIVATE_SCRIPT}"
     echo
     echo "📌 To exit the virtual environment, type:"
-    echo -e "\t deactivate"
+    echo -e "\n\t deactivate"
     echo
     echo "You can now run Pylings using:"
-    echo -e "\t pylings  # Alias for $(venv_python) pylings.py"
+    echo -e "\n\t pylings  # Alias for ${VENV_PYTHON} pylings.py"
 }
 
 # Main execution
@@ -118,7 +129,7 @@ if [[ -z "$PYTHON" ]]; then
 fi
 
 setup_venv
-install_dependencies
 set_venv_vars
+install_dependencies
 
 print_completion
