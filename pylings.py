@@ -28,7 +28,6 @@ def main():
     exercise_manager = ExerciseManager()
     ui_manager = UIManager(exercise_manager)
     key_input = KeyInput()
-
      
     watcher = Watcher(exercise_manager, ui_manager)
     exercise_manager.watcher = watcher   
@@ -36,10 +35,9 @@ def main():
 
     if exercise_manager.current_exercise:
         watcher_thread.start()
-    
+
     args = PylingsUtils.parse_args()
     
-     
     if PylingsUtils.handle_args(args, exercise_manager, watcher):
         return   
     

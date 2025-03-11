@@ -40,29 +40,7 @@ class UIManager:
     def print_exercise_output(self,exercise_manager):
         """Displays the output of the current exercise."""
         if self.exercise_manager.current_exercise:
-            ex_data = self.exercise_manager.exercises[self.exercise_manager.current_exercise.name]
-            if ex_data["status"] == "DONE":
-                print(f"\n{DISABLE_WRAP}{EXERCISE_OUTPUT(ex_data['output'])}")
-                print(f"\n\n{DISABLE_WRAP}{EXERCISE_DONE}")
-                print(
-                    f"{DISABLE_WRAP}{SOLUTION_LINK(self.exercise_manager.get_solution())}"
-                )
-                print(
-                    f"{DISABLE_WRAP}{DONE_MESSAGE}"
-                )
-                print(
-                    f"{DISABLE_WRAP}{GIT_MESSAGE}"
-                )
-                print(
-                    f"\n\t{DISABLE_WRAP}{GIT_ADD(self.exercise_manager.current_exercise)}"
-                )
-                print(
-                    f'\n\t{DISABLE_WRAP}{GIT_COMMIT(self.exercise_manager.current_exercise.name)}\n'
-                )
-            else:
-                print(f"{DISABLE_WRAP}{EXERCISE_ERROR(ex_data['error'])}")
-                if self.exercise_manager.show_hint:
-                    print(f"\n{DISABLE_WRAP}{ex_data['hint']}\n")
+            self.format_output(exercise_manager)
         else:
             print("No current exercise.")
 
@@ -87,6 +65,24 @@ class UIManager:
         padding = " " * padding_length
         padding_name = " " * (self.exercise_manager.padding_name - len(exercise.name) + 2)
         return f"{DISABLE_WRAP} {selector} {current}   {status}    {name}{padding_name}     {path_str}{padding}{selector}"
+
+    def format_output(self,exercise_manager):
+        ex_data = self.exercise_manager.exercises[self.exercise_manager.current_exercise.name]
+        if ex_data["status"] == "DONE":
+            lines = [f"\n{DISABLE_WRAP}{EXERCISE_OUTPUT(ex_data['output'])}",
+                    f"\n\n{DISABLE_WRAP}{EXERCISE_DONE}",
+                    f"\n{DISABLE_WRAP}{SOLUTION_LINK(self.exercise_manager.get_solution())}",
+                    f"\n\n{DISABLE_WRAP}{DONE_MESSAGE}",
+                    f"\n{DISABLE_WRAP}{GIT_MESSAGE}",
+                    f"\n\n\t{DISABLE_WRAP}{GIT_ADD(self.exercise_manager.current_exercise)}",
+                    f"\n\t{DISABLE_WRAP}{GIT_COMMIT(self.exercise_manager.current_exercise)}\n",
+            ]
+            output = ''.join(lines)
+            print(f"{output}")
+        else:
+            print(f"{DISABLE_WRAP}{EXERCISE_ERROR(ex_data['error'])}")
+            if self.exercise_manager.show_hint:
+                print(f"\n{DISABLE_WRAP}{ex_data['hint']}\n")
 
     def show_all_exercises(self):
         """Displays an interactive list of all exercises and their completion status."""

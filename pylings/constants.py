@@ -30,7 +30,7 @@ SOLUTION_LINK = (
 UNDERLINE = "\033[4m"
 
 # MESSAGES
-DONE_MESSAGE = f"When you are done experimenting, remove 'FIXME' from current exercise and press `{LIGHT_BLUE}n{RESET_COLOR}` for the next exercise 🐍\n"
+DONE_MESSAGE = f"When you are done experimenting press `{LIGHT_BLUE}n{RESET_COLOR}` for the next exercise 🐍\n"
 EXERCISE_DONE = f"{GREEN}Exercise done ✔{RESET_COLOR}"
 EXERCISE_ERROR = (
     lambda error: f"{RED}{error}{RESET_COLOR}"
@@ -66,8 +66,7 @@ QUIT = f"{LIGHT_BLUE}q{RESET_COLOR}:quit ?"
 NAVIGATE =f"{LIGHT_BLUE}↑/↓/home/end{RESET_COLOR}:navigate"
 SELECT =f"{LIGHT_BLUE}s{RESET_COLOR}:select"
 
-
-# End
+# END
 FINISHED = f"""{GREEN}
 +---------------------------------------------------------+
 |            You made it to the Fi-Ni!-sh line!            |
