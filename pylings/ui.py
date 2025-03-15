@@ -1,5 +1,10 @@
 from shutil import get_terminal_size
-from sys import stdout
+from sys import stdout, platform
+import signal
+
+import threading
+import time
+
 from pylings.constants import (
     CLEAR_SCREEN, CHECK, CURRENT, DISABLE_WRAP, DONE, DONE_MESSAGE, EXERCISE_DONE, EXERCISE_OUTPUT,
     EXERCISE_ERROR, GREEN, GIT_ADD, GIT_COMMIT, GIT_MESSAGE,
@@ -13,12 +18,44 @@ class UIManager:
     def __init__(self, exercise_manager):
         """Initializes the UIManager with an exercise manager."""
         self.exercise_manager = exercise_manager
+        self.term_width = get_terminal_size().columns
+        self.term_height = get_terminal_size().lines
+        self.main_menu = True
+
+        if platform.startswith("win"):
+            self.start_resize_watcher()
+        else:
+            signal.signal(signal.SIGWINCH, self.handle_resize)
+
+    def handle_resize(self, signum=None, frame=None):
+        """Handles terminal resizing dynamically (Linux/macOS)."""
+        self.term_width = get_terminal_size().columns
+        self.term_height = get_terminal_size().lines
+        # TODO: This handles show_menu(), but what about when we are in show_all_exercises ?
+        if self.main_menu == True:
+            self.show_menu()
+        else:
+            self.show_all_exercises()
+
+    def start_resize_watcher(self):
+        """Starts a background thread to monitor terminal resizing (Windows)."""
+        def watch_resize():
+            last_size = get_terminal_size()
+            while True:
+                time.sleep(0.1)
+                new_size = get_terminal_size()
+                if new_size != last_size:
+                    last_size = new_size
+                    self.handle_resize()
+
+        threading.Thread(target=watch_resize, daemon=True).start()
 
     def show_menu(self):
         """Displays the main menu and exercise output."""
         total = len(self.exercise_manager.exercises)
         completed_count = self.exercise_manager.completed_count
         completed_flag = self.exercise_manager.completed_flag
+        self.main_menu = True
 
         term_width = get_terminal_size().columns
         print(CLEAR_SCREEN, end="",flush=True)
@@ -85,6 +122,7 @@ class UIManager:
                 print(f"\n{DISABLE_WRAP}{ex_data['hint']}\n")
 
     def show_all_exercises(self):
+        self.main_menu = False
         """Displays an interactive list of all exercises and their completion status."""
         exercises = list(self.exercise_manager.exercises.values())
         total = len(exercises)
