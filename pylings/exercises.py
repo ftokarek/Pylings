@@ -4,7 +4,7 @@ from sys import exit
 from pylings.config import ConfigManager
 from pylings.constants import (
      BACKUP_DIR, DONE_MESSAGE, EXERCISES_DIR,
-     FINISHED, HYPERLINK, SOLUTIONS_DIR
+     FINISHED, SOLUTIONS_DIR
 )
 
 class ExerciseManager:
@@ -83,8 +83,8 @@ class ExerciseManager:
 
             result = self.run_exercise(self.current_exercise)
             self.exercises[self.current_exercise.name]["status"] = "DONE" if result.returncode == 0 else "PENDING"
-            self.exercises[self.current_exercise.name]["output"] = result.stdout if result.returncode == 0 else ""
-            self.exercises[self.current_exercise.name]["error"] = result.stderr if result.returncode != 0 else None
+            self.exercises[self.current_exercise.name]["output"] = self.format_exercise_output(result.stdout) if result.returncode == 0 else ""
+            self.exercises[self.current_exercise.name]["error"] = self.format_exercise_output(result.stderr) if result.returncode != 0 else None
 
             if prev_status != "DONE" and new_status == "DONE":
                 self.completed_count += 1
@@ -94,6 +94,10 @@ class ExerciseManager:
             if self.completed_count == len(self.exercises) and not self.completed_flag:
                 self.finish()
                 self.completed_flag = True
+
+    def format_exercise_output(self,output):
+        safe_output = output.replace("[", "\\[") 
+        return safe_output
 
     def get_next_pending_exercise(self):
         """Finds the next exercise that is still PENDING."""
@@ -108,8 +112,8 @@ class ExerciseManager:
         current_index = next((i for i, ex in enumerate(exercises) if ex["path"] == self.current_exercise), None)
 
         if current_index is not None and current_index + 1 < len(exercises):
-
-            self.current_exercise = exercises[current_index + 1]["path"]
+            new_exercise = exercises[current_index + 1]["path"]
+            self.current_exercise = new_exercise
             self.show_hint = False
 
             self.update_exercise_output()
@@ -124,7 +128,6 @@ class ExerciseManager:
             backup_path = BACKUP_DIR / self.current_exercise.relative_to(EXERCISES_DIR)
             if backup_path.exists():
                 copy(backup_path, self.current_exercise)
-                result = self.run_exercise(self.current_exercise)
                 prev_status = self.exercises[self.current_exercise.name]["status"]
                 self.update_exercise_output()
 
@@ -146,8 +149,8 @@ class ExerciseManager:
             new_status = "DONE" if result.returncode == 0 else "PENDING"
 
             ex["status"] = new_status
-            ex["output"] = result.stdout if result.returncode == 0 else ""
-            ex["error"] = result.stderr if result.returncode != 0 else None
+            ex["output"] = self.format_exercise_output(result.stdout) if result.returncode == 0 else ""
+            ex["error"] = self.format_exercise_output(result.stderr) if result.returncode != 0 else None
 
             if prev_status != "DONE" and new_status == "DONE":
                 self.completed_count += 1

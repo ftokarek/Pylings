@@ -1,173 +1,214 @@
-from shutil import get_terminal_size
-from sys import stdout, platform
-import signal
+from textual.app import App, ComposeResult
+from textual.widgets import  ListView, ListItem, ProgressBar, Static
+from textual.containers import Center, Horizontal, Vertical
+from textual.reactive import reactive
+from textual.events import Key
+from pylings.exercises import ExerciseManager
+from pylings.constants import DONE,DONE_MESSAGE, GIT_ADD, GIT_COMMIT, GIT_MESSAGE, EXERCISE_DONE, SOLUTION_LINK, PENDING, EXERCISE_OUTPUT, EXERCISE_ERROR, LIST_VIEW, MAIN_VIEW
+from rich.text import Text
+class PylingsUI(App):
+    """Textual-based UI for Pylings."""
 
-import threading
-import time
+    CSS_PATH = "ui.tcss"
 
-from pylings.constants import (
-    CLEAR_SCREEN, CHECK, CURRENT, DISABLE_WRAP, DONE, DONE_MESSAGE, EXERCISE_DONE, EXERCISE_OUTPUT,
-    EXERCISE_ERROR, GREEN, GIT_ADD, GIT_COMMIT, GIT_MESSAGE,
-    HINT, HYPERLINK, LIST, NAVIGATE, NEXT, PENDING,
-    QUIT, RED, RESET, RESET_COLOR, SELECT, SELECTOR, SOLUTION_LINK
-)
-from pylings.key_input import KeyInput
-
-class UIManager:
-    """Manages the user interface display for Pylings."""
-    def __init__(self, exercise_manager):
-        """Initializes the UIManager with an exercise manager."""
+    def __init__(self, exercise_manager: ExerciseManager):
+        super().__init__()
         self.exercise_manager = exercise_manager
-        self.term_width = get_terminal_size().columns
-        self.term_height = get_terminal_size().lines
-        self.main_menu = True
+        self.current_exercise = reactive(self.exercise_manager.current_exercise, always_update=True)
+        self.list_focused = False
+        self.sidebar_visible = False
 
-        if platform.startswith("win"):
-            self.start_resize_watcher()
-        else:
-            signal.signal(signal.SIGWINCH, self.handle_resize)
-
-    def handle_resize(self, signum=None, frame=None):
-        """Handles terminal resizing dynamically (Linux/macOS)."""
-        self.term_width = get_terminal_size().columns
-        self.term_height = get_terminal_size().lines
-        # TODO: This handles show_menu(), but what about when we are in show_all_exercises ?
-        if self.main_menu == True:
-            self.show_menu()
-        else:
-            self.show_all_exercises()
-
-    def start_resize_watcher(self):
-        """Starts a background thread to monitor terminal resizing (Windows)."""
-        def watch_resize():
-            last_size = get_terminal_size()
-            while True:
-                time.sleep(0.1)
-                new_size = get_terminal_size()
-                if new_size != last_size:
-                    last_size = new_size
-                    self.handle_resize()
-
-        threading.Thread(target=watch_resize, daemon=True).start()
-
-    def show_menu(self):
-        """Displays the main menu and exercise output."""
-        total = len(self.exercise_manager.exercises)
-        completed_count = self.exercise_manager.completed_count
-        completed_flag = self.exercise_manager.completed_flag
-        self.main_menu = True
-
-        term_width = get_terminal_size().columns
-        print(CLEAR_SCREEN, end="",flush=True)
+    def compose(self) -> ComposeResult:
+        """Build UI layout."""
+        yield Horizontal(
+            Vertical(
+                Static("", id="output"),
+                Static("", id="progress-bar"),  # ✅ Custom progress bar
+                Static("[ Exercise: ]", id="exercise-path"),
+                id="main"
+            ),
+            Vertical(
+                Static("Status  Exercise"),
+                ListView(*self.get_exercise_list(), id="exercise-list"),
+                id="sidebar"
+            ),
+        )
         
-        if self.exercise_manager.current_exercise:
-            self.print_exercise_output(self.exercise_manager)
+        self.footer_hints = Static(MAIN_VIEW, id="footer-hints")
+        self.footer_hints.visible = True
+        yield self.footer_hints
 
-        if completed_count == total and completed_flag == True :
-            self.exercise_manager.finish()
+    def on_mount(self):
+            """Update UI with initial exercise details."""
+            self.update_exercise_content()
+            sidebar = self.query_one("#sidebar", Vertical)
+            main_content = self.query_one("#main", Vertical)
 
-        self.progress_bar(completed_count, total, term_width)
-        
-        print(f"\nCurrent exercise: {HYPERLINK(self.exercise_manager.current_exercise)}\n")
-        if self.exercise_manager.current_exercise and self.exercise_manager.exercises[self.exercise_manager.current_exercise.name]["status"] == "DONE":
-            print(f"\n{DISABLE_WRAP}{NEXT}/ {HINT} / {RESET} / {LIST} / {QUIT}")
-        else:
-            print(f"\n{DISABLE_WRAP}{HINT} / {RESET} / {LIST} / {QUIT}")
+            sidebar.add_class("hidden")
+            main_content.add_class("expanded")
 
-    def print_exercise_output(self,exercise_manager):
-        """Displays the output of the current exercise."""
-        if self.exercise_manager.current_exercise:
-            self.format_output(exercise_manager)
-        else:
-            print("No current exercise.")
+            self.list_focused = False
+            self.footer_hints.update(MAIN_VIEW)
 
-    def progress_bar(self, progress, total, term_width):
-        """Displays a progress bar."""
-        PREFIX = f"Progress: ["
-        POSTFIX = f"]   {progress}/{total}  "
-        width = term_width - len(PREFIX) - len(POSTFIX)
-        filled = (width * progress) // total
-        stdout.write(DISABLE_WRAP)
-        stdout.write(PREFIX + GREEN + "#" * filled + RED + "-" * (width - filled) + RESET_COLOR + POSTFIX + "\n")
+    def get_exercise_list(self):
+        """Generate exercise list for sidebar with updated status."""
+        items = []
+        for name, ex in self.exercise_manager.exercises.items():
+            status = DONE if ex["status"] == "DONE" else PENDING
+            items.append(ListItem(Static(f"{status} {name}")))
+        return items
 
-    def format_status(self, exercise, selected=False):
-        """Formats the display line for an exercise with aligned selector and padding length."""
-        status = f"{DONE}" if self.exercise_manager.exercises[exercise.name]["status"] == "DONE" else f"{PENDING}"
-        current = f"{CURRENT}" if exercise == self.exercise_manager.current_exercise else "       "
-        name = f"{exercise.name}"
-        selector = f"{SELECTOR}" if selected else " "
-        path_str = f"{HYPERLINK(exercise)}"
+    def update_exercise_content(self):
+        """Update displayed exercise details, refresh the list, and update the exercise path."""
+        exercise_path_widget = self.query_one("#exercise-path", Static)  # ✅ Get exercise path widget
+        list_view = self.query_one("#exercise-list", ListView)
 
-        padding_length = self.exercise_manager.padding - len(str(exercise)) + 2
-        padding = " " * padding_length
-        padding_name = " " * (self.exercise_manager.padding_name - len(exercise.name) + 2)
-        return f"{DISABLE_WRAP} {selector} {current}   {status}    {name}{padding_name}     {path_str}{padding}{selector}"
+        selected_item = list_view.index
 
-    def format_output(self,exercise_manager):
-        ex_data = self.exercise_manager.exercises[self.exercise_manager.current_exercise.name]
+        if selected_item is not None:
+            selected_exercise = list(self.exercise_manager.exercises.keys())[selected_item]
+            self.current_exercise = {"name": selected_exercise, **self.exercise_manager.exercises[selected_exercise]}
+
+        if self.current_exercise:
+            exercise_path = self.current_exercise.get("path", "Unknown")  # ✅ Get exercise path
+            exercise_path_widget.update(f"Current exercise: {exercise_path}")  # ✅ Display path
+
+        list_view.clear()
+        list_view.extend(self.get_exercise_list())
+
+        if selected_item is not None and 0 <= selected_item < len(list_view.children):
+            list_view.index = selected_item
+
+        self.refresh_exercise_output()
+        self.update_progress_bar()
+
+
+    def refresh_exercise_output(self):
+        """Reloads exercise output when file changes."""
+        if not self.current_exercise:
+            return
+        output_widget = self.query_one("#output", Static)
+        formatted_output = self.format_output()
+        output_widget.update(formatted_output)
+
+    def format_output(self):
+        """Formats the exercise output for display in the UI."""
+        ex_data = self.exercise_manager.exercises[self.current_exercise['name']]
+
         if ex_data["status"] == "DONE":
-            lines = [f"\n{DISABLE_WRAP}{EXERCISE_OUTPUT(ex_data['output'])}",
-                    f"\n\n{DISABLE_WRAP}{EXERCISE_DONE}",
-                    f"\n{DISABLE_WRAP}{SOLUTION_LINK(self.exercise_manager.get_solution())}",
-                    f"\n\n{DISABLE_WRAP}{DONE_MESSAGE}",
-                    f"\n{DISABLE_WRAP}{GIT_MESSAGE}",
-                    f"\n\n\t{DISABLE_WRAP}{GIT_ADD(self.exercise_manager.current_exercise)}",
-                    f"\n\t{DISABLE_WRAP}{GIT_COMMIT(self.exercise_manager.current_exercise)}\n",
+            lines = [
+                f"\n{EXERCISE_OUTPUT(ex_data['output'])}",
+                f"\n\n{EXERCISE_DONE}",
+                f"\n{SOLUTION_LINK(self.exercise_manager.get_solution())}",
+                f"\n\n{DONE_MESSAGE}",
+                f"\n{GIT_MESSAGE}",
+                f"\n\n\t{GIT_ADD(self.exercise_manager.current_exercise)}",
+                f"\n\t{GIT_COMMIT(self.exercise_manager.current_exercise)}\n",
             ]
-            output = ''.join(lines)
-            print(f"{output}")
+            return ''.join(lines)
+
         else:
-            print(f"{DISABLE_WRAP}{EXERCISE_ERROR(ex_data['error'])}")
+            error_message = f"{EXERCISE_ERROR(ex_data['error'])}"
             if self.exercise_manager.show_hint:
-                print(f"\n{DISABLE_WRAP}{ex_data['hint']}\n")
+                error_message += f"\n{ex_data['hint']}\n"
 
-    def show_all_exercises(self):
-        self.main_menu = False
-        """Displays an interactive list of all exercises and their completion status."""
-        exercises = list(self.exercise_manager.exercises.values())
-        total = len(exercises)
-        completed = self.exercise_manager.completed_count
-        key_input = KeyInput()
-        term_width = get_terminal_size().columns
-        current_row = next((idx for idx, ex in enumerate(exercises) if ex["path"] == self.exercise_manager.current_exercise), 0)
+        return error_message
+    
+    def update_progress_bar(self):
+        """Generate a Rustlings-style text progress bar inside Static."""
+        progress_bar_widget = self.query_one("#progress-bar", Static)
+        
+        total_exercises = len(self.exercise_manager.exercises)
+        completed_exercises = sum(1 for ex in self.exercise_manager.exercises.values() if ex["status"] == "DONE")
 
-        try:
-            while True:
-                print(CLEAR_SCREEN, end="", flush=True)
-                print("   Current   State      Name\t\t\t  Path")
-                for idx, ex in enumerate(exercises):
-                    print(f"{self.format_status(ex["path"],selected=(idx == current_row))}")
+        bar_length = 55  # ✅ Set the fixed length of the progress bar
+        progress_fraction = completed_exercises / total_exercises if total_exercises > 0 else 0
 
-                self.progress_bar(completed, total, term_width)
-                print(f"\n{DISABLE_WRAP}{NAVIGATE} / {SELECT} / {RESET} / {CHECK} / {QUIT}")
+        filled = int(progress_fraction * bar_length)  # ✅ Number of `#`
+        remaining = bar_length - filled - 1  # ✅ Number of `-`, keeping space for `>`
 
-                key = key_input.get_key()
+        progress_bar = Text("Progress: [", style="bold")
+        progress_bar.append("#" * filled, style="green")  # ✅ Green `#`
+        progress_bar.append(">", style="green")  # ✅ Green arrow
+        progress_bar.append("-" * remaining, style="red")  # ✅ Red `-`
+        progress_bar.append(f"]   {completed_exercises}/{total_exercises}", style="bold")
 
-                if key in (b'H', b'\x1b[A') and current_row > 0:
-                    current_row -= 1
-                elif key in (b'P', b'\x1b[B') and current_row < len(exercises) - 1:
-                    current_row += 1
-                elif key in (b'G', b'\x1b[H') and current_row > 0:
-                    current_row = 0
-                elif key in (b'O', 'G') and current_row < len(exercises) - 1:
-                    current_row = len(exercises) - 1
-                elif key in ("r", b'r'):
-                    self.exercise_manager.current_exercise = exercises[current_row]["path"]
-                    self.exercise_manager.reset_exercise()
-                elif key in ("s", b's'):
-                    self.exercise_manager.current_exercise = exercises[current_row]["path"]
-                    self.exercise_manager.show_hint = False
-                    self.exercise_manager.update_exercise_output()
+        progress_bar_widget.update(progress_bar)  # ✅ Update Static widget
+
+    def focus_list(self, enable):
+        """Focus on the ListView for navigation."""
+        self.query_one("#exercise-list", ListView).focus()
+        self.list_focused = enable
+
+    def toggle_list_view(self):
+        """Toggle the visibility of the exercise list view while preserving selection."""
+        sidebar = self.query_one("#sidebar", Vertical)
+        main_content = self.query_one("#main", Vertical)
+        list_view = self.query_one("#exercise-list", ListView)
+
+        selected_index = list_view.index if list_view.index is not None else 0
+        
+        if "hidden" in sidebar.classes:
+            sidebar.remove_class("hidden")
+            main_content.remove_class("expanded")
+
+            if 0 <= selected_index < len(list_view.children):
+                list_view.index = selected_index
+                list_view.scroll_visible(list_view.children[selected_index])
+                
+            self.list_focused = True
+            self.footer_hints.update(LIST_VIEW)
+
+        else:
+            sidebar.add_class("hidden")
+            main_content.add_class("expanded")
+            self.list_focused = True
+            self.footer_hints.update(MAIN_VIEW)
+
+    def on_key(self, event: Key) -> None:
+        """Handle keyboard shortcuts for navigation and actions."""
+        if event.key == "q":
+            self.exit()
+        elif event.key == "n":
+            self.exercise_manager.next_exercise()
+            self.update_exercise_content()
+        elif event.key == "r":
+            self.exercise_manager.reset_exercise()
+            self.update_exercise_content()
+        elif event.key == "h":
+            hint = self.exercise_manager.config_manager.get_hint(self.current_exercise)
+            self.query_one("#output", Static).update(hint)
+        elif event.key == "l":
+            self.toggle_list_view()
+        elif self.list_focused and event.key in ("up", "down", "end", "home", "s"):
+            list_view = self.query_one("#exercise-list", ListView)
+
+            if event.key == "up":
+                selected_index = list_view.index
+                
+            elif event.key == "down":
+                selected_index = list_view.index
+                
+            elif event.key == "end":
+                list_view.index = len(list_view.children) - 1  # Move to the last item
+                
+            elif event.key == "home":
+                list_view.index = 0  # Move to the first item
+                
+            elif event.key == "s":
+                selected_index = list_view.index
+                if selected_index is not None:
+                    exercise_keys = list(self.exercise_manager.exercises.keys())
+                    new_exercise_name = exercise_keys[selected_index]
+                    new_exercise = self.exercise_manager.exercises[new_exercise_name]["path"]
+                    self.exercise_manager.current_exercise = new_exercise
+                    self.update_exercise_content()
 
                     if self.exercise_manager.watcher:
-                        print("Restarting watcher for the newly selected exercise...")
-                        self.exercise_manager.watcher.restart(str(self.exercise_manager.current_exercise.parent))
-                    break
-                elif key in ("c", b'c'):
-                        self.exercise_manager.check_all_exercises(exercises)
-                elif key in ("q", b'q'):
-                    break
-                print("\n")
+                        
+                        self.exercise_manager.watcher.restart(str(new_exercise.parent))
 
-        finally:
-            print(CLEAR_SCREEN, end="")
+if __name__ == "__main__":
+    exercise_manager = ExerciseManager()
+    app = PylingsUI(exercise_manager)
+    app.run()
