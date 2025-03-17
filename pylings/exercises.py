@@ -35,8 +35,8 @@ class ExerciseManager:
             self.exercises[ex.name] = {
                 "path": ex,
                 "status": status,
-                "output": result.stdout if result.returncode == 0 else "",
-                "error": result.stderr if result.returncode != 0 else None,
+                "output": self.format_exercise_output(result.stdout) if result.returncode == 0 else "",
+                "error": self.format_exercise_output(result.stderr) if result.returncode != 0 else None,
                 "hint": self.config_manager.get_hint(ex)
             }
 
@@ -97,6 +97,8 @@ class ExerciseManager:
 
     def format_exercise_output(self,output):
         safe_output = output.replace("[", "\\[") 
+        safe_output = safe_output.replace("]", "\\]") 
+
         return safe_output
 
     def get_next_pending_exercise(self):

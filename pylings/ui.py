@@ -178,10 +178,13 @@ class PylingsUI(App):
             self.exit()
         elif event.key == "n":
             self.exercise_manager.next_exercise()
+            self.current_exercise = self.exercise_manager.current_exercise
             self.update_exercise_content()
+            self.update_list_content()
         elif event.key == "r":
             self.exercise_manager.reset_exercise()
             self.update_exercise_content()
+            self.update_list_content()
         elif event.key == "h":
             hint = self.exercise_manager.config_manager.get_hint(self.current_exercise)
             self.query_one("#output", Static).update(hint)
