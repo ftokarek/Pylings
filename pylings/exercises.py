@@ -48,7 +48,7 @@ class ExerciseManager:
             self.current_exercise = intro_exercise
         else:
             self.current_exercise = self.get_next_pending_exercise()
-
+        
     def run_exercise(self, exercise):
         """Runs an exercise file and captures its output and errors with a timeout."""
         try:
@@ -138,26 +138,38 @@ class ExerciseManager:
                 print(f"No backup found for {self.current_exercise}.")
         else:
             print("No current exercise to reset.")
-    
-    def check_all_exercises(self, exercises):
+
+    def check_all_exercises(self, progress_callback=None):
         """Updates all exercises without changing the currently selected exercise."""
         current_exercise_path = self.current_exercise
 
-        for ex in exercises:
-            result = self.run_exercise(ex["path"])
-            prev_status = ex["status"]
+        total_exercises = len(self.exercises)
+        completed_checks = 0
+
+        for ex_name, ex_data in self.exercises.items():
+            if progress_callback:
+                progress_callback(ex_name, completed_checks, total_exercises)
+
+            result = self.run_exercise(ex_data["path"])
+            prev_status = ex_data["status"]
             new_status = "DONE" if result.returncode == 0 else "PENDING"
 
-            ex["status"] = new_status
-            ex["output"] = self.format_exercise_output(result.stdout) if result.returncode == 0 else ""
-            ex["error"] = self.format_exercise_output(result.stderr) if result.returncode != 0 else None
+            ex_data["status"] = new_status
+            ex_data["output"] = self.format_exercise_output(result.stdout) if result.returncode == 0 else ""
+            ex_data["error"] = self.format_exercise_output(result.stderr) if result.returncode != 0 else None
 
             if prev_status != "DONE" and new_status == "DONE":
                 self.completed_count += 1
             elif prev_status == "DONE" and new_status != "DONE":
                 self.completed_count -= 1
 
+            completed_checks += 1
+
+        if progress_callback:
+            progress_callback(None, total_exercises, total_exercises)
+
         self.current_exercise = current_exercise_path
+
 
 
     def get_solution(self):

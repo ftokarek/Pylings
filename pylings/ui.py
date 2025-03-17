@@ -6,15 +6,16 @@ from textual.events import Key
 from pylings.exercises import ExerciseManager
 from pylings.constants import DONE,DONE_MESSAGE, GIT_ADD, GIT_COMMIT, GIT_MESSAGE, EXERCISE_DONE, SOLUTION_LINK, PENDING, EXERCISE_OUTPUT, EXERCISE_ERROR, LIST_VIEW, MAIN_VIEW
 from rich.text import Text
+
 class PylingsUI(App):
     """Textual-based UI for Pylings."""
 
-    CSS_PATH = "ui.tcss"
+    CSS_PATH = "./styles/ui.tcss"
 
     def __init__(self, exercise_manager: ExerciseManager):
         super().__init__()
         self.exercise_manager = exercise_manager
-        self.current_exercise = reactive(self.exercise_manager.current_exercise, always_update=True)
+        self.current_exercise = self.exercise_manager.current_exercise
         self.list_focused = False
         self.sidebar_visible = False
 
@@ -23,8 +24,9 @@ class PylingsUI(App):
         yield Horizontal(
             Vertical(
                 Static("", id="output"),
-                Static("", id="progress-bar"),  # ✅ Custom progress bar
-                Static("[ Exercise: ]", id="exercise-path"),
+                Static("", id="progress-bar"),
+                Static("Current exercise: ", id="exercise-path"),
+                Static("", disabled=True, id="checking-all-exercises-status"),
                 id="main"
             ),
             Vertical(
@@ -60,28 +62,12 @@ class PylingsUI(App):
 
     def update_exercise_content(self):
         """Update displayed exercise details, refresh the list, and update the exercise path."""
-        exercise_path_widget = self.query_one("#exercise-path", Static)  # ✅ Get exercise path widget
-        list_view = self.query_one("#exercise-list", ListView)
-
-        selected_item = list_view.index
-
-        if selected_item is not None:
-            selected_exercise = list(self.exercise_manager.exercises.keys())[selected_item]
-            self.current_exercise = {"name": selected_exercise, **self.exercise_manager.exercises[selected_exercise]}
-
-        if self.current_exercise:
-            exercise_path = self.current_exercise.get("path", "Unknown")  # ✅ Get exercise path
-            exercise_path_widget.update(f"Current exercise: {exercise_path}")  # ✅ Display path
-
-        list_view.clear()
-        list_view.extend(self.get_exercise_list())
-
-        if selected_item is not None and 0 <= selected_item < len(list_view.children):
-            list_view.index = selected_item
-
+        exercise_path_widget = self.query_one("#exercise-path", Static)
+        exercise_path = self.current_exercise if self.current_exercise else "No exercise selected"
+        exercise_name = exercise_path.name if isinstance(exercise_path, str) or exercise_path is None else exercise_path.name
+        exercise_path_widget.update(f"Current exercise: {exercise_path}") 
         self.refresh_exercise_output()
         self.update_progress_bar()
-
 
     def refresh_exercise_output(self):
         """Reloads exercise output when file changes."""
@@ -93,7 +79,14 @@ class PylingsUI(App):
 
     def format_output(self):
         """Formats the exercise output for display in the UI."""
-        ex_data = self.exercise_manager.exercises[self.current_exercise['name']]
+        if not self.current_exercise:
+            return "No exercise selected."
+
+        exercise_name = self.current_exercise.name if self.current_exercise.name else None
+        if not exercise_name or exercise_name not in self.exercise_manager.exercises:
+            return "Invalid exercise."
+
+        ex_data = self.exercise_manager.exercises[exercise_name]
 
         if ex_data["status"] == "DONE":
             lines = [
@@ -102,17 +95,22 @@ class PylingsUI(App):
                 f"\n{SOLUTION_LINK(self.exercise_manager.get_solution())}",
                 f"\n\n{DONE_MESSAGE}",
                 f"\n{GIT_MESSAGE}",
-                f"\n\n\t{GIT_ADD(self.exercise_manager.current_exercise)}",
-                f"\n\t{GIT_COMMIT(self.exercise_manager.current_exercise)}\n",
+                f"\n\n\t{GIT_ADD(self.current_exercise)}",
+                f"\n\t{GIT_COMMIT(self.current_exercise)}\n",
             ]
             return ''.join(lines)
 
         else:
             error_message = f"{EXERCISE_ERROR(ex_data['error'])}"
             if self.exercise_manager.show_hint:
-                error_message += f"\n{ex_data['hint']}\n"
+                error_message += f"\n{ex_data.get('hint', '')}\n"
 
         return error_message
+
+    def update_list_content(self):
+        listview_widget = self.query_one("#exercise-list", ListView)
+        listview_widget.clear()
+        listview_widget.extend(self.get_exercise_list())
     
     def update_progress_bar(self):
         """Generate a Rustlings-style text progress bar inside Static."""
@@ -121,19 +119,28 @@ class PylingsUI(App):
         total_exercises = len(self.exercise_manager.exercises)
         completed_exercises = sum(1 for ex in self.exercise_manager.exercises.values() if ex["status"] == "DONE")
 
-        bar_length = 55  # ✅ Set the fixed length of the progress bar
+        bar_length = 55
         progress_fraction = completed_exercises / total_exercises if total_exercises > 0 else 0
 
-        filled = int(progress_fraction * bar_length)  # ✅ Number of `#`
-        remaining = bar_length - filled - 1  # ✅ Number of `-`, keeping space for `>`
+        filled = int(progress_fraction * bar_length)
+        remaining = bar_length - filled - 1 
 
         progress_bar = Text("Progress: [", style="bold")
-        progress_bar.append("#" * filled, style="green")  # ✅ Green `#`
-        progress_bar.append(">", style="green")  # ✅ Green arrow
-        progress_bar.append("-" * remaining, style="red")  # ✅ Red `-`
+        progress_bar.append("#" * filled, style="green")
+        progress_bar.append(">", style="green")
+        progress_bar.append("-" * remaining, style="red")
         progress_bar.append(f"]   {completed_exercises}/{total_exercises}", style="bold")
 
-        progress_bar_widget.update(progress_bar)  # ✅ Update Static widget
+        progress_bar_widget.update(progress_bar)
+
+    def update_check_progress(self, exercise_name, completed, total):
+        """Update the UI to show checking progress."""
+        check_progress_widget = self.query_one("#checking-all-exercises-status", Static)
+
+        #if exercise_name:
+        #    check_progress_widget.update(f"Checking exercise: {completed}/{total-1 } {exercise_name}")
+        
+        self.refresh()
 
     def focus_list(self, enable):
         """Focus on the ListView for navigation."""
@@ -180,7 +187,7 @@ class PylingsUI(App):
             self.query_one("#output", Static).update(hint)
         elif event.key == "l":
             self.toggle_list_view()
-        elif self.list_focused and event.key in ("up", "down", "end", "home", "s"):
+        elif self.list_focused and event.key in ("up", "down", "end", "home","c", "s"):
             list_view = self.query_one("#exercise-list", ListView)
 
             if event.key == "up":
@@ -190,11 +197,11 @@ class PylingsUI(App):
                 selected_index = list_view.index
                 
             elif event.key == "end":
-                list_view.index = len(list_view.children) - 1  # Move to the last item
+                list_view.index = len(list_view.children) - 1
                 
             elif event.key == "home":
-                list_view.index = 0  # Move to the first item
-                
+                list_view.index = 0
+
             elif event.key == "s":
                 selected_index = list_view.index
                 if selected_index is not None:
@@ -202,11 +209,16 @@ class PylingsUI(App):
                     new_exercise_name = exercise_keys[selected_index]
                     new_exercise = self.exercise_manager.exercises[new_exercise_name]["path"]
                     self.exercise_manager.current_exercise = new_exercise
+                    self.current_exercise = new_exercise
                     self.update_exercise_content()
 
-                    if self.exercise_manager.watcher:
-                        
+                    if self.exercise_manager.watcher:        
                         self.exercise_manager.watcher.restart(str(new_exercise.parent))
+
+            elif event.key == "c":
+                self.exercise_manager.check_all_exercises(progress_callback=self.update_check_progress)
+                self.update_exercise_content()
+                self.update_list_content()
 
 if __name__ == "__main__":
     exercise_manager = ExerciseManager()

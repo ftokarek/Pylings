@@ -47,17 +47,14 @@ class ConfigManager:
                     f.seek(0)   
                     for line in lines:
                         if "firsttime=true" in line:
-                             
                             welcome_message = self.config["settings"]["welcome_message"]
                             print(CLEAR_SCREEN, end="", flush=True)
                             print("Welcome message:", welcome_message)
                             input("\nPress Enter to continue...")
-
-                             
                             f.write(line.replace("firsttime=true", "firsttime=false"))
                             return True
-                        else:
-                            return None
+                        elif "firsttime=false" in line:
+                            return False
             except FileNotFoundError:
                 print(f"Error: The file {FIRSTTIME_FILE} does not exist.")
                 return None
