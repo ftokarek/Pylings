@@ -154,7 +154,6 @@ class PylingsUI(App):
         list_view = self.query_one("#exercise-list", ListView)
 
         selected_index = list_view.index if list_view.index is not None else 0
-        
         if "hidden" in sidebar.classes:
             sidebar.remove_class("hidden")
             main_content.remove_class("expanded")
@@ -164,12 +163,13 @@ class PylingsUI(App):
                 list_view.scroll_visible(list_view.children[selected_index])
                 
             self.list_focused = True
+            
             self.footer_hints.update(LIST_VIEW)
-
+    
         else:
             sidebar.add_class("hidden")
             main_content.add_class("expanded")
-            self.list_focused = True
+            #self.list_focused = False
             self.footer_hints.update(MAIN_VIEW)
 
     def on_key(self, event: Key) -> None:
@@ -190,9 +190,9 @@ class PylingsUI(App):
             self.query_one("#output", Static).update(hint)
         elif event.key == "l":
             self.toggle_list_view()
+            event.key = "tab"
         elif self.list_focused and event.key in ("up", "down", "end", "home","c", "s"):
             list_view = self.query_one("#exercise-list", ListView)
-
             if event.key == "up":
                 selected_index = list_view.index
                 
