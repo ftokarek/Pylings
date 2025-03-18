@@ -134,13 +134,18 @@ class PylingsUtils:
     def ensure_single_instance():
         """Ensure only one instance of Pylings runs in the current virtual environment."""
         lock_file = PylingsUtils.get_lock_file_path()
-
+        pid = None
         if path.exists(lock_file):
             with open(lock_file, "r") as f:
-                pid = int(f.read().strip())
-                if pid_exists(pid):
-                    print(f"Another instance of Pylings is already running (PID {pid}). Exiting.")
-                    exit(1)
+                try:
+                    pid = int(f.read().strip())
+                except:
+                    pass
+                
+                if pid is not None:
+                    if pid_exists(pid):
+                        print(f"Another instance of Pylings is already running (PID {pid}). Exiting.")
+                        exit(1)
                 else:
                     PylingsUtils.overwrite_lock_file(lock_file)
 
