@@ -19,11 +19,6 @@ Pylings is designed to help beginners and experienced developers alike improve t
 ### Prerequisites
 
 - [python](https://www.python.org/downloads/) >= 3.9  installed on your system
-- requirements.txt for `pip`
-  - [watchdog](https://pypi.org/project/watchdog/) >= 6.0.0, is handled by the `install.sh`
-  - [toml](https://pypi.org/project/toml/) >= 0.10.0, is handled by the `install.sh`
-  - [psutil](https://pypi.org/project/psutil/) >= 7.0.0, is handled by `install.sh`
-
 - [Git](https://git-scm.com/downloads) (optional, for version control)
 
 ### Steps
@@ -35,7 +30,7 @@ Pylings is designed to help beginners and experienced developers alike improve t
    cd pylings
    ```
 
-2. Run the installation script:
+2. Run the installation script, [install.sh](./install.sh):
 
    ```
    bash install.sh
@@ -49,9 +44,9 @@ Pylings is designed to help beginners and experienced developers alike improve t
 
    - Create a virtual environment
 
-   - Install Python packages from requirements.txt
+   - Install Python packages from [requirements.txt](./requirements.txt)
 
-   - Update constants.py with the correct Python interpreter
+   - Update [constants.py](./pylings/constants.py) with the correct Python interpreter
 
 ## Working environment
 
