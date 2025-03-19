@@ -11,7 +11,7 @@ get started, here are some notes about how Pylings operates:
 
 2. Make sure to have your editor open in the `pylings/` directory. Pylings
    will show you the path of the current exercise under the progress bar. Open
-   the exercise file in your editor, fix errors and save the file. Rustlings
+   the exercise file in your editor, fix errors and save the file. Pylings
    will automatically detect the file change and rerun the exercise. If all
    errors are fixed, Pylings will ask you to move on to the next exercise.
 
