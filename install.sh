@@ -14,19 +14,6 @@ ACTIVATE_SCRIPT=""
 # Path to virutal python
 VENV_PYTHON=""
 
-MOTD_MESSAGE=$(cat << 'EOF'
-Welcome to Pylings!
-
-Learn Python interactively to solve exercises.
-
-These exercises usually contain some compiler or logic errors which cause the exercise to fail compilation or testing.
-
-Find all errors and fix them!.
-
-Type pylings to get started!
-EOF
-)
-
 # Detect Python Interpreter (after OS detection)
 detect_python() {
     if [[ "$OS" =~ CYGWIN*|MINGW*|MSYS* ]] && command -v py &>/dev/null; then
@@ -79,10 +66,7 @@ set_venv_vars() {
     ALIAS_CMD="alias pylings=\"$VENV_PYTHON pylings.py\""
 
     echo "$ALIAS_CMD" >> "$ACTIVATE_SCRIPT"
-
-    echo -e "\n# Custom MOTD" >> "$ACTIVATE_SCRIPT"
-    echo "$MOTD_MESSAGE" >> "$ACTIVATE_SCRIPT"
-
+    
     echo -e "\n# path to python used by pylings" >> "$ACTIVATE_SCRIPT"
     echo -e "$PYTHON_ENV_VAR" >> "$ACTIVATE_SCRIPT"
 
