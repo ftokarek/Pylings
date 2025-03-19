@@ -24,6 +24,7 @@ class PylingsUI(App):
         yield Horizontal(
             Vertical(
                 Static("", id="output"),
+                Static("", id="hint"),
                 Static("", id="progress-bar"),
                 Static("Current exercise: ", id="exercise-path"),
                 Static("", disabled=True, id="checking-all-exercises-status"),
@@ -186,8 +187,13 @@ class PylingsUI(App):
             self.update_exercise_content()
             self.update_list_content()
         elif event.key == "h":
-            hint = self.exercise_manager.config_manager.get_hint(self.current_exercise)
-            self.query_one("#output", Static).update(hint)
+            if self.exercise_manager.show_hint == False:
+                hint = self.exercise_manager.config_manager.get_hint(self.current_exercise)
+                self.exercise_manager.toggle_hint()
+                self.query_one("#hint", Static).update(hint)
+            elif self.exercise_manager.show_hint == True:
+                self.query_one("#hint", Static).update("")
+                self.exercise_manager.toggle_hint()
         elif event.key == "l":
             self.toggle_list_view()
             event.key = "tab"
