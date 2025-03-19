@@ -97,8 +97,6 @@ class ExerciseManager:
 
     def format_exercise_output(self,output):
         safe_output = output.replace("[", "\\[") 
-        safe_output = safe_output.replace("]", "\\]") 
-
         return safe_output
 
     def get_next_pending_exercise(self):

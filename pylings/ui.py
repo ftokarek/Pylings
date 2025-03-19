@@ -65,7 +65,6 @@ class PylingsUI(App):
         """Update displayed exercise details, refresh the list, and update the exercise path."""
         exercise_path_widget = self.query_one("#exercise-path", Static)
         exercise_path = self.current_exercise if self.current_exercise else "No exercise selected"
-        exercise_name = exercise_path.name if isinstance(exercise_path, str) or exercise_path is None else exercise_path.name
         exercise_path_widget.update(f"Current exercise: {exercise_path}") 
         self.refresh_exercise_output()
         self.update_progress_bar()
