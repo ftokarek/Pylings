@@ -86,12 +86,12 @@ install_dependencies() {
 # Print completion message
 print_completion() {
     echo
-    echo "✅ Pylings setup complete!"
+    echo "Pylings setup complete!"
     echo
-    echo "📌 To manually enter the virtual environment again later, use:"
+    echo "To manually enter the virtual environment again later, use:"
     echo -e "\n\t source ${ACTIVATE_SCRIPT}"
     echo
-    echo "📌 To exit the virtual environment, type:"
+    echo "To exit the virtual environment, type:"
     echo -e "\n\t deactivate"
     echo
     echo "You can now run Pylings using:"
