@@ -79,7 +79,7 @@ class PylingsUI(App):
         exercise_path = self.current_exercise if self.current_exercise else "No exercise selected"
         exercise_path_widget.update(f"Current exercise: {exercise_path}") 
         self.refresh_exercise_output()
-        self.view_options()
+        self.footer_hints.update(self.view_options())
         self.update_progress_bar()
 
     def refresh_exercise_output(self):
