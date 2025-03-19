@@ -15,8 +15,6 @@ ACTIVATE_SCRIPT=""
 VENV_PYTHON=""
 
 MOTD_MESSAGE=$(cat << 'EOF'
-\033[1;32m
-
 Welcome to Pylings!
 
 Learn Python interactively to solve exercises.
@@ -25,7 +23,7 @@ These exercises usually contain some compiler or logic errors which cause the ex
 
 Find all errors and fix them!.
 
-Type pylings to get started! \033[0m
+Type pylings to get started!
 EOF
 )
 
