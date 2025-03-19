@@ -1,19 +1,27 @@
 from pylings.config import ConfigManager
 from pylings.constants import (
-     BACKUP_DIR, EXERCISES_DIR,
+     BACKUP_DIR,DEBUG_PATH, EXERCISES_DIR,
      FINISHED, SOLUTIONS_DIR
 )
 
 from shutil import copy
 import subprocess
+from concurrent.futures import ThreadPoolExecutor,ProcessPoolExecutor, as_completed
+import subprocess
+
+import logging
+logging.basicConfig(filename=DEBUG_PATH, level=logging.DEBUG, format="%(asctime)s - %(message)s")
+
 class ExerciseManager:
     """Manages exercises, including initialization, progression, resets, and output retrieval."""
 
     def __init__(self):
         """Initializes the ExerciseManager and precomputes exercise states."""
+        logging.debug(f"ExerciseManager.init: Entered")
         self.exercises = {}
         self.current_exercise = None
         self.current_exercise_state = ""
+        self.arg_exercise = None
         self.completed_count = 0
         self.completed_flag = False
         self.config_manager = ConfigManager()
@@ -21,25 +29,40 @@ class ExerciseManager:
         self.watcher = None  
         self.show_hint = False  
         self.initialize_exercises()
-        self.padding = len(str(max(EXERCISES_DIR.rglob("*.py"), key=lambda x: len(str(x)))))
-        self.padding_name = len(max(EXERCISES_DIR.rglob("*.py"), key=lambda x: len(x.name)).name)
-        
-    def initialize_exercises(self):
-        """Runs all exercises at launch and stores their state."""
+
+    def initialize_exercises(self):        
+        """Runs all exercises at launch and stores their state in the correct order."""
+        logging.debug(f"ExerciseManager.initialise_exercises: Entered")
+
         exercises = sorted(EXERCISES_DIR.rglob("*.py"))
+        
+        results = []
+        
+        with ThreadPoolExecutor() as executor:
+            future_to_index = {
+                executor.submit(self.run_exercise, ex): i for i, ex in enumerate(exercises)
+            }
+            
+            for future in as_completed(future_to_index):
+                index = future_to_index[future]
+                try:
+                    result = future.result()
+                    results.append((index, result))
+                except Exception as e:
+                    print(f"Error processing exercise: {e}")
 
-        for ex in exercises:
-            result = self.run_exercise(ex)
+        results.sort(key=lambda x: x[0])
+        self.exercises = {}
+
+        for i, (_, result) in enumerate(results):
             status = "DONE" if result.returncode == 0 else "PENDING"
-
-            self.exercises[ex.name] = {
-                "path": ex,
+            self.exercises[exercises[i].name] = {
+                "path": exercises[i],
                 "status": status,
                 "output": self.format_exercise_output(result.stdout) if result.returncode == 0 else "",
                 "error": self.format_exercise_output(result.stderr) if result.returncode != 0 else None,
-                "hint": self.config_manager.get_hint(ex)
+                "hint": self.config_manager.get_hint(exercises[i])
             }
-
             if status == "DONE":
                 self.completed_count += 1
 
@@ -50,9 +73,11 @@ class ExerciseManager:
         else:
             self.current_exercise = self.get_next_pending_exercise()
             self.current_exercise_state = "PENDING"
-        
+
+
     def run_exercise(self, exercise):
         """Runs an exercise file and captures its output and errors with a timeout."""
+        logging.debug(f"ExerciseManager.run_exercise: Entered")
         try:
             process = subprocess.Popen(
                 ["python", str(exercise)],
@@ -78,12 +103,16 @@ class ExerciseManager:
 
     def update_exercise_output(self):
         """Re-runs the current exercise to update its output and status."""
+        logging.debug(f"ExerciseManager.update_exercise_output: Entered")    
+        if self.arg_exercise is not None:
+            self.current_exercise = self.arg_exercise
+            self.arg_exercise = None
+
         if self.current_exercise:
             result = self.run_exercise(self.current_exercise)
             prev_status = self.exercises[self.current_exercise.name]["status"]
             new_status = "DONE" if result.returncode == 0 else "PENDING"
 
-            result = self.run_exercise(self.current_exercise)
             self.exercises[self.current_exercise.name]["status"] = "DONE" if result.returncode == 0 else "PENDING"
             self.exercises[self.current_exercise.name]["output"] = self.format_exercise_output(result.stdout) if result.returncode == 0 else ""
             self.exercises[self.current_exercise.name]["error"] = self.format_exercise_output(result.stderr) if result.returncode != 0 else None
@@ -99,11 +128,13 @@ class ExerciseManager:
                 self.completed_flag = True
 
     def format_exercise_output(self,output):
+        logging.debug(f"ExerciseManager.format_exercise_output: Entered")
         safe_output = output.replace("[", "\\[") 
         return safe_output
 
     def get_next_pending_exercise(self):
         """Finds the next exercise that is still PENDING."""
+        logging.debug(f"ExerciseManager.get_next_pending_exercise: Entered")
         for ex_data in self.exercises.values():
             if ex_data["status"] == "PENDING":
                 return ex_data["path"]
@@ -111,6 +142,7 @@ class ExerciseManager:
 
     def next_exercise(self):
         """Advances to the next exercise in the list and restarts the watcher."""
+        logging.debug(f"ExerciseManager.next_exercise: Entered")
         exercises = list(self.exercises.values())
         current_index = next((i for i, ex in enumerate(exercises) if ex["path"] == self.current_exercise), None)
 
@@ -128,6 +160,7 @@ class ExerciseManager:
 
     def reset_exercise(self):
         """Resets the current exercise to its backup version and updates progress."""
+        logging.debug(f"ExerciseManager.reset_exercise: Entered")
         if self.current_exercise:
             backup_path = BACKUP_DIR / self.current_exercise.relative_to(EXERCISES_DIR)
             if backup_path.exists():
@@ -144,40 +177,52 @@ class ExerciseManager:
             print("No current exercise to reset.")
 
     def check_all_exercises(self, progress_callback=None):
-        """Updates all exercises without changing the currently selected exercise."""
+        """Runs all exercises in parallel while maintaining the original order."""
+        logging.debug(f"ExerciseManager.check_all_exercises: Entered")
+        
         current_exercise_path = self.current_exercise
+        exercises = list(self.exercises.values())
+        results = []
 
-        total_exercises = len(self.exercises)
-        completed_checks = 0
+        with ThreadPoolExecutor() as executor:
+            future_to_index = {
+                executor.submit(self.run_exercise, ex["path"]): i for i, ex in enumerate(exercises)
+            }
 
-        for ex_name, ex_data in self.exercises.items():
-            if progress_callback:
-                progress_callback(ex_name, completed_checks, total_exercises)
+            for future in as_completed(future_to_index):
+                index = future_to_index[future]
+                try:
+                    result = future.result()
+                    results.append((index, result))
+                except Exception as e:
+                    print(f"Error processing exercise: {e}")
 
-            result = self.run_exercise(ex_data["path"])
-            prev_status = ex_data["status"]
+        results.sort(key=lambda x: x[0])
+
+        for i, (_, result) in enumerate(results):
+            exercise_name = exercises[i]["path"].name 
+            prev_status = self.exercises[exercise_name]["status"]
+
             new_status = "DONE" if result.returncode == 0 else "PENDING"
-
-            ex_data["status"] = new_status
-            ex_data["output"] = self.format_exercise_output(result.stdout) if result.returncode == 0 else ""
-            ex_data["error"] = self.format_exercise_output(result.stderr) if result.returncode != 0 else None
+            if new_status != prev_status:
+                self.exercises[exercise_name] = {
+                    "path": exercises[i]["path"],
+                    "status": new_status,
+                    "output": self.format_exercise_output(result.stdout) if result.returncode == 0 else "",
+                    "error": self.format_exercise_output(result.stderr) if result.returncode != 0 else None,
+                }
 
             if prev_status != "DONE" and new_status == "DONE":
                 self.completed_count += 1
             elif prev_status == "DONE" and new_status != "DONE":
                 self.completed_count -= 1
 
-            completed_checks += 1
-
-        if progress_callback:
-            progress_callback(None, total_exercises, total_exercises)
-
         self.current_exercise = current_exercise_path
-
 
 
     def get_solution(self):
         """Return the solution file path for the given current exercise."""
+        logging.debug(f"ExerciseManager.get_solution: Entered")
         if not self.current_exercise:
             return None
         try:
@@ -192,7 +237,9 @@ class ExerciseManager:
 
     def toggle_hint(self):
         """Toggles the hint display flag."""
+        logging.debug(f"ExerciseManager.toggle_hint: Entered")
         self.show_hint = not self.show_hint
 
     def finish(self):
+        logging.debug(f"ExerciseManager.toggle_hint: Entered")
         print(f"{FINISHED}")
