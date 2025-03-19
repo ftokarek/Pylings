@@ -4,9 +4,15 @@ from pylings.exercises import ExerciseManager
 from pylings.utils import PylingsUtils
 from pylings.watcher import Watcher
 from pylings.ui import PylingsUI
+from pylings.constants import DEBUG_PATH
+
+
+import logging
+logging.basicConfig(filename=DEBUG_PATH, level=logging.DEBUG, format="%(asctime)s - %(message)s")
 
 def shutdown(exercise_manager, watcher):
     """Gracefully shut down and release all resources."""
+    logging.debug(f"pylings.shutdown: entered")  
     print("\nShutting down and releasing resources.")
     if watcher:
         watcher.stop()
@@ -18,7 +24,8 @@ def shutdown(exercise_manager, watcher):
 
 def main():
     """Main function to run the Pylings application."""
-    
+    logging.debug(f"pylings.main: entered")
+    PylingsUtils.clear_log()
     if not PylingsUtils.is_in_virtual_env():
         PylingsUtils.print_venv_instruction()
 
@@ -28,6 +35,11 @@ def main():
     watcher = Watcher(exercise_manager, None) 
     exercise_manager.watcher = watcher   
     
+    args = PylingsUtils.parse_args()
+
+    if PylingsUtils.handle_args(args, exercise_manager, watcher):
+        exercise_manager.update_exercise_output()
+
     app = PylingsUI(exercise_manager)
     watcher.ui_manager = app 
     
@@ -36,11 +48,6 @@ def main():
     if exercise_manager.current_exercise:
         watcher.start(str(exercise_manager.current_exercise.parent))
 
-    args = PylingsUtils.parse_args()
-    
-    if PylingsUtils.handle_args(args, exercise_manager, watcher):
-        return   
-    
     try:
         app.run()
     except KeyboardInterrupt:

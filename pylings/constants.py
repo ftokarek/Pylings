@@ -9,6 +9,7 @@ BACKUP_DIR = Path("backups")
 CONFIG_FILE = Path("pylings/config/config.toml")
 PYPROJECT_FILE = Path("pyproject.toml")
 FIRSTTIME_FILE = Path("venv/.firsttime")
+DEBUG_PATH = Path("venv/pylings_debug.log")
 
 # MARKUP STYLES FOR TEXTUAL
 GREEN = "[lightgreen]"

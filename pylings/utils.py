@@ -3,9 +3,10 @@ from os import name, path, getpid, getenv
 from pathlib import Path
 from psutil import pid_exists
 from sys import prefix, exit
-from pylings.constants import PYPROJECT_FILE, REPOSITORY
+from pylings.constants import DEBUG_PATH, PYPROJECT_FILE, REPOSITORY
 import toml
-
+import logging
+logging.basicConfig(filename=DEBUG_PATH, level=logging.DEBUG, format="%(asctime)s - %(message)s")
 
 class PylingsUtils:
     """Utility class for virtual environment management and argument handling."""
@@ -15,6 +16,7 @@ class PylingsUtils:
     @staticmethod
     def parse_args():
         """Parse command-line arguments with Rustlings-style output."""
+        logging.debug(f"PylingsUI.parse_args: Entered")
         parser = ArgumentParser(
             prog="pylings",
             description="Pylings is a collection of small exercises to get you used to writing and reading Python code.",
@@ -40,7 +42,7 @@ class PylingsUtils:
     @staticmethod
     def handle_args(args, exercise_manager, watcher):
         """Handle command-line arguments for running and testing exercises."""
-
+        logging.debug(f"PylingsUI.handle_args: Entered")
         def shutdown():
             """Shut down after handling an argument."""
             if watcher:
@@ -83,9 +85,8 @@ class PylingsUtils:
         elif args.command == "run":
             exercise_path = Path(args.file)
             if exercise_path.exists() and exercise_path.is_file():
-                exercise_manager.current_exercise = exercise_path
-                exercise_manager.update_exercise_output()
-                return False   
+                exercise_manager.arg_exercise = exercise_path
+                return True   
             else:
                 print(f"Invalid exercise path: {args.file}")
                 shutdown()
@@ -95,6 +96,7 @@ class PylingsUtils:
     @staticmethod
     def get_pylings_info():
         """Reads the Pylings version and license from pyproject.toml."""
+        logging.debug(f"PylingsUI.get_pylings_info: Entered")
         pyproject_path = PYPROJECT_FILE
 
         if pyproject_path.exists():
@@ -111,29 +113,34 @@ class PylingsUtils:
     @staticmethod
     def is_in_virtual_env():
         """Check if the script is running inside a virtual environment."""
+        logging.debug(f"PylingsUI.is_in_virtual_env: Entered")
         return getenv("VIRTUAL_ENV") is not None
 
     @staticmethod
     def create_lock_file(lock_file):
         """Create a lock file with the current PID."""
+        logging.debug(f"PylingsUI.create_lock_file: Entered")
         with open(lock_file, "w") as f:
             f.write(str(getpid()))
 
     @staticmethod
     def get_lock_file_path():
         """Returns the path for the lock file in the virtual environment."""
+        logging.debug(f"PylingsUI.get_lock_file_path: Entered")
         return path.join(prefix, ".pylings.lock")
 
 
     @staticmethod
     def overwrite_lock_file(lock_file):
         """Overwrite the stale lock file with the current PID."""
+        logging.debug(f"PylingsUI.overwrite_lock_file: Entered")
         with open(lock_file, "w") as f:
             f.write(str(getpid()))
 
     @staticmethod
     def ensure_single_instance():
         """Ensure only one instance of Pylings runs in the current virtual environment."""
+        logging.debug(f"PylingsUI.ensure_single_instance: Entered")
         lock_file = PylingsUtils.get_lock_file_path()
         pid = None
         if path.exists(lock_file):
@@ -157,6 +164,7 @@ class PylingsUtils:
     @staticmethod
     def print_venv_instruction():
         """Print instructions on how to activate the virtual environment."""
+        logging.debug(f"PylingsUI.print_venv_instruction: Entered")
         print("\nTo use pylings you must be run inside a virtual environment!")
         if name == "nt":   
             print("➡ To activate the venv, run:")
@@ -168,6 +176,7 @@ class PylingsUtils:
 
     @staticmethod
     def print_exit_message():
+        logging.debug(f"PylingsUI.print_exit_message: Entered")
         print("\nThanks for using Pylings!")
         print("➡ Remember to run `deactivate` to exit the virtual environment")
         if name == "nt":   
@@ -177,3 +186,14 @@ class PylingsUtils:
             print("➡ When you come back, run:")
             print("  ➡ source venv/bin/activate")
         exit(1)
+
+    @staticmethod
+    def clear_log():
+        """Clears the current log file by truncating it."""
+        logging.debug(f"PylingsUI.clear_log: Entered")
+        log_file = logging.getLogger().handlers[0].baseFilename
+        try:
+            with open(log_file, "w") as f:
+                f.truncate(0)
+        except Exception as e:
+            print(f"Error clearing log file: {e}")

@@ -1,6 +1,6 @@
 
 from pylings.exercises import ExerciseManager
-from pylings.constants import (DONE,DONE_MESSAGE, EXERCISE_DONE, EXERCISE_ERROR, EXERCISE_OUTPUT,
+from pylings.constants import (DEBUG_PATH, DONE,DONE_MESSAGE, EXERCISE_DONE, EXERCISE_ERROR, EXERCISE_OUTPUT,
                                GIT_ADD, GIT_COMMIT, GIT_MESSAGE, LIST_VIEW, LIST_VIEW_NEXT,
                                MAIN_VIEW, MAIN_VIEW_NEXT, PENDING, SOLUTION_LINK
 )
@@ -11,6 +11,9 @@ from textual.containers import Horizontal, Vertical
 from textual.events import Key
 
 
+
+import logging
+logging.basicConfig(filename=DEBUG_PATH, level=logging.DEBUG, format="%(asctime)s - %(message)s")
 class PylingsUI(App):
     """Textual-based UI for Pylings."""
 
@@ -18,6 +21,7 @@ class PylingsUI(App):
 
     def __init__(self, exercise_manager: ExerciseManager):
         super().__init__()
+        logging.debug(f"PylingsUI.init: Entered")
         self.exercise_manager = exercise_manager
         self.current_exercise = self.exercise_manager.current_exercise
         self.list_focused = False
@@ -25,6 +29,7 @@ class PylingsUI(App):
 
     def compose(self) -> ComposeResult:
         """Build UI layout."""
+        logging.debug(f"PylingsUI.compose: Entered")
         yield Horizontal(
             Vertical(
                 Static("", id="output"),
@@ -46,27 +51,30 @@ class PylingsUI(App):
         yield self.footer_hints
 
     def on_mount(self):
-            """Update UI with initial exercise details."""
-            self.update_exercise_content()
-            sidebar = self.query_one("#sidebar", Vertical)
-            main_content = self.query_one("#main", Vertical)
+        """Update UI with initial exercise details."""
+        logging.debug(f"PylingsUI.on_mount: Entered")
+        self.update_exercise_content()
+        sidebar = self.query_one("#sidebar", Vertical)
+        main_content = self.query_one("#main", Vertical)
 
-            sidebar.add_class("hidden")
-            main_content.add_class("expanded")
+        sidebar.add_class("hidden")
+        main_content.add_class("expanded")
 
-            self.list_focused = False
-            self.footer_hints.update(MAIN_VIEW)
+        self.list_focused = False
+        self.footer_hints.update(MAIN_VIEW)
 
     def get_exercise_list(self):
-        """Generate exercise list for sidebar with updated status."""
-        items = []
-        for name, ex in self.exercise_manager.exercises.items():
-            status = DONE if ex["status"] == "DONE" else PENDING
-            items.append(ListItem(Static(f"{status} {name}")))
-        return items
+            """Generate exercise list for sidebar with updated status."""
+            logging.debug(f"PylingsUI.get_exercise_list: Entered")
+            items = []
+            for name, ex in self.exercise_manager.exercises.items():
+                status = DONE if ex["status"] == "DONE" else PENDING
+                items.append(ListItem(Static(f"{status} {name}")))
+            return items
 
     def update_exercise_content(self):
         """Update displayed exercise details, refresh the list, and update the exercise path."""
+        logging.debug(f"PylingsUI.update_exercise_content: Entered")
         exercise_path_widget = self.query_one("#exercise-path", Static)
         exercise_path = self.current_exercise if self.current_exercise else "No exercise selected"
         exercise_path_widget.update(f"Current exercise: {exercise_path}") 
@@ -76,15 +84,16 @@ class PylingsUI(App):
 
     def refresh_exercise_output(self):
         """Reloads exercise output when file changes."""
+        logging.debug(f"PylingsUI.refersh_exercise_output: Entered")
         if not self.current_exercise:
             return
         output_widget = self.query_one("#output", Static)
-        formatted_output = self.format_output()
+        formatted_output = self.build_output()
         output_widget.update(formatted_output)
-        self.footer_hints.update(self.view_options())
 
-    def format_output(self):
-        """Formats the exercise output for display in the UI."""
+    def build_output(self):
+        """Builds the exercise output for display in the UI."""
+        logging.debug(f"PylingsUI.build_output: Entered")
         if not self.current_exercise:
             return "No exercise selected."
 
@@ -114,16 +123,18 @@ class PylingsUI(App):
         return error_message
 
     def update_list_content(self):
+        logging.debug(f"PylingsUI.update_list_content: Entered")
         listview_widget = self.query_one("#exercise-list", ListView)
         listview_widget.clear()
         listview_widget.extend(self.get_exercise_list())
     
     def update_progress_bar(self):
         """Generate a Rustlings-style text progress bar inside Static."""
+        logging.debug(f"PylingsUI.update_progress_bar: Entered")
         progress_bar_widget = self.query_one("#progress-bar", Static)
         
         total_exercises = len(self.exercise_manager.exercises)
-        completed_exercises = sum(1 for ex in self.exercise_manager.exercises.values() if ex["status"] == "DONE")
+        completed_exercises = self.exercise_manager.completed_count #sum(1 for ex in self.exercise_manager.exercises.values() if ex["status"] == "DONE")
 
         bar_length = 55
         progress_fraction = completed_exercises / total_exercises if total_exercises > 0 else 0
@@ -150,11 +161,13 @@ class PylingsUI(App):
 
     def focus_list(self, enable):
         """Focus on the ListView for navigation."""
+        logging.debug(f"PylingsUI.focus_list: Entered")
         self.query_one("#exercise-list", ListView).focus()
         self.list_focused = enable
 
     def toggle_list_view(self):
         """Toggle the visibility of the exercise list view while preserving selection."""
+        logging.debug(f"PylingsUI.toggle_list_View: Entered")
         sidebar = self.query_one("#sidebar", Vertical)
         main_content = self.query_one("#main", Vertical)
         list_view = self.query_one("#exercise-list", ListView)
@@ -181,6 +194,7 @@ class PylingsUI(App):
             self.footer_hints.update(self.view_options())
 
     def view_options(self):
+        logging.debug(f"PylingsUI.view_options: Entered")
         if self.sidebar_visible == True:
             if self.exercise_manager.current_exercise_state == "DONE":
                 return LIST_VIEW_NEXT
@@ -194,6 +208,7 @@ class PylingsUI(App):
 
     def on_key(self, event: Key) -> None:
         """Handle keyboard shortcuts for navigation and actions."""
+        logging.debug(f"PylingsUI.on_key: Entered")
         if event.key == "q":
             self.exit()
         elif event.key == "n":
@@ -251,6 +266,7 @@ class PylingsUI(App):
                 self.update_list_content()
 
 if __name__ == "__main__":
+    logging.debug(f"PylingsUI.__main__: Entered")
     exercise_manager = ExerciseManager()
     app = PylingsUI(exercise_manager)
     app.run()
