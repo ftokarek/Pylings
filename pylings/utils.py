@@ -1,10 +1,11 @@
+from argparse import ArgumentParser, RawTextHelpFormatter
 from os import name, path, getpid, getenv
+from pathlib import Path
 from psutil import pid_exists
 from sys import prefix, exit
-from argparse import ArgumentParser, RawTextHelpFormatter
-from pathlib import Path
-import toml
 from pylings.constants import PYPROJECT_FILE, REPOSITORY
+import toml
+
 
 class PylingsUtils:
     """Utility class for virtual environment management and argument handling."""

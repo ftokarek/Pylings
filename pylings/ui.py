@@ -1,11 +1,15 @@
-from textual.app import App, ComposeResult
-from textual.widgets import  ListView, ListItem, ProgressBar, Static
-from textual.containers import Center, Horizontal, Vertical
-from textual.reactive import reactive
-from textual.events import Key
+
 from pylings.exercises import ExerciseManager
-from pylings.constants import DONE,DONE_MESSAGE, GIT_ADD, GIT_COMMIT, GIT_MESSAGE, EXERCISE_DONE, SOLUTION_LINK, PENDING, EXERCISE_OUTPUT, EXERCISE_ERROR, LIST_VIEW, MAIN_VIEW
-from rich.text import Text
+from pylings.constants import (DONE,DONE_MESSAGE, EXERCISE_DONE, EXERCISE_ERROR, EXERCISE_OUTPUT,
+                               GIT_ADD, GIT_COMMIT, GIT_MESSAGE, LIST_VIEW, LIST_VIEW_NEXT,
+                               MAIN_VIEW, MAIN_VIEW_NEXT, PENDING, SOLUTION_LINK
+)
+from rich.text import Text     
+from textual.app import App, ComposeResult
+from textual.widgets import  ListView, ListItem, Static
+from textual.containers import Horizontal, Vertical
+from textual.events import Key
+
 
 class PylingsUI(App):
     """Textual-based UI for Pylings."""
@@ -67,6 +71,7 @@ class PylingsUI(App):
         exercise_path = self.current_exercise if self.current_exercise else "No exercise selected"
         exercise_path_widget.update(f"Current exercise: {exercise_path}") 
         self.refresh_exercise_output()
+        self.view_options()
         self.update_progress_bar()
 
     def refresh_exercise_output(self):
@@ -76,6 +81,7 @@ class PylingsUI(App):
         output_widget = self.query_one("#output", Static)
         formatted_output = self.format_output()
         output_widget.update(formatted_output)
+        self.footer_hints.update(self.view_options())
 
     def format_output(self):
         """Formats the exercise output for display in the UI."""
@@ -163,24 +169,39 @@ class PylingsUI(App):
                 list_view.scroll_visible(list_view.children[selected_index])
                 
             self.list_focused = True
+            self.sidebar_visible = True
             
-            self.footer_hints.update(LIST_VIEW)
+            self.footer_hints.update(self.view_options())
     
         else:
             sidebar.add_class("hidden")
             main_content.add_class("expanded")
-            #self.list_focused = False
-            self.footer_hints.update(MAIN_VIEW)
+            self.list_focused = False
+            self.sidebar_visible = False
+            self.footer_hints.update(self.view_options())
+
+    def view_options(self):
+        if self.sidebar_visible == True:
+            if self.exercise_manager.current_exercise_state == "DONE":
+                return LIST_VIEW_NEXT
+            elif self.exercise_manager.current_exercise_state == "PENDING": 
+                return LIST_VIEW
+        else:
+            if self.exercise_manager.current_exercise_state == "DONE":
+                return MAIN_VIEW_NEXT
+            elif self.exercise_manager.current_exercise_state == "PENDING":
+                return MAIN_VIEW
 
     def on_key(self, event: Key) -> None:
         """Handle keyboard shortcuts for navigation and actions."""
         if event.key == "q":
             self.exit()
         elif event.key == "n":
-            self.exercise_manager.next_exercise()
-            self.current_exercise = self.exercise_manager.current_exercise
-            self.update_exercise_content()
-            self.update_list_content()
+            if self.exercise_manager.current_exercise_state == "DONE":
+                self.exercise_manager.next_exercise()
+                self.current_exercise = self.exercise_manager.current_exercise
+                self.update_exercise_content()
+                self.update_list_content()
         elif event.key == "r":
             self.exercise_manager.reset_exercise()
             self.update_exercise_content()
@@ -218,6 +239,7 @@ class PylingsUI(App):
                     new_exercise = self.exercise_manager.exercises[new_exercise_name]["path"]
                     self.exercise_manager.current_exercise = new_exercise
                     self.current_exercise = new_exercise
+                    self.exercise_manager.current_exercise_state = self.exercise_manager.exercises[new_exercise_name]["status"]
                     self.update_exercise_content()
 
                     if self.exercise_manager.watcher:        

@@ -1,12 +1,11 @@
-from shutil import copy
-import subprocess
-from sys import exit
 from pylings.config import ConfigManager
 from pylings.constants import (
-     BACKUP_DIR, DONE_MESSAGE, EXERCISES_DIR,
+     BACKUP_DIR, EXERCISES_DIR,
      FINISHED, SOLUTIONS_DIR
 )
 
+from shutil import copy
+import subprocess
 class ExerciseManager:
     """Manages exercises, including initialization, progression, resets, and output retrieval."""
 
@@ -14,6 +13,7 @@ class ExerciseManager:
         """Initializes the ExerciseManager and precomputes exercise states."""
         self.exercises = {}
         self.current_exercise = None
+        self.current_exercise_state = ""
         self.completed_count = 0
         self.completed_flag = False
         self.config_manager = ConfigManager()
@@ -46,8 +46,10 @@ class ExerciseManager:
         intro_exercise = EXERCISES_DIR / "00_intro" / "intro1.py"
         if self.first_time and intro_exercise.exists():
             self.current_exercise = intro_exercise
+            self.current_exercise_state = "DONE"
         else:
             self.current_exercise = self.get_next_pending_exercise()
+            self.current_exercise_state = "PENDING"
         
     def run_exercise(self, exercise):
         """Runs an exercise file and captures its output and errors with a timeout."""
@@ -85,7 +87,8 @@ class ExerciseManager:
             self.exercises[self.current_exercise.name]["status"] = "DONE" if result.returncode == 0 else "PENDING"
             self.exercises[self.current_exercise.name]["output"] = self.format_exercise_output(result.stdout) if result.returncode == 0 else ""
             self.exercises[self.current_exercise.name]["error"] = self.format_exercise_output(result.stderr) if result.returncode != 0 else None
-
+            self.current_exercise_state = self.exercises[self.current_exercise.name]["status"]
+            
             if prev_status != "DONE" and new_status == "DONE":
                 self.completed_count += 1
             elif prev_status == "DONE" and new_status != "DONE":
@@ -117,6 +120,7 @@ class ExerciseManager:
             self.show_hint = False
 
             self.update_exercise_output()
+            self.current_exercise_state = self.exercises[self.current_exercise.name]["status"]
             if self.watcher:
                 self.watcher.restart(str(self.current_exercise.parent))
         else:
