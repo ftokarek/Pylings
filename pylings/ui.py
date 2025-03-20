@@ -9,6 +9,7 @@ from textual.app import App, ComposeResult
 from textual.widgets import  ListView, ListItem, Static
 from textual.containers import Horizontal, Vertical
 from textual.events import Key
+from time import sleep
 
 
 
@@ -154,12 +155,20 @@ class PylingsUI(App):
         """Update the UI to show checking progress."""
         logging.debug(f"PylingsUI.update_update_progress: Entered")
         check_progress_widget = self.query_one("#checking-all-exercises-status", Static)
-
+        
         if exercise_name:
             logging.debug(f"PylingsUI.update_update_progress.exercise_name: {exercise_name} {completed}/{total-1}")
             check_progress_widget.update(f"Checking exercise: {completed}/{total-1 } {exercise_name}")
-        
         self.refresh()
+
+
+    def finished_check_progress_notice(self, clear=False):
+        check_progress_widget = self.query_one("#checking-all-exercises-status", Static)
+        
+        if clear:
+            check_progress_widget.update("")
+        else:
+            check_progress_widget.update("Finished checking all exercises")
 
     def focus_list(self, enable):
         """Focus on the ListView for navigation."""
@@ -233,6 +242,7 @@ class PylingsUI(App):
                 self.exercise_manager.toggle_hint()
         elif event.key == "l":
             self.toggle_list_view()
+            self.finished_check_progress_notice(True)
             event.key = "tab"
         elif self.list_focused and event.key in ("up", "down", "end", "home","c", "s"):
             list_view = self.query_one("#exercise-list", ListView)
@@ -264,6 +274,7 @@ class PylingsUI(App):
 
             elif event.key == "c":
                 self.exercise_manager.check_all_exercises(progress_callback=self.update_check_progress)
+                self.finished_check_progress_notice(False)
                 self.update_exercise_content()
                 self.update_list_content()
 
