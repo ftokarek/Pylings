@@ -28,7 +28,9 @@ class ExerciseManager:
         self.first_time = self.config_manager.check_first_time()
         self.watcher = None  
         self.show_hint = False  
+        logging.debug(f"ExerciseManager.init.self: {self.__dict__}")
         self.initialize_exercises()
+
 
     def initialize_exercises(self):        
         """Runs all exercises at launch and stores their state in the correct order."""
@@ -78,6 +80,7 @@ class ExerciseManager:
     def run_exercise(self, exercise):
         """Runs an exercise file and captures its output and errors with a timeout."""
         logging.debug(f"ExerciseManager.run_exercise: Entered")
+        logging.debug(f"ExerciseManager.run_exercise.exercise: {exercise}")
         try:
             process = subprocess.Popen(
                 ["python", str(exercise)],
@@ -105,10 +108,13 @@ class ExerciseManager:
         """Re-runs the current exercise to update its output and status."""
         logging.debug(f"ExerciseManager.update_exercise_output: Entered")    
         if self.arg_exercise is not None:
+            logging.debug(f"ExerciseManager.update_exercise_output.self.arg_exercise: {self.arg_exercise}")   
             self.current_exercise = self.arg_exercise
+            logging.debug(f"ExerciseManager.update_exercise_output.self.current_exercise: {self.current_exercise}")
             self.arg_exercise = None
 
         if self.current_exercise:
+            logging.debug(f"ExerciseManager.update_exercise_output.self.current_exercise: {self.current_exercise}")
             result = self.run_exercise(self.current_exercise)
             prev_status = self.exercises[self.current_exercise.name]["status"]
             new_status = "DONE" if result.returncode == 0 else "PENDING"
@@ -137,6 +143,7 @@ class ExerciseManager:
         logging.debug(f"ExerciseManager.get_next_pending_exercise: Entered")
         for ex_data in self.exercises.values():
             if ex_data["status"] == "PENDING":
+                logging.debug(f"ExerciseManager.get_next_pending_exercise: {ex_data["path"]}")
                 return ex_data["path"]
         return None
 
@@ -150,11 +157,12 @@ class ExerciseManager:
             new_exercise = exercises[current_index + 1]["path"]
             self.current_exercise = new_exercise
             self.show_hint = False
+            logging.debug(f"ExerciseManager.next_exercise.self.current_exercise: {self.current_exercise}")
 
             self.update_exercise_output()
             self.current_exercise_state = self.exercises[self.current_exercise.name]["status"]
             if self.watcher:
-                self.watcher.restart(str(self.current_exercise.parent))
+                self.watcher.restart(str(self.current_exercise))
         else:
             print("All exercises completed!")
 
@@ -162,6 +170,7 @@ class ExerciseManager:
         """Resets the current exercise to its backup version and updates progress."""
         logging.debug(f"ExerciseManager.reset_exercise: Entered")
         if self.current_exercise:
+            logging.debug(f"ExerciseManager.reset_exercise.self.current_exercise: {self.current_exercise}")
             backup_path = BACKUP_DIR / self.current_exercise.relative_to(EXERCISES_DIR)
             if backup_path.exists():
                 copy(backup_path, self.current_exercise)
@@ -179,8 +188,8 @@ class ExerciseManager:
     def check_all_exercises(self, progress_callback=None):
         """Runs all exercises in parallel while maintaining the original order."""
         logging.debug(f"ExerciseManager.check_all_exercises: Entered")
-        
         current_exercise_path = self.current_exercise
+        logging.debug(f"ExerciseManager.check_all_exercises.current_exercise_path : {current_exercise_path }")
         exercises = list(self.exercises.values())
         results = []
 
@@ -194,6 +203,7 @@ class ExerciseManager:
                 try:
                     result = future.result()
                     results.append((index, result))
+                    logging.debug(f"ExerciseManager.check_all_exercises.result : {result.args[0]} -> {result.returncode}")
                 except Exception as e:
                     print(f"Error processing exercise: {e}")
 
@@ -229,6 +239,7 @@ class ExerciseManager:
             relative_path = self.current_exercise.relative_to(EXERCISES_DIR)
             solution_path = SOLUTIONS_DIR / relative_path
             if solution_path.exists():
+                logging.debug(f"ExerciseManager.get_solution.solution_path: {solution_path}")
                 return solution_path
             return None
         except Exception as e:

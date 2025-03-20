@@ -134,7 +134,7 @@ class PylingsUI(App):
         progress_bar_widget = self.query_one("#progress-bar", Static)
         
         total_exercises = len(self.exercise_manager.exercises)
-        completed_exercises = self.exercise_manager.completed_count #sum(1 for ex in self.exercise_manager.exercises.values() if ex["status"] == "DONE")
+        completed_exercises = self.exercise_manager.completed_count
 
         bar_length = 55
         progress_fraction = completed_exercises / total_exercises if total_exercises > 0 else 0
@@ -152,10 +152,12 @@ class PylingsUI(App):
 
     def update_check_progress(self, exercise_name, completed, total):
         """Update the UI to show checking progress."""
+        logging.debug(f"PylingsUI.update_update_progress: Entered")
         check_progress_widget = self.query_one("#checking-all-exercises-status", Static)
 
-        #if exercise_name:
-        #    check_progress_widget.update(f"Checking exercise: {completed}/{total-1 } {exercise_name}")
+        if exercise_name:
+            logging.debug(f"PylingsUI.update_update_progress.exercise_name: {exercise_name} {completed}/{total-1}")
+            check_progress_widget.update(f"Checking exercise: {completed}/{total-1 } {exercise_name}")
         
         self.refresh()
 

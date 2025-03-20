@@ -46,7 +46,7 @@ def main():
     watcher_thread = Thread(target=watcher.start, daemon=True)
     
     if exercise_manager.current_exercise:
-        watcher.start(str(exercise_manager.current_exercise.parent))
+        watcher.start(str(exercise_manager.current_exercise))
 
     try:
         app.run()

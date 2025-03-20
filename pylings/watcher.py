@@ -22,8 +22,9 @@ class Watcher:
         logging.debug(f"Watcher.start: Entered")
         self.observer = Observer()
         handler = self.ChangeHandler(self.exercise_manager, self.ui_manager)
-        path_to_watch = exercise_path or self.exercise_manager.current_exercise.parent
+        path_to_watch = exercise_path or self.exercise_manager.current_exercise
         self.observer.schedule(handler, str(path_to_watch), recursive=False)
+        logging.debug(f"Watcher.start.path_to_watch: {path_to_watch}")
         self.observer.start()
 
     def stop(self):
@@ -37,6 +38,7 @@ class Watcher:
         """Restarts the watcher for a new exercise."""
         logging.debug(f"Watcher.restart: Entered")
         self.stop()
+        logging.debug(f"Watcher.restart.new_exercise_path: {new_exercise_path}")
         self.start(new_exercise_path)
 
     class ChangeHandler(FileSystemEventHandler):
@@ -55,7 +57,8 @@ class Watcher:
             current_time = time()
             exercise_path = path.abspath(str(self.exercise_manager.current_exercise))
             event_path = path.abspath(event.src_path)
-
+            logging.debug(f"ChangeHandler.on_modified.exercise_path: {exercise_path}")
+            logging.debug(f"ChangeHandler.on_modified.event_path: {event_path}")
             if event_path == exercise_path and (current_time - self.last_modified_time) > 0.5:
                 self.last_modified_time = current_time
                 stdout.flush()
