@@ -43,10 +43,10 @@ def main():
     app = PylingsUI(exercise_manager)
     watcher.ui_manager = app 
     
-    watcher_thread = Thread(target=watcher.start, daemon=True)
+    #watcher_thread = Thread(target=watcher.start, daemon=True)
     
     if exercise_manager.current_exercise:
-        watcher.start(str(exercise_manager.current_exercise))
+        watcher.start(str(exercise_manager.current_exercise.parent))
 
     try:
         app.run()

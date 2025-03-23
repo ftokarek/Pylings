@@ -1,6 +1,6 @@
-from os import path
-from sys import stdout
-from time import time
+import os
+import hashlib
+from threading import Timer
 from watchdog.observers import Observer
 from watchdog.events import FileSystemEventHandler
 from pylings.constants import DEBUG_PATH
@@ -42,27 +42,54 @@ class Watcher:
         self.start(new_exercise_path)
 
     class ChangeHandler(FileSystemEventHandler):
-        """Handles file modification events."""
-
         def __init__(self, exercise_manager, ui_manager):
-            """Initializes the change handler with the exercise manager and UI manager."""
-            logging.debug(f"ChangeHandler.init: Entered")
+            logging.debug("ChangeHandler.__init__: Entered")
             self.exercise_manager = exercise_manager
             self.ui_manager = ui_manager
-            self.last_modified_time = 0
+            self.last_hash = None
+            self.debounce_timer = None
+            self.debounce_interval = 0.3  # adjust if needed
+
+        def get_file_hash(self, file_path):
+            try:
+                with open(file_path, "rb") as f:
+                    return hashlib.blake2b(f.read(), digest_size=16).hexdigest()
+            except Exception as e:
+                logging.error(f"ChangeHandler.get_file_hash error: {e}")
+                return None
+
+        def trigger_update_if_changed(self, event_path):
+            current_exercise_path = os.path.abspath(str(self.exercise_manager.current_exercise))
+            event_path = os.path.abspath(event_path)
+
+            if event_path != current_exercise_path:
+                return
+
+            current_hash = self.get_file_hash(event_path)
+            if not current_hash or current_hash == self.last_hash:
+                logging.debug("ChangeHandler: No content change or unreadable file")
+                return
+
+            self.last_hash = current_hash
+
+            if self.debounce_timer:
+                self.debounce_timer.cancel()
+
+            self.debounce_timer = Timer(self.debounce_interval, self._handle_file_change)
+            self.debounce_timer.start()
 
         def on_modified(self, event):
-            """Triggered when an exercise file is modified."""
-            logging.debug(f"ChangeHandler.on_modified: Entered")
-            current_time = time()
-            exercise_path = path.abspath(str(self.exercise_manager.current_exercise))
-            event_path = path.abspath(event.src_path)
-            logging.debug(f"ChangeHandler.on_modified.exercise_path: {exercise_path}")
-            logging.debug(f"ChangeHandler.on_modified.event_path: {event_path}")
-            if event_path == exercise_path and (current_time - self.last_modified_time) > 0.5:
-                self.last_modified_time = current_time
-                stdout.flush()
-                self.exercise_manager.update_exercise_output()
+            logging.debug("ChangeHandler.on_modified: Entered")
+            if not event.is_directory:
+                self.trigger_update_if_changed(event.src_path)
 
-                if self.ui_manager:
-                    self.ui_manager.call_from_thread(self.ui_manager.update_exercise_content)  # Ensures the latest output is displayed
+        def on_created(self, event):
+            logging.debug("ChangeHandler.on_created: Entered")
+            if not event.is_directory:
+                self.trigger_update_if_changed(event.src_path)
+
+        def _handle_file_change(self):
+            logging.debug("ChangeHandler._handle_file_change: Updating exercise")
+            self.exercise_manager.update_exercise_output()
+            if self.ui_manager:
+                self.ui_manager.call_from_thread(self.ui_manager.update_exercise_content)

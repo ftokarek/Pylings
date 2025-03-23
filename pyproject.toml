@@ -1,5 +1,5 @@
 [project]
 name = "pylings"
-version = "2.1.0"
+version = "2.2.0"
 description = "A collection of small exercises to get you used to writing and reading Python code."
 license = {text = "MIT"}
