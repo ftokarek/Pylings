@@ -1,5 +1,29 @@
+[build-system]
+requires = ["setuptools>=61"]
+build-backend = "setuptools.build_meta"
+
 [project]
 name = "pylings"
-version = "2.2.0"
-description = "A collection of small exercises to get you used to writing and reading Python code."
-license = {text = "MIT"}
+version = "0.1.0"
+description = "Python exercise trainer, inspired by rustlings."
+authors = [{ name="Seb Blair", email="s.blair@gre.ac.uk" }]
+readme = "README.md"
+license = "MIT"
+license-files = ["LICENSE.md"]
+dependencies = [
+    "textual",
+    "psutil",
+    "watchdog",
+    "rich",
+    "toml"
+]
+
+[project.scripts]
+pylings = "pylings.__main__:main"
+
+[tool.setuptools]
+packages = ["pylings"]
+include-package-data = true
+
+[tool.setuptools.package-data]
+pylings = ["config/*.toml", "styles/*.tcss", "solutions/*/*.py", "backups/*/*.py", "exercises/*/*.py"]

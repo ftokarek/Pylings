@@ -1,15 +1,18 @@
 """constants.py: Shared constants for pylings project"""
 
 from pathlib import Path
+import os
 
 # FILE PATHS
-EXERCISES_DIR = Path("exercises")
-SOLUTIONS_DIR = Path("solutions")
-BACKUP_DIR = Path("backups")
-CONFIG_FILE = Path("pylings/config/config.toml")
-PYPROJECT_FILE = Path("pyproject.toml")
-FIRSTTIME_FILE = Path("venv/.firsttime")
-DEBUG_PATH = Path("venv/pylings_debug.log")
+BASE_DIR = Path.cwd()
+CONFIG_FILE = Path(__file__).parent / "config" / "config.toml"
+EXERCISES_DIR = BASE_DIR / "exercises"
+SOLUTIONS_DIR = BASE_DIR / "solutions"
+BACKUP_DIR = Path(__file__).parent / Path("backups")
+#CONFIG_FILE = PYLINGS_DIR / Path("pylings/config/config.toml")
+PYPROJECT_FILE =""# PYLINGS_DIR / Path("pyproject.toml")
+FIRSTTIME_FILE = Path(__file__).parent / "firsttime"
+DEBUG_PATH = Path(__file__).parent / "pylings_debug.log"
 
 # MARKUP STYLES FOR TEXTUAL
 GREEN = "[lightgreen]"

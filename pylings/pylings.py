@@ -25,9 +25,6 @@ def shutdown(exercise_manager, watcher):
 def main():
     """Main function to run the Pylings application."""
     logging.debug(f"pylings.main: entered")
-    PylingsUtils.clear_log()
-    if not PylingsUtils.is_in_virtual_env():
-        PylingsUtils.print_venv_instruction()
 
     PylingsUtils.ensure_single_instance()   
 
@@ -36,6 +33,10 @@ def main():
     exercise_manager.watcher = watcher   
     
     args = PylingsUtils.parse_args()
+    # Early exit if not in a pylings workspace and not running 'init'
+    if args.command != "init" and not PylingsUtils.is_pylings_toml():
+        exit(1)
+
 
     if PylingsUtils.handle_args(args, exercise_manager, watcher):
         exercise_manager.update_exercise_output()

@@ -26,23 +26,23 @@ from pylings.constants import (
 from pylings.utils import PylingsUtils
 
 import logging
-logging.basicConfig(filename=DEBUG_PATH, level=logging.DEBUG, format="%(asctime)s - %(message)s")
+
 class ConfigManager:
     """Handles loading, updating, and accessing configuration settings."""
 
     def __init__(self):
         """Initializes the configuration manager by reading the config file."""
-        logging.debug(f"ConfigManager.__init__: Entered")
+        ##logging.debug(f"ConfigManager.__init__: Entered")
         self.config = self.load_config()
 
     def load_config(self):
-        logging.debug(f"ConfigManager.load_config: Entered")
+        ##logging.debug(f"ConfigManager.load_config: Entered")
         with open(CONFIG_FILE, "r", encoding="utf-8") as f:
             return load(f)
 
     def check_first_time(self):
         """Checks and handles the first-time setup, then updates the firsttime flag."""
-        logging.debug(f"ConfigManager.check_first_time: Entered")
+        ##logging.debug(f"ConfigManager.check_first_time: Entered")
         args = PylingsUtils.parse_args()
         num_args = len(argv) - 1   
 
@@ -76,7 +76,7 @@ class ConfigManager:
         Returns:
             str: The hint for the exercise, or an error message if no hint is found.
         """
-        logging.debug(f"ConfigManager.get_hint: Entered")
+        ##logging.debug(f"ConfigManager.get_hint: Entered")
         if not current_exercise:
             return f"{NO_EXERCISE_MESSAGE}"
 

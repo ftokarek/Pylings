@@ -3,21 +3,21 @@ from pylings.constants import (
      BACKUP_DIR,DEBUG_PATH, EXERCISES_DIR,
      FINISHED, SOLUTIONS_DIR
 )
-
-from shutil import copy
+from pathlib import Path
+from shutil import copy, copy2
 import subprocess
 from concurrent.futures import ThreadPoolExecutor,ProcessPoolExecutor, as_completed
 import subprocess
-
+import pylings
 import logging
-logging.basicConfig(filename=DEBUG_PATH, level=logging.DEBUG, format="%(asctime)s - %(message)s")
+
 
 class ExerciseManager:
     """Manages exercises, including initialization, progression, resets, and output retrieval."""
 
     def __init__(self):
         """Initializes the ExerciseManager and precomputes exercise states."""
-        logging.debug(f"ExerciseManager.init: Entered")
+        ##logging.debug(f"ExerciseManager.init: Entered")
         self.exercises = {}
         self.current_exercise = None
         self.current_exercise_state = ""
@@ -28,13 +28,13 @@ class ExerciseManager:
         self.first_time = self.config_manager.check_first_time()
         self.watcher = None  
         self.show_hint = False  
-        logging.debug(f"ExerciseManager.init.self: {self.__dict__}")
+        ##logging.debug(f"ExerciseManager.init.self: {self.__dict__}")
         self.initialize_exercises()
 
 
     def initialize_exercises(self):        
         """Runs all exercises at launch and stores their state in the correct order."""
-        logging.debug(f"ExerciseManager.initialise_exercises: Entered")
+        ##logging.debug(f"ExerciseManager.initialise_exercises: Entered")
 
         exercises = sorted(EXERCISES_DIR.rglob("*.py"))
         
@@ -79,8 +79,8 @@ class ExerciseManager:
 
     def run_exercise(self, exercise):
         """Runs an exercise file and captures its output and errors with a timeout."""
-        logging.debug(f"ExerciseManager.run_exercise: Entered")
-        logging.debug(f"ExerciseManager.run_exercise.exercise: {exercise}")
+        ##logging.debug(f"ExerciseManager.run_exercise: Entered")
+        ##logging.debug(f"ExerciseManager.run_exercise.exercise: {exercise}")
         try:
             process = subprocess.Popen(
                 ["python", str(exercise)],
@@ -106,15 +106,15 @@ class ExerciseManager:
 
     def update_exercise_output(self):
         """Re-runs the current exercise to update its output and status."""
-        logging.debug(f"ExerciseManager.update_exercise_output: Entered")    
+        ##logging.debug(f"ExerciseManager.update_exercise_output: Entered")    
         if self.arg_exercise is not None:
-            logging.debug(f"ExerciseManager.update_exercise_output.self.arg_exercise: {self.arg_exercise}")   
+            ##logging.debug(f"ExerciseManager.update_exercise_output.self.arg_exercise: {self.arg_exercise}")   
             self.current_exercise = self.arg_exercise
-            logging.debug(f"ExerciseManager.update_exercise_output.self.current_exercise: {self.current_exercise}")
+            ##logging.debug(f"ExerciseManager.update_exercise_output.self.current_exercise: {self.current_exercise}")
             self.arg_exercise = None
 
         if self.current_exercise:
-            logging.debug(f"ExerciseManager.update_exercise_output.self.current_exercise: {self.current_exercise}")
+            ##logging.debug(f"ExerciseManager.update_exercise_output.self.current_exercise: {self.current_exercise}")
             result = self.run_exercise(self.current_exercise)
             prev_status = self.exercises[self.current_exercise.name]["status"]
             new_status = "DONE" if result.returncode == 0 else "PENDING"
@@ -134,22 +134,22 @@ class ExerciseManager:
                 self.completed_flag = True
 
     def format_exercise_output(self,output):
-        logging.debug(f"ExerciseManager.format_exercise_output: Entered")
+        ##logging.debug(f"ExerciseManager.format_exercise_output: Entered")
         safe_output = output.replace("[", "\\[") 
         return safe_output
 
     def get_next_pending_exercise(self):
         """Finds the next exercise that is still PENDING."""
-        logging.debug(f"ExerciseManager.get_next_pending_exercise: Entered")
+        ##logging.debug(f"ExerciseManager.get_next_pending_exercise: Entered")
         for ex_data in self.exercises.values():
             if ex_data["status"] == "PENDING":
-                logging.debug(f"ExerciseManager.get_next_pending_exercise: {ex_data["path"]}")
+                ##logging.debug(f"ExerciseManager.get_next_pending_exercise: {ex_data["path"]}")
                 return ex_data["path"]
         return None
 
     def next_exercise(self):
         """Advances to the next exercise in the list and restarts the watcher."""
-        logging.debug(f"ExerciseManager.next_exercise: Entered")
+        ##logging.debug(f"ExerciseManager.next_exercise: Entered")
         exercises = list(self.exercises.values())
         current_index = next((i for i, ex in enumerate(exercises) if ex["path"] == self.current_exercise), None)
 
@@ -157,7 +157,7 @@ class ExerciseManager:
             new_exercise = exercises[current_index + 1]["path"]
             self.current_exercise = new_exercise
             self.show_hint = False
-            logging.debug(f"ExerciseManager.next_exercise.self.current_exercise: {self.current_exercise}")
+            ##logging.debug(f"ExerciseManager.next_exercise.self.current_exercise: {self.current_exercise}")
 
             self.update_exercise_output()
             self.current_exercise_state = self.exercises[self.current_exercise.name]["status"]
@@ -168,12 +168,18 @@ class ExerciseManager:
 
     def reset_exercise(self):
         """Resets the current exercise to its backup version and updates progress."""
-        logging.debug(f"ExerciseManager.reset_exercise: Entered")
+        ##logging.debug(f"ExerciseManager.reset_exercise: Entered")
         if self.current_exercise:
-            logging.debug(f"ExerciseManager.reset_exercise.self.current_exercise: {self.current_exercise}")
-            backup_path = BACKUP_DIR / self.current_exercise.relative_to(EXERCISES_DIR)
-            if backup_path.exists():
-                copy(backup_path, self.current_exercise)
+            ##logging.debug(f"ExerciseManager.reset_exercise.self.current_exercise: {self.current_exercise}")
+
+            backup_path = self.current_exercise.relative_to(EXERCISES_DIR)
+            package_root = Path(pylings.__file__).parent
+            root_backup = package_root / "backups" / backup_path
+
+            if root_backup.exists():
+                # Copy root solution into local solutions dir
+                root_backup.parent.mkdir(parents=True, exist_ok=True)
+                copy(root_backup, self.current_exercise)
                 prev_status = self.exercises[self.current_exercise.name]["status"]
                 self.update_exercise_output()
 
@@ -187,9 +193,9 @@ class ExerciseManager:
 
     def check_all_exercises(self, progress_callback=None):
         """Runs all exercises in parallel while maintaining the original order."""
-        logging.debug(f"ExerciseManager.check_all_exercises: Entered")
+        ##logging.debug(f"ExerciseManager.check_all_exercises: Entered")
         current_exercise_path = self.current_exercise
-        logging.debug(f"ExerciseManager.check_all_exercises.current_exercise_path : {current_exercise_path }")
+        ##logging.debug(f"ExerciseManager.check_all_exercises.current_exercise_path : {current_exercise_path }")
         exercises = list(self.exercises.values())
         results = []
 
@@ -203,7 +209,7 @@ class ExerciseManager:
                 try:
                     result = future.result()
                     results.append((index, result))
-                    logging.debug(f"ExerciseManager.check_all_exercises.result : {result.args[0]} -> {result.returncode}")
+                    ##logging.debug(f"ExerciseManager.check_all_exercises.result : {result.args[0]} -> {result.returncode}")
                 except Exception as e:
                     print(f"Error processing exercise: {e}")
 
@@ -232,25 +238,42 @@ class ExerciseManager:
 
     def get_solution(self):
         """Return the solution file path for the given current exercise."""
-        logging.debug(f"ExerciseManager.get_solution: Entered")
         if not self.current_exercise:
             return None
+
         try:
+            # Ensure solutions/ directory exists (in CWD)
+            SOLUTIONS_DIR.mkdir(parents=True, exist_ok=True)
+
+            # Calculate relative path of current exercise
             relative_path = self.current_exercise.relative_to(EXERCISES_DIR)
+
+            # Check if user-created solution exists
             solution_path = SOLUTIONS_DIR / relative_path
             if solution_path.exists():
-                logging.debug(f"ExerciseManager.get_solution.solution_path: {solution_path}")
                 return solution_path
+
+            package_root = Path(pylings.__file__).parent
+            root_solution = package_root / "solutions" / relative_path
+
+            if root_solution.exists():
+                # Copy root solution into local solutions dir
+                solution_path.parent.mkdir(parents=True, exist_ok=True)
+                copy2(root_solution, solution_path)
+                return solution_path
+
             return None
+
         except Exception as e:
             print(f"Error resolving solution path: {e}")
             return None
 
+
     def toggle_hint(self):
         """Toggles the hint display flag."""
-        logging.debug(f"ExerciseManager.toggle_hint: Entered")
+        ##logging.debug(f"ExerciseManager.toggle_hint: Entered")
         self.show_hint = not self.show_hint
 
     def finish(self):
-        logging.debug(f"ExerciseManager.toggle_hint: Entered")
+        ##logging.debug(f"ExerciseManager.toggle_hint: Entered")
         print(f"{FINISHED}")
