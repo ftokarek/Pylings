@@ -264,6 +264,7 @@ class PylingsUI(App):
                     new_exercise = self.exercise_manager.exercises[new_exercise_name]["path"]
                     self.exercise_manager.current_exercise = new_exercise
                     self.current_exercise = new_exercise
+                    self.exercise_manager.config_manager.set_lasttime_exercise(self.current_exercise)
                     self.exercise_manager.current_exercise_state = self.exercise_manager.exercises[new_exercise_name]["status"]
                     self.update_exercise_content()
 

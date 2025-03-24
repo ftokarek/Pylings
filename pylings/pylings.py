@@ -5,7 +5,7 @@ from pylings.utils import PylingsUtils
 from pylings.watcher import Watcher
 from pylings.ui import PylingsUI
 from pylings.constants import DEBUG_PATH
-
+from pylings.config import ConfigManager
 
 import logging
 logging.basicConfig(filename=DEBUG_PATH, level=logging.DEBUG, format="%(asctime)s - %(message)s")
@@ -26,16 +26,18 @@ def main():
     """Main function to run the Pylings application."""
     logging.debug(f"pylings.main: entered")
 
-    PylingsUtils.ensure_single_instance()   
+    args = PylingsUtils.parse_args()
+    if args.command == "init":
+        PylingsUtils.handle_args(args, None, None)  # no need for exercise manager
+        return
+    # Early exit if not in a pylings workspace and not running 'init'
+    if args.command != "init" and not PylingsUtils.is_pylings_toml():
+        exit(1)
 
     exercise_manager = ExerciseManager()
     watcher = Watcher(exercise_manager, None) 
     exercise_manager.watcher = watcher   
-    
-    args = PylingsUtils.parse_args()
-    # Early exit if not in a pylings workspace and not running 'init'
-    if args.command != "init" and not PylingsUtils.is_pylings_toml():
-        exit(1)
+
 
 
     if PylingsUtils.handle_args(args, exercise_manager, watcher):
