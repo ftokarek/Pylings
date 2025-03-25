@@ -12,14 +12,12 @@ class Watcher:
 
     def __init__(self, exercise_manager, ui_manager):
         """Initializes the Watcher with exercise and UI managers."""
-        logging.debug(f"Watcher.init: Entered")
         self.exercise_manager = exercise_manager
         self.ui_manager = ui_manager
         self.observer = None
 
     def start(self, exercise_path=None):
         """Starts the file watcher for a specific exercise."""
-        logging.debug(f"Watcher.start: Entered")
         self.observer = Observer()
         handler = self.ChangeHandler(self.exercise_manager, self.ui_manager)
         path_to_watch = exercise_path or self.exercise_manager.current_exercise
@@ -29,21 +27,18 @@ class Watcher:
 
     def stop(self):
         """Stops the file watcher observer."""
-        logging.debug(f"Watcher.stop: Entered")
         if self.observer:
             self.observer.stop()
             self.observer.join()
 
     def restart(self, new_exercise_path):
         """Restarts the watcher for a new exercise."""
-        logging.debug(f"Watcher.restart: Entered")
         self.stop()
         logging.debug(f"Watcher.restart.new_exercise_path: {new_exercise_path}")
         self.start(new_exercise_path)
 
     class ChangeHandler(FileSystemEventHandler):
         def __init__(self, exercise_manager, ui_manager):
-            logging.debug("ChangeHandler.__init__: Entered")
             self.exercise_manager = exercise_manager
             self.ui_manager = ui_manager
             self.last_hash = None
@@ -79,12 +74,10 @@ class Watcher:
             self.debounce_timer.start()
 
         def on_modified(self, event):
-            logging.debug("ChangeHandler.on_modified: Entered")
             if not event.is_directory:
                 self.trigger_update_if_changed(event.src_path)
 
         def on_created(self, event):
-            logging.debug("ChangeHandler.on_created: Entered")
             if not event.is_directory:
                 self.trigger_update_if_changed(event.src_path)
 

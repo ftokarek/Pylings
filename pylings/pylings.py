@@ -12,7 +12,7 @@ logging.basicConfig(filename=DEBUG_PATH, level=logging.DEBUG, format="%(asctime)
 
 def shutdown(exercise_manager, watcher):
     """Gracefully shut down and release all resources."""
-    logging.debug(f"pylings.shutdown: entered")  
+      
     print("\nShutting down and releasing resources.")
     if watcher:
         watcher.stop()
@@ -24,13 +24,11 @@ def shutdown(exercise_manager, watcher):
 
 def main():
     """Main function to run the Pylings application."""
-    logging.debug(f"pylings.main: entered")
-
     args = PylingsUtils.parse_args()
     if args.command == "init":
-        PylingsUtils.handle_args(args, None, None)  # no need for exercise manager
+        PylingsUtils.handle_args(args, None, None)
         return
-    # Early exit if not in a pylings workspace and not running 'init'
+
     if args.command != "init" and not PylingsUtils.is_pylings_toml():
         exit(1)
 
@@ -38,16 +36,12 @@ def main():
     watcher = Watcher(exercise_manager, None) 
     exercise_manager.watcher = watcher   
 
-
-
     if PylingsUtils.handle_args(args, exercise_manager, watcher):
         exercise_manager.update_exercise_output()
 
     app = PylingsUI(exercise_manager)
     watcher.ui_manager = app 
-    
-    #watcher_thread = Thread(target=watcher.start, daemon=True)
-    
+      
     if exercise_manager.current_exercise:
         watcher.start(str(exercise_manager.current_exercise.parent))
 

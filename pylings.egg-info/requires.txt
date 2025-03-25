@@ -1,5 +1,0 @@
-textual
-psutil
-watchdog
-rich
-toml

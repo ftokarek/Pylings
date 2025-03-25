@@ -32,18 +32,15 @@ class ConfigManager:
 
     def __init__(self):
         """Initializes the configuration manager by reading the config file."""
-        logging.debug(f"ConfigManager.__init__: Entered")
         self.config = self.load_config()
 
     def load_config(self):
-        logging.debug(f"ConfigManager.load_config: Entered")
         logging.debug(f"ConfigManager.load_config.CONFIG_FILE:{CONFIG_FILE}")
         with open(CONFIG_FILE, "r", encoding="utf-8") as f:
             return load(f)
     
     def check_first_time(self):
         """Checks and handles the first-time setup, then updates the firsttime flag."""
-        logging.debug("ConfigManager.check_first_time: Entered")
         args = PylingsUtils.parse_args()
         num_args = len(argv) - 1
 
@@ -52,7 +49,6 @@ class ConfigManager:
                 with open(PYLINGS_TOML, "r", encoding="utf-8") as f:
                     self.config = load(f)
                 if self.config["workspace"]["firsttime"] == True:
-                    #Update firsttime to false
                     self.config["workspace"]["firsttime"] = False
                     with open(PYLINGS_TOML, "w", encoding="utf-8") as f:
                         dump(self.config, f)
@@ -62,20 +58,14 @@ class ConfigManager:
                     print(CLEAR_SCREEN, end="", flush=True)
                     print("Welcome message:", welcome_message)
                     input("\nPress Enter to continue...")
-
-
                     return True
-
                 return False
-
             except FileNotFoundError:
                 print(f"Error: The file {PYLINGS_TOML} does not exist.")
-                return None
-
-        return None
+                return False
+        return False
 
     def get_lasttime_exercise(self):
-        logging.debug(f"ConfigManager.get_lasttime_exercise: Entered")
         try:
             with open(PYLINGS_TOML, "r", encoding="utf-8") as f:
                 self.config = load(f)
@@ -93,11 +83,9 @@ class ConfigManager:
 
 
     def set_lasttime_exercise(self,current_exercise):
-        logging.debug(f"ConfigManager.set_lasttime_exercise: Entered")
         try:
             with open(PYLINGS_TOML, "r", encoding="utf-8") as f:
                 self.config = load(f)
-                #Update firsttime to false
                 self.config["workspace"]["current_exercise"] = str(current_exercise)
                 with open(PYLINGS_TOML, "w", encoding="utf-8") as f:
                     dump(self.config, f)
@@ -114,7 +102,6 @@ class ConfigManager:
         Returns:
             str: The hint for the exercise, or an error message if no hint is found.
         """
-        logging.debug(f"ConfigManager.get_hint: Entered")
         if not current_exercise:
             return f"{NO_EXERCISE_MESSAGE}"
 

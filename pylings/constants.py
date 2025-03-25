@@ -9,8 +9,7 @@ CONFIG_FILE = Path(__file__).parent / "config" / "config.toml"
 EXERCISES_DIR = BASE_DIR / "exercises"
 SOLUTIONS_DIR = BASE_DIR / "solutions"
 BACKUP_DIR = Path(__file__).parent / Path("backups")
-#CONFIG_FILE = PYLINGS_DIR / Path("pylings/config/config.toml")
-PYLINGS_TOML = BASE_DIR / ".pylings.toml"# PYLINGS_DIR / Path("pyproject.toml")
+PYLINGS_TOML = BASE_DIR / ".pylings.toml"
 DEBUG_PATH = BASE_DIR / ".pylings_debug.log"
 
 # MARKUP STYLES FOR TEXTUAL
@@ -23,9 +22,6 @@ UNDERLINE = "[underline]"
 
 # FORMATTING CONTROLS
 CLEAR_SCREEN = "\033[2J\033[H"
-DISABLE_WRAP = "\033[?7l"
-RESET_UNDERLINE = "\033[24m"
-
 SOLUTION_LINK = (
     lambda path: f"Solution for comparison: {GREEN}{path}[/]"
 )
@@ -44,9 +40,7 @@ NO_EXERCISE_MESSAGE = f"{RED}No current exercise selected.{RESET_COLOR}"
 REPOSITORY = "https://github.com/CompEng0001/pylings"
 
 # LIST STATUS FORMATTING
-CURRENT = f"{RED}>>>>>>> {RESET_COLOR}"
 PENDING = f"{ORANGE}PENDING{RESET_COLOR}"
-SELECTOR = f"{GREEN}*{RESET_COLOR}"
 DONE = f"{GREEN}DONE   {RESET_COLOR}"
 
 # MENU OPTIONS
