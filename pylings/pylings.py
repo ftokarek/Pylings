@@ -1,13 +1,32 @@
+"""Entry point for the Pylings TUI application.
+
+Parses CLI arguments, initializes the workspace, launches the terminal-based
+user interface, and manages exercise watching and execution flow.
+
+Supports:
+- Initializing a workspace (`pylings init`)
+- Updating a workspace (`pylings update`)
+- Displaying version information
+- Running the interactive TUI application
+"""
 from sys import exit
 import traceback
+from pylings.debug import setup_logging
 from pylings.exercises import ExerciseManager
+from pylings.init import init_workspace, update_workspace
+from pylings.ui import PylingsUI
 from pylings.utils import PylingsUtils
 from pylings.watcher import Watcher
-from pylings.ui import PylingsUI
-from pylings.init import init_workspace, update_workspace, check_version_mismatch
 
 def main():
+    """Main entry point for the Pylings application.
+
+    Handles CLI command parsing, initialization logic, version checks,
+    workspace setup, and starts the TUI if appropriate. Also sets up
+    file watchers and logging configuration.
+    """    
     args = PylingsUtils.parse_args()
+    setup_logging(args.debug)
 
     if args.command == "init":
         init_workspace(args.path, force=args.force)
@@ -25,13 +44,13 @@ def main():
         print(f"\tVersion: {local_version}")
 
         print("\npip Pylings :")
-        print(f"\tVersion: {pip_version}")
-        print(f"\tLicense: {pip_license}")
-        print(f"\tGitHub:  {github_url}")
-        print(f"\tPypi:    {pip_url}")
+        print(f"\tVersion : {pip_version}")
+        print(f"\tLicense : {pip_license}")
+        print(f"\tGitHub  : {github_url}")
+        print(f"\tPypi    : {pip_url}")
         exit(0)
 
-    check_version_mismatch()
+    PylingsUtils.check_version_mismatch()
 
     if not PylingsUtils.is_pylings_toml():
         exit(1)

@@ -4,8 +4,9 @@
 
 <br/>
 
+[![forthebadge made-with-python](http://ForTheBadge.com/images/badges/made-with-python.svg)](https://www.python.org/)
 
-![](./images/pylings_demo.gif)
+![](./images/pylings_demo_2.gif)
 
 ## Purpose
 
@@ -23,30 +24,25 @@ Pylings is designed to help beginners and experienced developers alike improve t
 
 ### Steps
 
-1. Clone the repository:
+1. Install via `pip` (preferred) :
+    
+    `Windows`
+    ```
+    py -m pip install pylings
+    ```
+    
+    `Linux/Unix`
+    ```
+    pip install pylings
+    ```
 
-   ```
-   git clone git@github.com:CompEng0001/pylings.git
-   cd pylings
-   ```
+    or use `git` and install locally:
 
-2. Run the installation script, [install.sh](./install.sh):
-
-   ```
-   bash install.sh
-   ```
-
-   This script will:
-
-   - Detect your OS
-
-   - Install necessary dependencies
-
-   - Create a virtual environment
-
-   - Install Python packages from [requirements.txt](./requirements.txt)
-
-   - Update [constants.py](./pylings/constants.py) with the correct Python interpreter
+    ```
+    git clone git@github.com:CompEng0001/pylings.git pylings-package
+    cd pylings-package
+    pip install .
+    ```
 
 ## Working environment
 
@@ -60,10 +56,10 @@ Will run in [GitHub Codespaces](https://github.com/features/codespaces)
 
 While working with Pylings, please use a modern terminal for the best user experience, especially we recommend the Windows Terminal, with Git Bash via VS Code.
 
-The default terminal on Linux and Mac should be sufficient too, you can even use a terminal multiplexer such as [tmux](https://github.com/tmux/tmux) or [zellij](https://github.com/zellij-org/zellij)
+The default terminal on Linux and Mac should be sufficient too.
 
 > [!IMPORTANT]
-> There are some rendering issues, with Linux based terminals and some terminal multiplexers. You will need to referesh the terminal to get the format back (press <kbd>return</kbd> key), every time the terminal loses focus and is rendered again.
+> There are some rendering issues, with Linux based terminals and some terminal multiplexers. 
 
 ## Doing Exercises
 
@@ -74,11 +70,19 @@ We highly recommend that you have a look at them before you start.
 
 Most exercises contain an error that keeps them from compiling, and it's up to you to fix it!
 
+<div align=center>
+
 ![](./images/exercise_pending.png)
+
+</div>
 
 Some exercises contain tests that need to pass for the exercise to be done
 
+<div align=center>
+
 ![](./images/exercise_finished.png)
+
+</div>
 
 Search for `TODO` to find out what you need to change.
 Ask for hints by entering `h`
@@ -86,45 +90,61 @@ Ask for hints by entering `h`
 
 ### Running Pylings
 
-Once installed, activate the virtual environment:
-
-- On Linux/Mac:
+Once installed via [`pip` or `git`](#steps), navigate to a directory of your choice and run:
 
   ```
-  source venv/bin/activate
+  pylings init
   ```
 
-- On Windows teminal with Git Bash (not command prompt):
+  or provide the path as an argument:
 
   ```
-  venv/Scripts/activate
+  pylings init --path path/to/initialise-pylings
+  ``` 
+
+  If a directory already exists with the same name you can use:
+
+  ```
+  pylings init --force [--path path/to/initialise-pylings]
   ```
 
-- Then, run the `pylings`:
+  Then you can launch `pylings` in the initialised directory
 
   ```
   pylings
   ```
 
 > [!TIP]
-> 
-> Pylings takes as of v1.0.0 takes one of three possible commands and two arguments:
 >
-> - `run`, will launch pylings from the supplied exericse if it exists
->   - `pylings run exercise/01_variables/variables1.py`
->   - If first time, you will be greeted with start up message
-> 
-> When [contributing](#contributing) you should ensure your supplied exercises run as intended, you can use: 
-> 
-> - `solution`, will try to run supplied solution, if it exists, to test if it works, pylings will close afterwards.
->   - `pylings solution solutions/01_variables/variables1.py`
-> 
-> - `dry-run`, will run the supplied exercise non-interactively, output will be displayed, if it exists.
->   - `pylings dry-run exercise/01_variables/variables1.py`
+> Pylings v0.1.0+ supports additional developer-friendly commands:
 >
-> - `-v`,`--version`, will return version, licence and repo address
+> - `update [--path path/to/initialised-pylings]` updates the workspace with the current version:
+>   - Useful after upgrading Pylings via `pip install --upgrade pylings`
+>   - Defaults to the current working directory (`cwd`)
+>   - Adds new exercises and removes obsolete ones from the workspace
 >
-> - `-h`, `--help`, will return helper message
+> - `run`, starts pylings from a specific exercise:
+>   - `pylings run exercises/01_variables/variables1.py`
+>   - Triggers welcome message if it's your first time
+>
+> - `dry-run`, executes an exercise non-interactively:
+>   - `pylings dry-run 01_variables/variables1.py`
+>   - Accepts paths with or without the `exercises/` prefix
+>   - Use `--source workspace` (default) to run from local files
+>   - Use `--source package` to run the exercise bundled with the installed Pylings package
+>
+> - `solution`, executes a solution file non-interactively:
+>   - `pylings solution 01_variables/variables1.py`
+>   - Accepts paths with or without the `solutions/` prefix
+>   - `--source package` (default) uses installed Pylings files
+>   - `--source workspace` runs your own solution from the local workspace
+>
+> - `--debug`, enables debug logging for advanced output, log file is workspace `.pylings_debug.log`
+>
+> - `-v`, `--version`, displays version, license, and repository link
+>
+> - `-h`, `--help`, shows usage info for all commands
+
 
 ### List mode
 
@@ -137,8 +157,11 @@ You can open an interactive list of all exercises by pressing `l` after launchin
 
 See the footer of the list for all possibilities. 
 
+<div align=center>
+
 ![](./images/exercise_list.png)
 
+</div>
 
 ## Contributing
 

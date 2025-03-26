@@ -21,6 +21,7 @@ dependencies = [
 [project.urls]
 homepage  = "https://github.com/CompEng0001/pylings"
 Repository = "https://pypi.org/project/pylings/"
+tracker = "https://github.com/CompEng0001/pylings/issues"
 
 [project.scripts]
 pylings = "pylings.__main__:main"

@@ -20,6 +20,9 @@ get started, here are some notes about how Pylings operates:
 4. If an exercise doesn't make sense to you, feel free to open an issue on
    GitHub! (https://github.com/CompEng0001/pylings). We look at every issue, and
    sometimes, other learners do too so you can help each other out!
+
+5. Check every now and then to see if the pylings has a new version at 
+   (https://pypi.org/project/pylings/)
 """
 
 final_message = """

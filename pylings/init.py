@@ -1,27 +1,39 @@
+"""
+Initializes and updates a Pylings workspace.
+
+Handles tasks such as setting up exercises, syncing solutions,
+managing `.pylings.toml`, and cleaning obsolete files.
+"""
+
+import filecmp
+import logging
 from pathlib import Path
 import shutil
-import importlib.util
 import subprocess
 import toml
-import filecmp
 
-IGNORED_DIRS = {"__pycache__", ".git"}
-IGNORED_FILES = {".DS_Store", "Thumbs.db"}
+from pylings.constants import IGNORED_DIRS, IGNORED_FILES
+from pylings.utils import PylingsUtils
+
+log = logging.getLogger(__name__)
+
 
 def init_workspace(path: str = None, force: bool = False):
+    """Initialize a new Pylings workspace.
+
+    Creates a target directory with exercises and configuration.
+    If a workspace already exists, skips or overwrites based on `force`.
+
+    Args:
+        path (str, optional): Target path for the workspace. Defaults to current directory.
+        force (bool): Overwrite existing workspace if True.
+    """
     cwd = Path.cwd()
-
     if path:
-        target_dir = Path(path).resolve()
-    elif force:
-        target_dir = cwd
-    elif (cwd / ".pylings.toml").exists():
-        target_dir = cwd
-    else:
-        target_dir = cwd / "pylings"
-
+        path = path.strip()
+    
+    target_dir = Path(path).expanduser().absolute() if path else (cwd if force or (cwd / ".pylings.toml").exists() else cwd / "pylings")
     target_dir.mkdir(parents=True, exist_ok=True)
-
     exercises_src = Path(__file__).parent / "exercises"
     exercises_dst = target_dir / "exercises"
 
@@ -35,100 +47,123 @@ def init_workspace(path: str = None, force: bool = False):
     if exercises_dst is not None:
         shutil.copytree(exercises_src, exercises_dst)
 
-    version = get_installed_version()
+    version = PylingsUtils.get_installed_version()
     (target_dir / ".pylings.toml").write_text(
         f'[workspace]\nversion = "{version}"\nfirsttime=true\ncurrent_exercise = "00_intro/intro1.py"'
     )
 
     initialise_git(target_dir)
-    print("🎉 Pylings initialised at:", target_dir)
+    print("Pylings initialised at:", target_dir)
 
-
-
-def get_package_root():
-    return Path(importlib.util.find_spec("pylings").origin).parent
 
 def update_workspace(path: str = None):
+    """Update an existing Pylings workspace with the latest exercises and solutions.
+
+    Synchronizes content with the package source and sets the current version in `.pylings.toml`.
+
+    Args:
+        path (str, optional): Target workspace path. Defaults to current directory.
+    """
     cwd = Path.cwd()
     target_dir = Path(path).resolve() if path else cwd
-    root_dir = get_package_root()
+    root_dir = PylingsUtils.get_package_root()
 
-    print(f"🔍 Updating workspace at: {target_dir}")
+    print(f"Updating workspace at: {target_dir}")
 
     for folder_name in ["exercises", "solutions"]:
-        src_dir = root_dir / folder_name
-        dst_dir = target_dir / folder_name
+        update_folder(root_dir, target_dir, folder_name)
 
-        if not src_dir.exists():
-            print(f"Source folder {src_dir} does not exist. Skipping.")
-            continue
+    cleanup_backups(root_dir, target_dir)
+    set_workspace_version(PylingsUtils.get_installed_version())
 
-        new_files = []
-        removed_files = []
-        skipped_files = []
 
-        for dst_file in dst_dir.rglob("*"):
-            if dst_file.is_file():
-                if any(part in IGNORED_DIRS for part in dst_file.parts):
-                    continue
-                if dst_file.name in IGNORED_FILES:
-                    continue
+def update_folder(root_dir, target_dir, folder_name):
+    """Update a specific folder (exercises or solutions) in the workspace.
 
-                rel_path = dst_file.relative_to(dst_dir)
-                src_file = src_dir / rel_path
-                print(f"dst.is_file(): {dst_file}   //  src_file: {src_file} exists = {src_file.exists()} ")
-                if dst_file.is_file() and not src_file.exists():
-                    try:
-                        dst_file.unlink()
-                        removed_files.append(str(rel_path))
-                    except Exception as e:
-                        print(f"Could not remove {dst_file}: {e}")
+    Compares files between source and destination, updates changed ones,
+    skips existing ones, and flags modified files for manual review.
 
-        for dirpath in sorted(dst_dir.rglob("*"), reverse=True):
-            if dirpath.is_dir() and not any(dirpath.iterdir()):
+    Args:
+        root_dir (Path): Root path of the package source.
+        target_dir (Path): Workspace path to update.
+        folder_name (str): Folder to update ('exercises' or 'solutions').
+    """
+    src_dir = root_dir / folder_name
+    dst_dir = target_dir / folder_name
+
+    if not src_dir.exists():
+        print(f"Source folder {src_dir} does not exist. Skipping.")
+        return
+
+    new_files, removed_files, skipped_files, notify_files = [], [], [], []
+
+    # Cleanup removed files
+    for dst_file in dst_dir.rglob("*"):
+        if dst_file.is_file() and not (dst_file.name in IGNORED_FILES or any(part in IGNORED_DIRS for part in dst_file.parts)):
+            rel_path = dst_file.relative_to(dst_dir)
+            src_file = src_dir / rel_path
+            if not src_file.exists():
                 try:
-                    dirpath.rmdir()
-                except Exception:
-                    pass
+                    dst_file.unlink()
+                    removed_files.append(str(rel_path))
+                except Exception as e:
+                    print(f"Could not remove {dst_file}: {e}")
 
-        for src_file in src_dir.rglob("*"):
-            if src_file.is_file():
-                if any(part in IGNORED_DIRS for part in src_file.parts):
+    # Cleanup empty directories
+    for dirpath in sorted(dst_dir.rglob("*"), reverse=True):
+        if dirpath.is_dir() and not any(dirpath.iterdir()):
+            try:
+                dirpath.rmdir()
+            except Exception:
+                pass
+
+    # Copy and update files
+    for src_file in src_dir.rglob("*"):
+        if src_file.is_file() and not (src_file.name in IGNORED_FILES or any(part in IGNORED_DIRS for part in src_file.parts)):
+            rel_path = src_file.relative_to(src_dir)
+            dest_file = dst_dir / rel_path
+            dest_file.parent.mkdir(parents=True, exist_ok=True)
+
+            if not dest_file.exists():
+                if folder_name == "solutions":
+                    # Only copy if the destination already had this file (i.e., skip adding new solutions)
                     continue
-                if src_file.name in IGNORED_FILES:
-                    continue
+                shutil.copy2(src_file, dest_file)
+                new_files.append(str(rel_path))
+            elif not filecmp.cmp(src_file, dest_file, shallow=False):
+                if folder_name == "solutions":
+                    shutil.copy2(src_file, dest_file)
+                    new_files.append(str(rel_path))
+                elif folder_name == "exercises":
+                    notify_files.append(str(rel_path))
+            else:
+                skipped_files.append(str(rel_path))
 
-                rel_path = src_file.relative_to(src_dir)
-                dest_file = dst_dir / rel_path
+    print(f"\n{folder_name}/")
+    for label, files in [
+        ("Updated or added:", new_files),
+        ("Removed:", removed_files),
+        ("Unchanged:", skipped_files),
+        ("Manual review needed:", notify_files),
+    ]:
+        if files:
+            print(label)
+            for f in files:
+                symbol = '+' if label.startswith('Updated') else '-' if label.startswith('Removed') else '~' if label.startswith('Unchanged') else '!'
+                print(f"  {symbol} {f}")
 
-                if folder_name == "exercises":
-                    if not dest_file.exists():
-                        dest_file.parent.mkdir(parents=True, exist_ok=True)
-                        shutil.copy2(src_file, dest_file)
-                        new_files.append(str(rel_path))
+    if notify_files:
+        print("\nThe following exercise files differ from the source and were NOT overwritten.")
+        print("To reset them manually, use: pylings reset <exercise_path>")
 
-                elif folder_name == "solutions":
-                    if dest_file.exists():
-                        if not filecmp.cmp(src_file, dest_file, shallow=False):
-                            shutil.copy2(src_file, dest_file)
-                            new_files.append(str(rel_path))
-                        else:
-                            skipped_files.append(str(rel_path))
 
-        print(f"\n{folder_name}/")
-        if new_files:
-            print("Updated or added:")
-            for f in new_files:
-                print(f"  + {f}")
-        if removed_files:
-            print("Removed:")
-            for f in removed_files:
-                print(f"  - {f}")
-        if skipped_files:
-            print("Unchanged:")
-            for f in skipped_files:
-                print(f"  ~ {f}")
+def cleanup_backups(root_dir, target_dir):
+    """Remove outdated 'backups/' directory from the workspace if not present in source.
 
+    Args:
+        root_dir (Path): Source path of the Pylings package.
+        target_dir (Path): Path of the user's workspace.
+    """
     src_backups = root_dir / "backups"
     dst_backups = target_dir / "backups"
     if dst_backups.exists() and not src_backups.exists():
@@ -136,48 +171,40 @@ def update_workspace(path: str = None):
         print("Removed stale backups/ directory")
 
 
-def get_installed_version():
-    try:
-        import pylings
-        return pylings.__version__
-    except Exception:
-        return "0.1.0"
+def set_workspace_version(version: str):
+    """Update the workspace version in the `.pylings.toml` file.
 
-def get_workspace_version():
+    Args:
+        version (str): The version string to set.
+    """
     pylings_toml = Path(".pylings.toml")
-    if not pylings_toml.exists():
-        return None
+    try:
+        data = toml.load(pylings_toml) if pylings_toml.exists() else {}
+    except Exception as e:
+        print(f"Could not read .pylings.toml: {e}")
+        data = {}
+
+    data.setdefault("workspace", {})["version"] = version
 
     try:
-        data = toml.load(pylings_toml)
-        return data.get("workspace", {}).get("version", None)
+        with pylings_toml.open("w", encoding="utf-8") as f:
+            toml.dump(data, f)
+        print(f"Updated .pylings.toml workspace version to {version}")
     except Exception as e:
-        print(f"Could not read workspace version: {e}")
-        return None
-
-def check_version_mismatch():
-    import pylings
-    workspace_version = get_workspace_version()
-    installed_version = pylings.__version__
-
-    if workspace_version and workspace_version != installed_version:
-        print(f"\nYour workspace was created with pylings v{workspace_version}, but v{installed_version} is now installed.")
-        print("To update your exercises with new content only, run:")
-        print("   pylings update\n")
-        print("To upgrade the package itself:")
-        print("   pip install --upgrade pylings\n")
-        exit(1)
+        print(f"Failed to write .pylings.toml: {e}")
 
 def initialise_git(target_dir):
+    """Initialize a Git repository in the workspace.
+
+    Creates a `.git` directory and adds a default `.gitignore`.
+
+    Args:
+        target_dir (Path): Path to initialize Git in.
+    """
     git_dir = target_dir / ".git"
     if not git_dir.exists():
         try:
-            subprocess.run(["git", "init"], cwd=target_dir, check=True,stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
-            (target_dir / ".gitignore").write_text(
-                "__pycache__/\n"
-                "*.pyc\n"
-                ".venv/\n"
-                ".pylings_debug.log\n"
-            )
+            subprocess.run(["git", "init"], cwd=target_dir, check=True, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+            (target_dir / ".gitignore").write_text("__pycache__/\n*.pyc\n.venv/\n.pylings_debug.log\n")
         except Exception as e:
             print(f"Failed to initialize git repository: {e}")

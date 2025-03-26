@@ -10,6 +10,8 @@ SOLUTIONS_DIR = BASE_DIR / "solutions"
 BACKUP_DIR = Path(__file__).parent / Path("backups")
 PYLINGS_TOML = BASE_DIR / ".pylings.toml"
 DEBUG_PATH = BASE_DIR / ".pylings_debug.log"
+IGNORED_DIRS = {"__pycache__", ".git"}
+IGNORED_FILES = {".DS_Store", "Thumbs.db"}
 
 # MARKUP STYLES FOR TEXTUAL
 GREEN = "[bold green]"
