@@ -28,6 +28,7 @@ from pylings.utils import PylingsUtils
 
 import logging
 logging.basicConfig(filename=DEBUG_PATH, level=logging.DEBUG, format="%(asctime)s - %(message)s")
+
 class ConfigManager:
     """Handles loading, updating, and accessing configuration settings."""
 
@@ -83,15 +84,16 @@ class ConfigManager:
             return "00_intro/intro1.py"
     
     def set_lasttime_exercise(self, current_exercise):
+        logging.debug(f"ConfigManager.set_lasttime_exercise entered")
         try:
             normalized_path = path.normpath(current_exercise)
             path_parts = normalized_path.split(path.sep + 'exercises' + path.sep)
-            
             if len(path_parts) > 1:
                 current_exercise = path_parts[1]
             else:
                 current_exercise = str(current_exercise)
             
+            logging.debug(f"ConfigManager.set_lasttime_exercise.current_exercise: {current_exercise}")
             with open(PYLINGS_TOML, "r", encoding="utf-8") as f:
                 self.config = load(f)
                 self.config["workspace"]["current_exercise"] = current_exercise

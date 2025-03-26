@@ -1,5 +1,4 @@
 from time import sleep
-import logging
 
 from pylings.exercises import ExerciseManager
 from pylings.constants import (DEBUG_PATH, DONE,DONE_MESSAGE, EXERCISE_DONE, EXERCISE_ERROR, EXERCISE_OUTPUT,
@@ -11,6 +10,9 @@ from textual.app import App, ComposeResult
 from textual.widgets import  ListView, ListItem, Static
 from textual.containers import Horizontal, Vertical
 from textual.events import Key
+
+import logging
+logging.basicConfig(filename=DEBUG_PATH, level=logging.DEBUG, format="%(asctime)s - %(message)s")
 
 class PylingsUI(App):
     """Textual-based UI for Pylings."""
@@ -244,7 +246,7 @@ class PylingsUI(App):
                     new_exercise = self.exercise_manager.exercises[new_exercise_name]["path"]
                     self.exercise_manager.current_exercise = new_exercise
                     self.current_exercise = new_exercise
-                    self.exercise_manager.config_manager.set_lasttime_exercise(self.current_exercise.parent)
+                    self.exercise_manager.config_manager.set_lasttime_exercise(new_exercise)
                     self.exercise_manager.current_exercise_state = self.exercise_manager.exercises[new_exercise_name]["status"]
                     self.update_exercise_content()
 
