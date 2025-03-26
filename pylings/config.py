@@ -12,6 +12,7 @@ Functions:
 
 """
 from os import path
+from pathlib import Path
 from sys import argv
 from toml import dump,load
 from pylings.constants import (
@@ -80,18 +81,41 @@ class ConfigManager:
         except KeyError:
             print(f"Error: 'current_exercise' not found in [workspace] section of {PYLINGS_TOML}")
             return "00_intro/intro1.py"
-
-
-    def set_lasttime_exercise(self,current_exercise):
+    
+    def set_lasttime_exercise(self, current_exercise):
         try:
+            normalized_path = path.normpath(current_exercise)
+            path_parts = normalized_path.split(path.sep + 'exercises' + path.sep)
+            
+            if len(path_parts) > 1:
+                current_exercise = path_parts[1]
+            else:
+                current_exercise = str(current_exercise)
+            
             with open(PYLINGS_TOML, "r", encoding="utf-8") as f:
                 self.config = load(f)
-                self.config["workspace"]["current_exercise"] = str(current_exercise)
+                self.config["workspace"]["current_exercise"] = current_exercise
                 with open(PYLINGS_TOML, "w", encoding="utf-8") as f:
                     dump(self.config, f)
         except FileNotFoundError:
             print(f"Error: The file {PYLINGS_TOML} does not exist.")
             return None
+
+    def get_local_solution_path(self, solution_path):
+        try:
+            normalized_path = path.normpath(solution_path)
+            path_parts = normalized_path.split(path.sep + 'solutions' + path.sep)
+            
+            if len(path_parts) > 1:
+                solution_path = path_parts[1]
+            else:
+                solution_path = str(solution_path)
+            logging.debug(f"ConfigManager.get_local_solution_path.solution_path:{solution_path}")
+            return solution_path
+
+        except FileNotFoundError:
+            return "00_intro/intro1.py"
+
 
     def get_hint(self, current_exercise):
         """Retrieves the hint for the given exercise from the config file.

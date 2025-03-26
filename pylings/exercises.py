@@ -234,7 +234,7 @@ class ExerciseManager:
             if root_solution.exists():
                 solution_path.parent.mkdir(parents=True, exist_ok=True)
                 copy2(root_solution, solution_path)
-                return solution_path
+                return set_lasttime_exercisesolution_path
 
             return None
 

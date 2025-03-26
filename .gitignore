@@ -2,3 +2,4 @@ venv
 pylings/__pycache__
 pylings.egg-info/
 build
+dist
