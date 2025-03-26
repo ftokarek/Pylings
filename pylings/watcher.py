@@ -43,7 +43,7 @@ class Watcher:
             self.ui_manager = ui_manager
             self.last_hash = None
             self.debounce_timer = None
-            self.debounce_interval = 0.3  # adjust if needed
+            self.debounce_interval = 0.3 
 
         def get_file_hash(self, file_path):
             try:

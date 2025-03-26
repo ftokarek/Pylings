@@ -18,6 +18,10 @@ dependencies = [
     "toml"
 ]
 
+[project.urls]
+homepage  = "https://github.com/CompEng0001/pylings"
+Repository = "https://pypi.org/project/pylings/"
+
 [project.scripts]
 pylings = "pylings.__main__:main"
 

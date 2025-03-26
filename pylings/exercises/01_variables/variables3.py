@@ -17,7 +17,7 @@ full_name = __
 # === CONCATENATION WITH NUMBERS ===
 # TODO: Convert number to string and concatenate with a message
 
-age = 86
+age = 50
 
 # TODO: Concatenate "I am " + age + " years old." (age must be converted to a string)
 message = __
@@ -46,10 +46,10 @@ multiplied_string = __
 # Call the variables to test concatenation methods
 
 assert full_name == "John Cleese", f"[FAIL] Expected 'John Cleese', got '{full_name}'"
-assert message == "I am 25 years old.", f"[FAIL] Expected 'I am 25 years old.', got '{message}'"
-assert f_string_message == "John Cleese is 86 years old.", f"[FAIL] Expected 'John Cleese is 86 years old.', got '{f_string_message}'"
-assert format_message == "John Cleese is 83 years old.", f"[FAIL] Expected 'John Cleese is 86 years old.', got '{format_message}'"
-assert multiplied_string*3 == "HelloHelloHelloHelloHelloHelloHellowHelloHellow", f"[FAIL] Expected 'HelloHelloHello', got '{multiplied_string}'"
+assert message == "I am 50 years old.", f"[FAIL] Expected 'I am 50 years old.', got '{message}'"
+assert f_string_message == "John Cleese is 50 years old.", f"[FAIL] Expected 'John Cleese is 50 years old.', got '{f_string_message}'"
+assert format_message == "John Cleese is 50 years old.", f"[FAIL] Expected 'John Cleese is 50 years old.', got '{format_message}'"
+assert multiplied_string*3 == "HelloHelloHello", f"[FAIL] Expected 'HelloHelloHello', got '{multiplied_string}'"
 
 print(f"{full_name}")
 print(f"{message}")

@@ -1,16 +1,15 @@
-from time import sleep
-
+from pylings.utils import PylingsUtils
 from pylings.exercises import ExerciseManager
 from pylings.constants import (DEBUG_PATH, DONE,DONE_MESSAGE, EXERCISE_DONE, EXERCISE_ERROR, EXERCISE_OUTPUT,
-                               GIT_ADD, GIT_COMMIT, GIT_MESSAGE, LIST_VIEW, LIST_VIEW_NEXT,
-                               MAIN_VIEW, MAIN_VIEW_NEXT, PENDING, SOLUTION_LINK
+                              GREEN, LIGHT_BLUE, LIST_VIEW, LIST_VIEW_NEXT,
+                               MAIN_VIEW, MAIN_VIEW_NEXT, PENDING, RESET_COLOR
 )
 from rich.text import Text     
 from textual.app import App, ComposeResult
 from textual.widgets import  ListView, ListItem, Static
 from textual.containers import Horizontal, Vertical
 from textual.events import Key
-
+from pathlib import Path
 import logging
 logging.basicConfig(filename=DEBUG_PATH, level=logging.DEBUG, format="%(asctime)s - %(message)s")
 
@@ -96,14 +95,14 @@ class PylingsUI(App):
         ex_data = self.exercise_manager.exercises[exercise_name]
 
         if ex_data["status"] == "DONE":
+            full_solution_path, short_path = self.exercise_manager.get_solution()
+            git_status = PylingsUtils.get_git_status()
             lines = [
                 f"\n{EXERCISE_OUTPUT(ex_data['output'])}",
                 f"\n\n{EXERCISE_DONE}",
-                f"\n{SOLUTION_LINK(self.exercise_manager.get_solution())}",
+                f"\n{self.solution_link(full_solution_path,short_path)}",
                 f"\n\n{DONE_MESSAGE}",
-                f"\n{GIT_MESSAGE}",
-                f"\n\n\t{GIT_ADD(self.current_exercise)}",
-                f"\n\t{GIT_COMMIT(self.current_exercise)}\n",
+                f"\n{self.git_suggestion(git_status)}"
             ]
             return ''.join(lines)
 
@@ -113,6 +112,62 @@ class PylingsUI(App):
                 error_message += f"\n{ex_data.get('hint', '')}\n"
 
         return error_message
+
+    def solution_link(self, full_path, short_path):
+        uri = Path(full_path).absolute().as_uri()
+        display = f"solutions/{short_path.replace("\\", "/")}"
+        text = Text("Solution for comparison: ")
+        text.append(f"{GREEN}{display}{RESET_COLOR}", style=f" link {uri}")
+        return text
+
+    def git_suggestion(self,git_status_lines):
+        """
+        Accepts parsed output from get_git_status_lines() and returns a Text object
+        with `git add` commands and a summarized `git commit -m`.
+        """
+        text = Text()
+        if not git_status_lines:
+            return text.append("")
+
+        added = []
+        modified = []
+        deleted = []
+        unknown = []
+
+        for line in git_status_lines:
+            status = line[:2].strip()
+            path = line[3:].strip()
+
+            if status == "??":
+                added.append(path)
+            elif status == "M":
+                modified.append(path)
+            elif status == "D":
+                deleted.append(path)
+            else:
+                unknown.append((status, path))
+
+        all_files = added + modified + deleted + [p for _, p in unknown]
+
+        # --- Git Add Block ---
+        text.append("Use ")
+        text.append("git", style="underline")
+        text.append(" to keep track of your progress:\n\n")
+
+        #text.append("  ")
+        text.append(f"\t{LIGHT_BLUE}git add ")
+        text.append(f" ".join(all_files))
+        text.append(f"{RESET_COLOR}\n")
+
+        # --- Commit Summary ---
+
+        #text.append("  ")
+        text.append(f"\t{LIGHT_BLUE}git commit -m \"changes: ")
+        text.append(f" ".join(all_files))
+        text.append(f'\"{RESET_COLOR}\n')
+
+        return text
+
 
     def update_list_content(self):
         listview_widget = self.query_one("#exercise-list", ListView)

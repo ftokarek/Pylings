@@ -12,7 +12,6 @@ Functions:
 
 """
 from os import path
-from pathlib import Path
 from sys import argv
 from toml import dump,load
 from pylings.constants import (

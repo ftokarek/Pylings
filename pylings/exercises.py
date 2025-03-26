@@ -1,6 +1,6 @@
 from pylings.config import ConfigManager
 from pylings.constants import (
-     BACKUP_DIR,BASE_DIR,DEBUG_PATH, EXERCISES_DIR,
+     BACKUP_DIR,DEBUG_PATH, EXERCISES_DIR,
      FINISHED, SOLUTIONS_DIR
 )
 from pathlib import Path
@@ -17,7 +17,6 @@ class ExerciseManager:
 
     def __init__(self):
         """Initializes the ExerciseManager and precomputes exercise states."""
-        
         self.exercises = {}
         self.current_exercise = None
         self.current_exercise_state = ""
@@ -216,6 +215,7 @@ class ExerciseManager:
 
     def get_solution(self):
         """Return the solution file path for the given current exercise."""
+        logging.debug(f"ExerciseManager.get_solution.self.current_exercise:{self.current_exercise} ")
         if not self.current_exercise:
             return None
 
@@ -223,18 +223,20 @@ class ExerciseManager:
             SOLUTIONS_DIR.mkdir(parents=True, exist_ok=True)
 
             relative_path = self.current_exercise.relative_to(EXERCISES_DIR)
-
+            logging.debug(f"ExerciseManager.get_solution.relative_path:{relative_path} ")
             solution_path = SOLUTIONS_DIR / relative_path
-            if solution_path.exists():
-                return solution_path
-
+            logging.debug(f"ExerciseManager.get_solution.solution_path:{solution_path} ")
+        
             package_root = Path(pylings.__file__).parent
             root_solution = package_root / "solutions" / relative_path
+            logging.debug(f"ExerciseManager.get_solution.root_solution:{root_solution} ")
 
             if root_solution.exists():
                 solution_path.parent.mkdir(parents=True, exist_ok=True)
                 copy2(root_solution, solution_path)
-                return get_local_solution_path(solution_path)
+                logging.debug(f"ExerciseManager.get_solution.solution_path:{solution_path} ")
+                logging.debug(f"ExerciseManager.get_solution.solution_path:{self.config_manager.get_local_solution_path(solution_path)} ")
+                return solution_path, self.config_manager.get_local_solution_path(solution_path)
 
             return None
 

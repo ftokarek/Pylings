@@ -1,7 +1,6 @@
 """constants.py: Shared constants for pylings project"""
 
 from pathlib import Path
-import os
 
 # FILE PATHS
 BASE_DIR = Path.cwd()
@@ -13,27 +12,21 @@ PYLINGS_TOML = BASE_DIR / ".pylings.toml"
 DEBUG_PATH = BASE_DIR / ".pylings_debug.log"
 
 # MARKUP STYLES FOR TEXTUAL
-GREEN = "[lightgreen]"
-LIGHT_BLUE = "[lightblue]"
-ORANGE = "[orange]"
-RED = "[red]"
+GREEN = "[bold green]"
+LIGHT_BLUE = "[bold lightblue]"
+ORANGE = "[bold orange]"
+RED = "[bold red]"
 RESET_COLOR = "[/]"
 UNDERLINE = "[underline]"
 
 # FORMATTING CONTROLS
 CLEAR_SCREEN = "\033[2J\033[H"
-SOLUTION_LINK = (
-    lambda path: f"Solution for comparison: {GREEN}{path}[/]"
-)
 
 # MESSAGES
 DONE_MESSAGE = f"When you are done experimenting press {LIGHT_BLUE}n{RESET_COLOR} for the next exercise 🐍\n"
 EXERCISE_DONE = f"{GREEN}Exercise done ✔{RESET_COLOR}"
 EXERCISE_ERROR = lambda error: f"{RED}{error}{RESET_COLOR}"
 EXERCISE_OUTPUT = lambda output: f"{UNDERLINE}Output{RESET_COLOR}\n{output}"
-GIT_ADD = lambda path: f"{LIGHT_BLUE} git add {path}{RESET_COLOR}"
-GIT_COMMIT = lambda exercise_name: f"{LIGHT_BLUE} git commit -m \"mod: complete {exercise_name}\"{RESET_COLOR}"
-GIT_MESSAGE = f"If you forked pylings you can use {UNDERLINE}git{RESET_COLOR} to keep track of your progress:"
 HINT_TITLE = f"{GREEN}{UNDERLINE}Hint:{RESET_COLOR}"
 NO_HINT_MESSAGE = f"{RED}No hint found for the current exercise.{RESET_COLOR}"
 NO_EXERCISE_MESSAGE = f"{RED}No current exercise selected.{RESET_COLOR}"
