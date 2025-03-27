@@ -4,7 +4,22 @@
 
 <br/>
 
-[![forthebadge made-with-python](http://ForTheBadge.com/images/badges/made-with-python.svg)](https://www.python.org/)
+<p align="center">
+  <img src="https://img.shields.io/badge/Made%20with-Python-3776AB?style=for-the-badge&logo=python&logoColor=white" alt="Made with Python">
+ <img src="https://img.shields.io/pypi/pyversions/pylings?style=for-the-badge" alt="Python Version">
+  <a href="https://pypi.org/project/pylings/">
+    <img src="https://img.shields.io/pypi/v/pylings?style=for-the-badge" alt="PyPI">
+  </a>
+  <a href="https://pypi.org/project/pylings/">
+    <img src="https://img.shields.io/pypi/dm/pylings?style=for-the-badge" alt="Downloads">
+  </a>
+  <a href="https://github.com/CompEng0001/pylings/stargazers">
+    <img src="https://img.shields.io/github/stars/CompEng0001/pylings?style=for-the-badge" alt="GitHub Stars">
+  </a>
+  <a href="https://github.com/CompEng0001/pylings/actions">
+    <img src="https://img.shields.io/github/actions/workflow/status/CompEng00001/pylings/python-app.yml?style=for-the-badge&label=build" alt="Build Status">
+  </a>
+</p> 
 
 ![](./images/pylings_demo_2.gif)
 
