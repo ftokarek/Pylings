@@ -107,26 +107,27 @@ Ask for hints by entering `h`
 
 Once installed via [`pip` or `git`](#steps), navigate to a directory of your choice and run:
 
+  `windows`
   ```
-  pylings init
+  py -m pylings init
   ```
 
   or provide the path as an argument:
 
   ```
-  pylings init --path path/to/initialise-pylings
+  py -m pylings init --path path/to/initialise-pylings
   ``` 
 
   If a directory already exists with the same name you can use:
 
   ```
-  pylings init --force [--path path/to/initialise-pylings]
+  py -m pylings init --force [--path path/to/initialise-pylings]
   ```
 
   Then you can launch `pylings` in the initialised directory
 
   ```
-  pylings
+  py -m pylings
   ```
 
 > [!TIP]
