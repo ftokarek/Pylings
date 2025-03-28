@@ -6,6 +6,7 @@ and progress state for UI and CLI tools.
 """
 import logging
 from concurrent.futures import ThreadPoolExecutor, as_completed
+import sys
 from pathlib import Path
 from shutil import copy, copy2
 import subprocess
@@ -137,7 +138,7 @@ class ExerciseManager:
 
         try:
             process = subprocess.Popen(
-                ["python", str(resolved_path)],
+                [sys.executable, str(resolved_path)],
                 stdout=subprocess.PIPE,
                 stderr=subprocess.PIPE,
                 text=True
