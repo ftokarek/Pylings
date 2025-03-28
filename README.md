@@ -107,59 +107,58 @@ Ask for hints by entering `h`
 
 Once installed via [`pip` or `git`](#steps), navigate to a directory of your choice and run:
 
-  `windows`
+  
   ```
-  py -m pylings init
+  <py,python3> -m pylings init
   ```
 
   or provide the path as an argument:
 
   ```
-  py -m pylings init --path path/to/initialise-pylings
+  <py,python3> -m pylings init --path path/to/initialise-pylings
   ``` 
 
   If a directory already exists with the same name you can use:
 
   ```
-  py -m pylings init --force [--path path/to/initialise-pylings]
+  <py,python3> -m pylings init --force [--path path/to/initialise-pylings]
   ```
 
   Then you can launch `pylings` in the initialised directory
 
   ```
-  py -m pylings
+  <py,python3> -m pylings
   ```
 
 > [!TIP]
->
-> Pylings v0.1.0+ supports additional developer-friendly commands:
->
-> - `update [--path path/to/initialised-pylings]` updates the workspace with the current version:
->   - Useful after upgrading Pylings via `pip install --upgrade pylings`
->   - Defaults to the current working directory (`cwd`)
->   - Adds new exercises and removes obsolete ones from the workspace
->
-> - `run`, starts pylings from a specific exercise:
->   - `pylings run exercises/01_variables/variables1.py`
->   - Triggers welcome message if it's your first time
->
-> - `dry-run`, executes an exercise non-interactively:
->   - `pylings dry-run 01_variables/variables1.py`
->   - Accepts paths with or without the `exercises/` prefix
->   - Use `--source workspace` (default) to run from local files
->   - Use `--source package` to run the exercise bundled with the installed Pylings package
->
-> - `solution`, executes a solution file non-interactively:
->   - `pylings solution 01_variables/variables1.py`
->   - Accepts paths with or without the `solutions/` prefix
->   - `--source package` (default) uses installed Pylings files
->   - `--source workspace` runs your own solution from the local workspace
->
-> - `--debug`, enables debug logging for advanced output, log file is workspace `.pylings_debug.log`
->
-> - `-v`, `--version`, displays version, license, and repository link
->
-> - `-h`, `--help`, shows usage info for all commands
+> Of course you could always add the following your `PATH`, and you call `pylings` directly: 
+> - `Windows`
+>   - `$HOME/AppData/Local/Programs/Python/Python313/`
+> - `Linux`
+>   -  `$HGME/.local/bin`
+
+### Commands/Arguments
+Pylings v1.0.0 supports additional developer-friendly commands:
+- `update [--path path/to/initialised-pylings]` updates the workspace with the current version:
+  - Useful after upgrading Pylings via `pip install --upgrade pylings`
+  - Defaults to the current working directory (`cwd`)
+  - Adds new exercises and removes obsolete ones from the workspace
+- `run`, starts pylings from a specific exercise:
+  - `pylings run exercises/01_variables/variables1.py`
+  - Triggers welcome message if it's your first time
+- `dry-run`, executes an exercise non-interactively:
+  - `pylings dry-run 01_variables/variables1.py`
+  - Accepts paths with or without the `exercises/` prefix
+  - Use `--source workspace` (default) to run from local files
+  - Use `--source package` to run the exercise bundled with the installed Pylings package
+- `sol`, executes a solution file non-interactively:
+  - `pylings solution 01_variables/variables1.py`
+  - Accepts paths with or without the `solutions/` prefix
+  - `--source package` (default) uses installed Pylings files
+  - `--source workspace` runs your own solution from the local workspace
+- `--debug`, enables debug logging for advanced output, log file is workspace `.pylings_debug.log`
+- `-v`, `--version`, displays version, license, and repository link
+- `-h`, `--help`, shows usage info for all commands
 
 
 ### List mode
