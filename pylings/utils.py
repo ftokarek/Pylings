@@ -77,25 +77,30 @@ class PylingsUtils:
 
         if args.command == "sol":
             path = Path(args.file)
-            source = getattr(args, "source",None)
-            exercise_manager.run_and_print(path,source,"s")
+            source = getattr(args, "source", "package")
+            try:
+                exercise_manager.run_and_print(path, source, "s")
+            except FileNotFoundError as e:
+                log.error(f"Invalid exercise path: {args.file} ({e})")
+                exit(1)
 
         elif args.command == "dry-run":
             path = Path(args.file)
-            source = getattr(args, "source",None)
-            if path.exists() and path.is_file():
-                exercise_manager.run_and_print(path,source,"d")
-            else:
-                log.error(f"Invalid exercise path: {args.file}")
+            source = getattr(args, "source", "workspace")
+            try:
+                exercise_manager.run_and_print(path, source, "d")
+            except FileNotFoundError as e:
+                log.error(f"Invalid exercise path: {args.file} ({e})")
                 exit(1)
 
         elif args.command == "run":
             path = Path(args.file)
-            if path.exists() and path.is_file():
-                exercise_manager.arg_exercise = path
+            source = getattr(args, "source", "workspace")
+            try:
+                exercise_manager.arg_exercise = exercise_manager.get_exercise_path(path, source)
                 return True
-            else:
-                log.error(f"Invalid exercise path: {args.file}")
+            except FileNotFoundError as e:
+                log.error(f"Invalid exercise path: {args.file} ({e})")
                 exit(1)
 
         return False

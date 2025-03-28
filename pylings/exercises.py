@@ -288,8 +288,48 @@ class ExerciseManager:
         except Exception as e:
             log.error(f"Error resolving solution path: {e}")
             return None
-        
-    def run_and_print(self,path: Path, source ,type):
+
+    def get_exercise_path(self, path: Path, source: str = "workspace") -> Path:
+        """Returns the absolute exercise path, resolving relative to workspace or package.
+
+        Args:
+            path (Path): A path that may or may not include 'exercises/' prefix.
+            source (str): 'workspace' or 'package'.
+
+        Returns:
+            Path: Resolved absolute path to the exercise.
+
+        Raises:
+            FileNotFoundError: If the resolved file doesn't exist.
+        """
+        log.debug(f"ExerciseManager.get_exercise_path: path={path}, source={source}")
+        try:            
+            path_parts = list(path.parts)
+            if path_parts[0] == "exercises":
+                rel_parts = path_parts[path_parts.index('exercises') + 1:]
+            else:
+                rel_parts = path_parts
+
+            rel_path = Path(*rel_parts)
+
+            if source == "workspace":
+                root = Path.cwd() / "exercises" / rel_path
+                log.debug(f"ExerciseManager.get_exercise_path: root={root}")
+            else:
+                root = Path(pylings.__file__).parent / "exercises" / rel_path
+                log.debug(f"ExerciseManager.get_exercise_path: root={root}")
+            if not root.exists():
+                log.error(f"ExerciseManager.get_exercise_path.fileNotFound: {path}")
+                exit(1)
+                #raise FileNotFoundError(f"Exercise not found: {path}")
+
+            return root
+        except Exception as e:
+            log.error(f"get_exercise_path error: {e}")
+            raise
+
+
+    def run_and_print(self, path: Path, source: str = "workspace", type: str = "d"):
         """Runs or shows a solution for a specified path in CLI mode.
 
         Args:
@@ -298,14 +338,15 @@ class ExerciseManager:
             type (str): Mode - "d" for dry-run, "s" for solution.
         """
         if type == "d":
-            result = self.run_exercise(path,source)
-            
+            path = self.get_exercise_path(path, source)
+            result = self.run_exercise(path, source)
         elif type == "s":
-            result = self.print_root_solution(path,source)
-        output = result.stdout if result.returncode == 0 else result.stderr
+            result = self.print_root_solution(path, source)
 
+        output = result.stdout if result.returncode == 0 else result.stderr
         print(output)
         exit(0 if result.returncode == 0 else 1)
+
 
     def print_root_solution(self, path: Path, source: str = "package"):
         """Runs a solution file for a given exercise from the specified context.
@@ -318,6 +359,7 @@ class ExerciseManager:
             CompletedProcess: Execution result
         """
         log.debug(f"ExerciseManager.print_root_solution: path={path}, source={source}")
+
 
         path_parts = list(path.parts)
         if path_parts[0] == "exercises":
@@ -332,8 +374,9 @@ class ExerciseManager:
 
         if not root.exists():
             log.error(f"Solution file not found: {root}")
-            raise FileNotFoundError(f"Solution not found: {path}")
-
+            
+            #raise FileNotFoundError(f"Solution not found: {path}")
+            exit (1)
         return self.run_exercise(root, source)
 
     def toggle_hint(self):
