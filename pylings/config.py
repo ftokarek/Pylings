@@ -144,7 +144,7 @@ class ConfigManager:
                 if exercise_name == ce_name:
                     hint = data.get("hint", "")
                     log.debug(f"Hint found: {hint}")
-                    return f"{HINT_TITLE}\n {hint}"
+                    return f"{HINT_TITLE}\n\n{hint.replace("[", "\\[")}"
 
         log.debug(f"No hint for: {ce_name}")
         return NO_HINT_MESSAGE

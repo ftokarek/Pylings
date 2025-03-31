@@ -36,12 +36,18 @@ https://github.com/CompEng0001/pylings/blob/main/CONTRIBUTING.md
 [exercise_intro1]
 name = "intro1"
 dir = "00_intro"
-hint = "Press `n` to continue to next exercise, or press 'r' to reset file if erroring"
+hint = """
+Press `n` to continue to next exercise, or press 'r' to reset file if erroring
+"""
 
 [exercise_variables1]
 name = "variables1"
 dir = "01_variables"
-hint = "Make sure that all variables have the correct data type"
+hint = """
+Read the comments they really help:
+
+- Make sure that all variables have the correct data type
+"""
 
 [exercise_variables2]
 name = "variables2"
@@ -56,14 +62,34 @@ hint = """
 name = "variables3"
 dir = "01_variables"
 hint = """
+The comments in the exercise really help, see some hints below:
 
+- + str()
+- {}
+- .format()
+- * some number
 """
 
 [exercise_variables4]
 name = "variables4"
 dir = "01_variables"
 hint = """
+Comments really help guide you in this exercise, however here are some extra hints:
 
+- try casting int()
+- rememeber from variables3.py where you multiplied a string
+- these operators; '/', '-', '+', '*' could be useful
+"""
+
+[exercise_variables5]
+name = "variables5"
+dir = "01_variables"
+hint = """
+Comments in this execise point to using indexing and slicing: 
+
+- somestring[index]
+- somestring[index:index]
+- when slicing you can use the '-' operator to subtract from a given index
 """
 
 [exercise_data_structures1]
@@ -71,6 +97,7 @@ name = "data_structures1"
 dir = "02_data_structures"
 hint = """
 The comments in the exercise really help, most extensions require arguments such as:
+
 - the fruit
 - number
 - or both
@@ -79,7 +106,9 @@ The comments in the exercise really help, most extensions require arguments such
 [exercise_data_structures2]
 name = "data_structures2"
 dir = "02_data_structures"
-hint = "The `TODO` comments in the exercise really help,"
+hint = """
+The `TODO` comments in the exercise really help.
+"""
 
 [exercise_data_structures3]
 name = "data_structures3"
@@ -93,7 +122,9 @@ If you are really struggling look at the assert blocks.
 [exercise_data_structures4]
 name = "data_structures4"
 dir = "02_data_structures"
-hint = "The `TODO` comments in the exercise really help,"
+hint = """
+The `TODO` comments in the exercise really help,
+"""
 
 [exercise_functions1]
 name = "functions1"
@@ -137,7 +168,7 @@ name = "if2"
 dir = "04_if"
 hint = """
 - It is common to confuse `<` and `>`
-- All but one comparsion should be a >= or <= or ==
+- All but one comparsion should be a `>=` or `<=` or `==`
 """
 
 [exercise_if3]
@@ -336,7 +367,7 @@ main()
 - Start each thread using `.start()`.
 - Use `.join()` on each thread to ensure completion.
 
-Ensuring Synchronization
+Ensuring Synchronisation
 - Without `threading.Lock`, the counter may be incorrect due to race conditions.
 - The correct final value should be **5000** if threading is used properly.
 """

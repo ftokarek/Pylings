@@ -167,7 +167,6 @@ class ExerciseManager:
                 stderr=str(e)
             )
 
-
     def _format_output(self, output):
         """Sanitizes output for display, especially in Rich/Textual components."""
         return output.replace("[", "\\[")
@@ -192,7 +191,6 @@ class ExerciseManager:
         elif prev_status == "DONE" and new_status != "DONE":
             self.completed_count -= 1
 
-        # Clamp completed_count to [0, len(self.exercises)]
         self.completed_count = max(0, min(self.completed_count, len(self.exercises)))
 
         if self.completed_count == len(self.exercises) and not self.completed_flag:
