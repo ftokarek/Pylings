@@ -1,32 +1,32 @@
 """
-If Statements Exercise 2 (if2.py)
+If Statements Exercise 2 (conditionals2.py)
 This exercise introduces if-elif-else blocks in Python.
 Follow the TODO instructions and fix any issues.
 Uncomment and complete each section to pass all tests.
 """
 
 # === IF-ELIF-ELSE FUNCTION ===
-# TODO: Create a function that classifies a number as positive, negative, or zero
+# Solution: Create a function that classifies a number as positive, negative, or zero
 
 def classify_number(number):
-    if number __ 0:  # TODO: Replace __ with the correct condition for positive numbers
+    if number > 0:
         return "Positive"
-    elif number __ 0:  # TODO: Replace __ with the correct condition for zero
+    elif number == 0:
         return "Zero"
     else:
         return "Negative"
 
 # === GRADE CLASSIFICATION FUNCTION ===
-# TODO: Create a function that assigns a letter grade based on a score
+# Solution: Create a function that assigns a letter grade based on a score
 
 def assign_grade(score):
-    if score __ 90:  # TODO: Score >= 90
+    if score >= 90:
         return "A"
-    elif score __ 80 :  # TODO: Score >= 80
+    elif score >= 80:
         return "B"
-    elif score __ 70:  # TODO: Score >= 70
+    elif score >= 70:
         return "C"
-    elif score __ 60:  # TODO: Score >= 60
+    elif score >= 60:
         return "D"
     else:
         return "F"

@@ -152,28 +152,43 @@ welcome_message()
 name = "functions3"
 dir = "03_functions"
 hint = """
-- Replace the pass keyword with return
-- Remember it is a string the functions need to return
+- Remember to use the primitive data types as arugments and return values in the 
+  funtion signature.
+- Seperate the variable name and the data type with `:`
 """
 
-[exercise_if1]
-name = "if1"
-dir = "04_if"
+[exercise_functions4]
+name = "functions4"
+dir = "03_functions"
+hint = """
+- Use the `=` to assign a value to a data type
+"""
+
+[exercise_functions5]
+name = "functions5"
+dir = "03_functions"
+hint = """
+- Seperate vaules after the return keyword with comma
+"""
+
+[exercise_conditionals1]
+name = "conditionals1"
+dir = "04_conditionals"
 hint = """
 It is common to confuse `<` and `>`
 """
 
-[exercise_if2]
-name = "if2"
-dir = "04_if"
+[exercise_conditionals2]
+name = "conditionals2"
+dir = "04_conditionals"
 hint = """
 - It is common to confuse `<` and `>`
 - All but one comparsion should be a `>=` or `<=` or `==`
 """
 
-[exercise_if3]
-name = "if3"
-dir = "04_if"
+[exercise_conditionals3]
+name = "conditionals3"
+dir = "04_conditionals"
 hint = """
 Check number:
 - a combination of '>=', '<=', '==' & 'and'
@@ -181,6 +196,15 @@ Check number:
 Check user:
 - some values are already booleans, true or false
 - are you using all arguments to the function?
+"""
+
+[exercise_conditionals4]
+name = "conditionals4"
+dir = "04_conditionals"
+hint = """
+- Keywords match and case, 
+- You are match`ing` on a value, so each case is an accepted value. 
+- Use `_` to give a default or unmatched case.
 """
 
 [exercise_loops1]
@@ -276,7 +300,7 @@ Still stuck? Then refer to previous completed exercises
 
 [exercise_errors1]
 name = "errors1"
-dir = "08_errors"
+dir = "08_error_handling"
 hint = """
 safe_divide()
 - Use a try block to divide the numbers.
@@ -291,7 +315,7 @@ access_list_element()
 
 [exercise_errors2]
 name = "errors2"
-dir = "08_errors"
+dir = "08_error_handling"
 hint = """
 - Refer to the url in the comments in the errors2.py
 
@@ -302,7 +326,7 @@ hint = """
 
 [exercise_errors3]
 name = "errors3"
-dir = "08_errors"
+dir = "08_error_handling"
 hint = """
 - Refer to the url in the comments in the errors2.py
 
@@ -313,7 +337,7 @@ hint = """
 
 [exercise_errors4]
 name = "errors4"
-dir = "08_errors"
+dir = "08_error_handling"
 hint = """
 - Create a custom exception `class NegativeNumberError(Exception):`
 

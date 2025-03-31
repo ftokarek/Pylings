@@ -1,5 +1,5 @@
 """
-If Statements Exercise 3 (if3.py)
+If Statements Exercise 3 (conditionals3.py)
 This exercise focuses on compound and nested if statements (one level deep).
 Follow the TODO instructions and fix any issues.
 Uncomment and complete each section to pass all tests.

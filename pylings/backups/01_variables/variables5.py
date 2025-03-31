@@ -3,6 +3,8 @@ Variables Exercise 5 (variables5.py)
 This exercise focuses on string indexing and slicing using a DNA sequence.
 Follow the TODO instructions and fix any issues.
 Uncomment and complete each section to pass all tests.
+
+In DNA each letter is defined as a `base`, we can interchange `base` with `index`
 """
 
 # === DNA STRING INDEXING ===

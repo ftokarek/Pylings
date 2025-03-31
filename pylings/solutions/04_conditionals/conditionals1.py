@@ -1,5 +1,5 @@
 """
-If Statements Exercise 1 (if1.py)
+If Statements Exercise 1 (conditionals1.py)
 This exercise introduces basic if statements and comparison operations in Python.
 Follow the TODO instructions and fix any issues.
 Uncomment and complete each section to pass all tests.
@@ -10,37 +10,37 @@ Try experimenting with different comparison operators: ==, !=, <, <=, >, >=
 # TODO: Fill in the correct comparison operators in each function
 
 def is_equal(a, b):
-    if a __ b:
+    if a == b:
         return "a is equal to b"
     else:
         return "a is not equal to b"
 
 def is_not_equal(a, b):
-    if a __ b:
+    if a != b:
         return "a is not equal to b"
     else:
         return "a is equal to b"
 
 def is_less_than(a, b):
-    if a __ b:
+    if a < b:
         return "a is less than b"
     else:
         return "a is not less than b"
 
 def is_less_than_or_equal(a, b):
-    if a __ b:
+    if a <= b:
         return "a is less than or equal to b"
     else:
         return "a is greater than b"
 
 def is_greater_than(a, b):
-    if a __ b:
+    if a > b:
         return "a is greater than b"
     else:
         return "a is not greater than b"
 
 def is_greater_than_or_equal(a, b):
-    if a __ b:
+    if a >= b:
         return "a is greater than or equal to b"
     else:
         return "a is less than b"
@@ -71,5 +71,6 @@ assert result_five == "a is greater than b", f"[FAIL] Expected 'a is greater tha
 # Test greater than or equal
 result_six = is_greater_than_or_equal(20, 20)
 assert result_six == "a is greater than or equal to b", f"[FAIL] Expected 'a is greater than or equal to b', got '{result_six}'"
+
 
 print(f"\n{result_one}\n{result_two}\n{result_three}\n{result_four}\n{result_five}\n{result_six}.")

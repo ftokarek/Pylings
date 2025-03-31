@@ -1,5 +1,5 @@
 """
-If Statements Exercise 1 (if1.py)
+If Statements Exercise 1 (conditionals1.py)
 This exercise introduces basic if statements and comparison operations in Python.
 Follow the TODO instructions and fix any issues.
 Uncomment and complete each section to pass all tests.
