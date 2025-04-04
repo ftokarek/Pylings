@@ -41,7 +41,7 @@ assert full_name == "John Cleese", f"[FAIL] Expected 'John Cleese', got '{full_n
 assert message == "I am 50 years old.", f"[FAIL] Expected 'I am 50 years old.', got '{message}'"
 assert f_string_message == "John Doe is 50 years old.", f"[FAIL] Expected 'John Doe is 50 years old.', got '{f_string_message}'"
 assert format_message == "John Doe is 50 years old.", f"[FAIL] Expected 'John Doe is 50 years old.', got '{format_message}'"
-assert multiplied_string == "HelloHelloHello", f"[FAIL] Expected 'HelloHelloHello', got '{multiplied_string}'"
+assert multiplied_string == "HelloHelloHelloHelloHelloHelloHelloHelloHello", f"[FAIL] Expected 'HelloHelloHelloHelloHelloHelloHelloHelloHello', got '{multiplied_string}'"
 
 print(f"{full_name}")
 print(f"{message}")

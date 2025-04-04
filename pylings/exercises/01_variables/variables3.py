@@ -49,7 +49,7 @@ assert full_name == "John Cleese", f"[FAIL] Expected 'John Cleese', got '{full_n
 assert message == "I am 50 years old.", f"[FAIL] Expected 'I am 50 years old.', got '{message}'"
 assert f_string_message == "John Cleese is 50 years old.", f"[FAIL] Expected 'John Cleese is 50 years old.', got '{f_string_message}'"
 assert format_message == "John Cleese is 50 years old.", f"[FAIL] Expected 'John Cleese is 50 years old.', got '{format_message}'"
-assert multiplied_string*3 == "HelloHelloHello", f"[FAIL] Expected 'HelloHelloHello', got '{multiplied_string}'"
+assert multiplied_string*3 == "HelloHelloHelloHelloHelloHelloHelloHelloHello", f"[FAIL] Expected 'HelloHelloHelloHelloHelloHelloHelloHelloHello', got '{multiplied_string}'"
 
 print(f"{full_name}")
 print(f"{message}")
