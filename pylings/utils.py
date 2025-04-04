@@ -237,12 +237,12 @@ class PylingsUtils:
             for line in result.stdout.splitlines():
                 if line.startswith("Version:"):
                     version = line.split(":", 1)[1].strip()
-                elif line.startswith("License-Expression:"):
+                elif line.startswith("License:"):
                     license_text = line.split(":", 1)[1].strip()
                 elif line.startswith("Home-page:"):
-                    github = line.split(":", 1)[1].strip()
+                    pypiorg = line.split(":", 1)[1].strip()
                 elif "Repository," in line:
-                    pypiorg = line.split(",", 1)[1].strip()
+                    github = line.split(",", 1)[1].strip()
 
             return version, license_text, github, pypiorg
         except subprocess.CalledProcessError:

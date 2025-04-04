@@ -4,12 +4,13 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "pylings"
-version = "1.0.4"
+version = "1.0.5"
 description = "Python exercise trainer, inspired by rustlings."
 authors = [{ name="Seb Blair", email="s.blair@gre.ac.uk" }]
 readme = "README.md"
 license = "MIT"
 license-files = ["LICENSE.md"]
+requires-python = ">=3.10"
 dependencies = [
     "textual",
     "psutil",
@@ -17,10 +18,24 @@ dependencies = [
     "rich",
     "toml"
 ]
-
+classifiers = [
+    "Development Status :: 5 - Production/Stable",
+    "Intended Audience :: Education",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Programming Language :: Python :: 3.14",
+    "Programming Language :: Python :: Implementation",
+    "Operating System :: Microsoft :: Windows",
+    "Operating System :: MacOS",
+    "Operating System :: POSIX :: Linux",
+    "Operating System :: Unix",
+    "Topic :: Education",
+]
 [project.urls]
-homepage  = "https://github.com/CompEng0001/pylings"
-Repository = "https://pypi.org/project/pylings/"
+homepage  = "https://pypi.org/project/pylings/"
+Repository = "https://github.com/CompEng0001/pylings"
 tracker = "https://github.com/CompEng0001/pylings/issues"
 
 [project.scripts]

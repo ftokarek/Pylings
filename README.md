@@ -34,7 +34,7 @@ Pylings is designed to help beginners and experienced developers alike improve t
 
 ### Prerequisites
 
-- [python](https://www.python.org/downloads/) >= 3.9  installed on your system
+- [python](https://www.python.org/downloads/) >= 3.10  installed on your system
 - [Git](https://git-scm.com/downloads) (optional, for version control)
 
 ### Steps
