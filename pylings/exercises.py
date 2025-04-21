@@ -381,3 +381,4 @@ class ExerciseManager:
         """Toggles whether the hint for the current exercise should be displayed."""
         log.debug("ExerciseManager.toggle_hint")
         self.show_hint = not self.show_hint
+# End-of-file (EOF)

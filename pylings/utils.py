@@ -1,11 +1,34 @@
+"""
+utils.py — Core utility functions for the Pylings CLI and UI components.
+
+This module defines the `PylingsUtils` class, a static utility container providing
+functionality across the Pylings application for:
+
+- Parsing and handling command-line arguments.
+- Validating and inspecting `.pylings.toml` configuration files.
+- Detecting Git status for version tracking and user hints.
+- Checking version consistency between installed and workspace environments.
+- Extracting package metadata via `pip show`.
+- Generating Rich-formatted clickable links and output text for the terminal UI.
+
+It is intended for internal use within the CLI and Textual-based interface.
+
+Modules used:
+    - argparse: For CLI argument parsing
+    - subprocess: For Git and pip metadata access
+    - toml: For config parsing
+    - rich.text.Text: For stylized terminal output
+"""
 from argparse import ArgumentParser, RawTextHelpFormatter, Namespace
 import logging
 from pathlib import Path
 import shutil
 import subprocess
-import toml
+import sys
 import importlib.util
 from typing import Optional
+import toml
+from toml import TomlDecodeError
 from rich.text import Text
 
 import pylings
@@ -30,42 +53,79 @@ class PylingsUtils:
         log.debug("PylingsUtils.parse_args: Entered")
         parser = ArgumentParser(
             prog="pylings",
-            description="Pylings is a collection of small exercises to get you used to writing and reading Python code.",
+            description=(
+                "Pylings is a collection of small exercises to get you used to writing "
+                "and reading Python code."
+            ),
             formatter_class=RawTextHelpFormatter,
         )
 
-        parser.add_argument("-v", "--version", action="store_true", help="Get version and information about Pylings.")
+        parser.add_argument(
+            "-v",
+            "--version",
+            action="store_true",
+            help="Get version and information about Pylings."
+        )
         parser.add_argument("--debug", action="store_true", help="Enable debug logging.")
         subparsers = parser.add_subparsers(dest="command")
 
         init_parser = subparsers.add_parser("init", help="Initialize a pylings workspace.")
-        init_parser.add_argument("--path", type=str, help="Target folder (default: current directory)")
-        init_parser.add_argument("--force", action="store_true", help="Reinitialize workspace (overwrites existing files)")
+        init_parser.add_argument(
+            "--path", type=str, help="Target folder (default: current directory)"
+        )
+        init_parser.add_argument(
+            "--force",
+            action="store_true",
+            help="Reinitialize workspace (overwrites existing files)"
+        )
 
-        update_parser = subparsers.add_parser("update", help="Update workspace with current version")
-        update_parser.add_argument("--path", type=str, help="Target folder (default: current directory)")
+        update_parser = subparsers.add_parser(
+            "update",
+            help="Update workspace with current version"
+        )
+        update_parser.add_argument(
+            "--path", type=str, help="Target folder (default: current directory)"
+        )
 
         run_parser = subparsers.add_parser("run", help="Run pylings at the supplied exercise.")
-        run_parser.add_argument("file", type=str, help="Path to the exercise file. Example exercises/00_intro/intro1.py")
+        run_parser.add_argument(
+            "file", type=str,
+            help="Path to the exercise file, e.g., exercises/00_intro/intro1.py"
+        )
 
-        dry_parser = subparsers.add_parser("dry-run", help="Dry-run an exercise non-interactively.")
-        dry_parser.add_argument("file", type=str, help="Path to the exercise file.Path to the solution file. Example exercises/00_intro/intro1.py")
-        dry_parser.add_argument("--source", choices=["workspace", "package"], default="workspace", help="Select path context: workspace or package")
+        dry_parser = subparsers.add_parser(
+            "dry-run", help="Dry-run an exercise non-interactively."
+        )
+        dry_parser.add_argument(
+            "file", type=str,
+            help="Path to the exercise file. e.g., exercises/00_intro/intro1.py"
+        )
+        dry_parser.add_argument(
+            "--source", choices=["workspace", "package"], default="workspace",
+            help="Select path context: workspace or package"
+        )
 
-        solutions_parser = subparsers.add_parser("sol", help="Check solution for supplied exercise non-interactively.")
-        solutions_parser.add_argument("file", type=str, help="Path to the solution file. Example [solutions,exercises/]00_intro/intro1.py")
-        solutions_parser.add_argument("--source", choices=["workspace", "package"], default="package", help="Select path context: workspace or package")
+        solutions_parser = subparsers.add_parser(
+            "sol", help="Check solution for supplied exercise non-interactively."
+        )
+        solutions_parser.add_argument(
+            "file", type=str,
+            help="Path to the solution file. e.g., [solutions|exercises]/00_intro/intro1.py"
+        )
+        solutions_parser.add_argument(
+            "--source", choices=["workspace", "package"], default="package",
+            help="Select path context: workspace or package"
+        )
 
         return parser.parse_args()
 
     @staticmethod
-    def handle_args(args: Namespace, exercise_manager, watcher) -> bool:
+    def handle_args(args: Namespace, exercise_manager) -> bool:
         """Handle parsed CLI arguments and execute appropriate commands.
 
         Args:
             args (Namespace): Parsed CLI arguments.
             exercise_manager: Instance managing exercises.
-            watcher: File watcher or observer.
 
         Returns:
             bool: True if an exercise was selected and should be run interactively, else False.
@@ -81,8 +141,8 @@ class PylingsUtils:
             try:
                 exercise_manager.run_and_print(path, source, "s")
             except FileNotFoundError as e:
-                log.error(f"Invalid exercise path: {args.file} ({e})")
-                exit(1)
+                log.error("Invalid exercise path: %s (%s)",args.file, e)
+                sys.exit(1)
 
         elif args.command == "dry-run":
             path = Path(args.file)
@@ -90,8 +150,8 @@ class PylingsUtils:
             try:
                 exercise_manager.run_and_print(path, source, "d")
             except FileNotFoundError as e:
-                log.error(f"Invalid exercise path: {args.file} ({e})")
-                exit(1)
+                log.error("Invalid exercise path: %s (%s)",args.file, e)
+                sys.exit(1)
 
         elif args.command == "run":
             path = Path(args.file)
@@ -100,8 +160,8 @@ class PylingsUtils:
                 exercise_manager.arg_exercise = exercise_manager.get_exercise_path(path, source)
                 return True
             except FileNotFoundError as e:
-                log.error(f"Invalid exercise path: {args.file} ({e})")
-                exit(1)
+                log.error("Invalid exercise path: %s (%s)",args.file, e)
+                sys.exit(1)
 
         return False
 
@@ -140,10 +200,10 @@ class PylingsUtils:
             lines = result.stdout.strip().splitlines()
             return lines if lines else None
         except subprocess.CalledProcessError as e:
-            log.error(f"PylingsUtils.get_git_status error: {e}")
+            log.error("PylingsUtils.get_git_status error: %s",e)
             return None
 
-    @staticmethod 
+    @staticmethod
     def get_local_version() -> str:
         """Get the Pylings version recorded in `.pylings.toml`.
 
@@ -155,8 +215,8 @@ class PylingsUtils:
             try:
                 pyproject_data = toml.load(PYLINGS_TOML)
                 return pyproject_data.get("workspace", {}).get("version", "Unknown")
-            except Exception as e:
-                log.error(f"get_local_version error: {e}")
+            except (OSError, TomlDecodeError) as e:
+                log.error("get_local_version error: %s", e)
                 return "Unknown"
         return "Not in a local initialised pylings directory"
 
@@ -168,9 +228,8 @@ class PylingsUtils:
             str: Installed version string (fallback to '0.1.0' if not found).
         """
         try:
-            import pylings
             return pylings.__version__
-        except Exception:
+        except AttributeError:
             return "0.1.0"
 
     @staticmethod
@@ -195,26 +254,29 @@ class PylingsUtils:
         try:
             data = toml.load(pylings_toml)
             return data.get("workspace", {}).get("version")
-        except Exception as e:
-            print(f"Could not read workspace version: {e}")
+        except (OSError, TomlDecodeError) as e:
+            print("Could not read workspace version: %s",e)
             return None
 
     @staticmethod
     def check_version_mismatch():
         """Check for mismatches between workspace and installed versions.
 
-        If mismatch is found, print upgrade instructions and exit.
+        If mismatch is found, print upgrade instructions and sys.exit.
         """
         workspace_version = PylingsUtils.get_workspace_version()
         installed_version = pylings.__version__
 
         if workspace_version and workspace_version != installed_version:
-            print(f"\nYour workspace was created with pylings v{workspace_version}, but v{installed_version} is now installed.")
+            print(
+                f"\nYour workspace was created with pylings v{workspace_version}, "
+                f"but v{installed_version} is now installed."
+            )
             print("To update your exercises with new content only, run:")
             print("   pylings update\n")
             print("To upgrade the package itself:")
             print("   pip install --upgrade pylings\n")
-            exit(1)
+            sys.exit(1)
 
     @staticmethod
     def get_pip_package_info():
@@ -248,7 +310,7 @@ class PylingsUtils:
         except subprocess.CalledProcessError:
             log.error("get_pip_package_info: Package not installed")
             return "Not Installed", "N/A", "N/A", "N/A"
-        
+
     @staticmethod
     def make_link(display: str, target_path: Path, prefix: str, label: str) -> Text:
         """Create a stylized clickable Text link to a given file path.
@@ -267,7 +329,7 @@ class PylingsUtils:
         text = Text(label)
         text.append(f"{GREEN}{formatted}{RESET_COLOR}", style=f" link {uri}")
         return text
-    
+
     @staticmethod
     def git_suggestion(git_status_lines):
         """Create a Rich `Text` block showing suggested git commands for status changes.
@@ -311,5 +373,6 @@ class PylingsUtils:
         text.append(" ".join(all_files))
         text.append(f'\"{RESET_COLOR}\n')
 
-        log.debug(f"ui_utils.git_suggestion.text:\n\t{text}")
+        log.debug("ui_utils.git_suggestion.text:\n\t%s",text)
         return text
+# End-of-file (EOF)

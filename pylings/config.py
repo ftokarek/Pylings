@@ -1,3 +1,18 @@
+"""
+Manages the Pylings configuration lifecycle using `pylings.toml`.
+
+This module defines the `ConfigManager` class, which handles:
+- Loading and reloading workspace configuration from `pylings.toml`.
+- Tracking and persisting the user's current exercise path.
+- Detecting first-time usage and displaying a welcome message.
+- Extracting hints for exercises from the configuration file.
+- Resolving relative paths for solution files within the workspace.
+
+It uses the `toml` module for structured reading/writing of the TOML config file,
+and integrates with command-line arguments via `PylingsUtils`.
+
+Intended to be used internally by the Pylings CLI to manage user state and preferences.
+"""
 import logging
 from os import path
 from sys import argv
@@ -25,7 +40,7 @@ class ConfigManager:
 
     def load_config(self):
         """Load and return the configuration from `CONFIG_FILE`."""
-        log.debug(f"ConfigManager.load_config.CONFIG_FILE: {CONFIG_FILE}")
+        log.debug("ConfigManager.load_config.CONFIG_FILE: %s", {CONFIG_FILE})
         with open(CONFIG_FILE, "r", encoding="utf-8") as f:
             return load(f)
 
@@ -53,14 +68,16 @@ class ConfigManager:
                         dump(self.config, f)
 
                     self.config = self.load_config()
-                    welcome_message = self.config["settings"].get("welcome_message", "Welcome to Pylings!")
+                    welcome_message = self.config["settings"].get(
+                        "welcome_message", "Welcome to Pylings!"
+                    )
                     print(CLEAR_SCREEN, end="", flush=True)
                     print("Welcome message:", welcome_message)
                     input("\nPress Enter to continue.")
                     return True
                 return False
             except FileNotFoundError:
-                print(f"Error: The file {PYLINGS_TOML} does not exist.")
+                print("Error: The file {PYLINGS_TOML} does not exist.")
                 return False
         return False
 
@@ -77,7 +94,7 @@ class ConfigManager:
                 self.config = load(f)
             return self.config["workspace"].get("current_exercise", "00_intro/intro1.py")
         except FileNotFoundError:
-            log.error(f"PYLINGS_TOML not found: {PYLINGS_TOML}")
+            log.error("PYLINGS_TOML not found: %s", {PYLINGS_TOML})
             return "00_intro/intro1.py"
 
     def set_lasttime_exercise(self, current_exercise):
@@ -99,7 +116,7 @@ class ConfigManager:
             with open(PYLINGS_TOML, "w", encoding="utf-8") as f:
                 dump(self.config, f)
         except FileNotFoundError:
-            log.error(f"PYLINGS_TOML not found: {PYLINGS_TOML}")
+            log.error("PYLINGS_TOML not found: %s", {PYLINGS_TOML})
 
     def get_local_solution_path(self, solution_path):
         """
@@ -117,8 +134,8 @@ class ConfigManager:
             path_parts = normalized_path.split(path.sep + "solutions" + path.sep)
             local_path = path_parts[1] if len(path_parts) > 1 else str(solution_path)
             return local_path
-        except Exception as e:
-            log.error(f"ConfigManager.get_local_solution_path error: {e}")
+        except (IndexError, AttributeError, TypeError) as e:
+            log.error("ConfigManager.get_local_solution_path error: %s", e)
             return "00_intro/intro1.py"
 
     def get_hint(self, current_exercise):
@@ -143,8 +160,9 @@ class ConfigManager:
                 exercise_name = data.get("name", "").strip('"')
                 if exercise_name == ce_name:
                     hint = data.get("hint", "")
-                    log.debug(f"Hint found: {hint}")
+                    log.debug("Hint found: %s", {hint})
                     return f"{HINT_TITLE}\n\n{hint.replace("[", "\\[")}"
 
-        log.debug(f"No hint for: {ce_name}")
+        log.debug("No hint for: %s", {ce_name})
         return NO_HINT_MESSAGE
+# End-of-file (EOF)

@@ -9,7 +9,7 @@ Supports:
 - Displaying version information
 - Running the interactive TUI application
 """
-from sys import exit
+import sys
 import traceback
 from pylings.debug import setup_logging
 from pylings.exercises import ExerciseManager
@@ -24,17 +24,17 @@ def main():
     Handles CLI command parsing, initialization logic, version checks,
     workspace setup, and starts the TUI if appropriate. Also sets up
     file watchers and logging configuration.
-    """    
+    """
     args = PylingsUtils.parse_args()
     setup_logging(args.debug)
 
     if args.command == "init":
         init_workspace(args.path, force=args.force)
-        exit(0)
+        sys.exit(0)
 
     elif args.command == "update":
         update_workspace(args.path)
-        exit(0)
+        sys.exit(0)
 
     elif args.version:
         local_version = PylingsUtils.get_local_version()
@@ -48,18 +48,18 @@ def main():
         print(f"\tLicense : {pip_license}")
         print(f"\tGitHub  : {github_url}")
         print(f"\tPypi    : {pip_url}")
-        exit(0)
+        sys.exit(0)
 
     PylingsUtils.check_version_mismatch()
 
     if not PylingsUtils.is_pylings_toml():
-        exit(1)
+        sys.exit(1)
 
     exercise_manager = ExerciseManager()
     watcher = Watcher(exercise_manager, None)
     exercise_manager.watcher = watcher
 
-    if PylingsUtils.handle_args(args, exercise_manager, watcher):
+    if PylingsUtils.handle_args(args, exercise_manager):
         exercise_manager.update_exercise_output()
 
     app = PylingsUI(exercise_manager)
@@ -72,11 +72,12 @@ def main():
         app.run()
     except KeyboardInterrupt:
         print("Interrupted by user.")
-        exit(0)
+        sys.exit(0)
     except Exception as e:
-        print(f"Error: {e}")
-        print.error(f"App crashed with exception:\n" + traceback.format_exc())
-        exit(1)
+        print("Error: %s", e)
+        print.error("App crashed with exception:\n" + traceback.format_exc())
+        sys.exit(1)
 
 if __name__ == "__main__":
     main()
+# End-of-file (EOF)

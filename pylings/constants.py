@@ -25,7 +25,10 @@ UNDERLINE = "[underline]"
 CLEAR_SCREEN = "\033[2J\033[H"
 
 # MESSAGES
-DONE_MESSAGE = f"When you are done experimenting press {LIGHT_BLUE}n{RESET_COLOR} for the next exercise 🐍\n"
+DONE_MESSAGE = (
+    f"When you are done experimenting press {LIGHT_BLUE}n{RESET_COLOR} "
+    "for the next exercise 🐍\n"
+)
 EXERCISE_DONE = f"{GREEN}Exercise done ✔{RESET_COLOR}"
 EXERCISE_ERROR = lambda error: f"{RED}{error}{RESET_COLOR}"
 EXERCISE_OUTPUT = lambda output: f"{UNDERLINE}Output{RESET_COLOR}\n{output}"
@@ -83,3 +86,4 @@ FINISHED = f"""
   - {REPOSITORY}"
 {RESET_COLOR}
 """
+# End-of-file (EOF)

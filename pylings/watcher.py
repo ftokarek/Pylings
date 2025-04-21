@@ -44,8 +44,12 @@ class Watcher:
         self.observer = Observer()
         handler = self.ChangeHandler(self.exercise_manager, self.ui_manager)
 
-        path_to_watch = Path(exercise_path) if exercise_path else self.exercise_manager.current_exercise
-        log.debug(f"Watcher.start.path_to_watch: {path_to_watch}")
+        if exercise_path:
+            path_to_watch = Path(exercise_path)
+        else:
+            path_to_watch = self.exercise_manager.current_exercise
+
+        log.debug("Watcher.start.path_to_watch: %s", path_to_watch)
         self.observer.schedule(handler, str(path_to_watch), recursive=False)
         self.observer.start()
 
@@ -66,7 +70,7 @@ class Watcher:
         """
         log.debug("Watcher.restart: stopping")
         self.stop()
-        log.debug(f"Watcher.restart.new_exercise_path: {new_exercise_path}")
+        log.debug("Watcher.restart.new_exercise_path: %s",new_exercise_path)
         self.start(new_exercise_path)
         log.debug("Watcher.restart: started")
 
@@ -103,8 +107,8 @@ class Watcher:
             try:
                 with open(file_path, "rb") as f:
                     return hashlib.blake2b(f.read(), digest_size=16).hexdigest()
-            except Exception as e:
-                log.error(f"ChangeHandler.get_file_hash error: {e}")
+            except OSError as e:
+                log.error("ChangeHandler.get_file_hash error: %s", e)
                 return None
 
         def trigger_update_if_changed(self, event_path: str):
@@ -149,3 +153,4 @@ class Watcher:
             """Called by watchdog when a new file is created."""
             if not event.is_directory:
                 self.trigger_update_if_changed(event.src_path)
+# End-of-file (EOF)
