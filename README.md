@@ -18,7 +18,7 @@
     <img src="https://img.shields.io/github/stars/CompEng0001/pylings?style=for-the-badge" alt="GitHub Stars">
   </a>
   <a href="https://github.com/CompEng0001/pylings/actions">
-    <img src="https://img.shields.io/github/actions/workflow/status/CompEng00001/pylings/python-build.yml?style=for-the-badge&label=build" alt="Build Status">
+    <img src="https://img.shields.io/github/actions/workflow/status/CompEng0001/pylings/.github/workflows/python-publish.yml?&style=for-the-badge&label=Deploy%20to%20Pip" alt="Build Status">
   </a>
 </p> 
 

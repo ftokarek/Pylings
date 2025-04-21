@@ -81,7 +81,7 @@ def update_workspace(path: str = None):
 
     cleanup_backups(root_dir, target_dir)
     set_workspace_version(PylingsUtils.get_installed_version())
-    print("\nSee changelog: https://github.com/CompEng0001/pylings/CHANGELOG.md")
+    print("\nSee changelog: https://github.com/CompEng0001/pylings/blob/main/CHANGELOG.md")
 
 
 def update_folder(root_dir, target_dir, folder_name):
