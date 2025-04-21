@@ -1,3 +1,22 @@
+## v1.1.0
+
+- refactoring
+  - pylint score improved from 7.54 to 9.86
+  - removed deadcode from pylings.utils.handle_args
+  - pylings.init.update_workspace
+    - now produces better messaging
+  - README 
+    - corrected spelling errors
+    - added image of `pylings update`
+
+- new command
+  - reset
+    - you can call reset `pylings reset <exercise-path>`, this is the same as the internal `r`
+
+- new workflow
+  - python-build
+    - When release is created i GH, release now propogates to pip
+
 ## v1.0.5
 
 - updated exercise

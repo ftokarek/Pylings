@@ -7,6 +7,7 @@
 <p align="center">
   <img src="https://img.shields.io/badge/Made%20with-Python-3776AB?style=for-the-badge&logo=python&logoColor=white" alt="Made with Python">
  <img src="https://img.shields.io/pypi/pyversions/pylings?style=for-the-badge" alt="Python Version">
+ <img src="https://img.shields.io/badge/pylint-9.86-green?style=for-the-badge&logo=python&logoColor=white">
   <a href="https://pypi.org/project/pylings/">
     <img src="https://img.shields.io/pypi/v/pylings?style=for-the-badge" alt="PyPI">
   </a>
@@ -17,7 +18,7 @@
     <img src="https://img.shields.io/github/stars/CompEng0001/pylings?style=for-the-badge" alt="GitHub Stars">
   </a>
   <a href="https://github.com/CompEng0001/pylings/actions">
-    <img src="https://img.shields.io/github/actions/workflow/status/CompEng00001/pylings/python-app.yml?style=for-the-badge&label=build" alt="Build Status">
+    <img src="https://img.shields.io/github/actions/workflow/status/CompEng00001/pylings/python-build.yml?style=for-the-badge&label=build" alt="Build Status">
   </a>
 </p> 
 
@@ -131,18 +132,21 @@ Once installed via [`pip` or `git`](#steps), navigate to a directory of your cho
   ```
 
 > [!TIP]
-> Of course you could always add the following your `PATH`, and you call `pylings` directly: 
+> Of course you could always add the following to your `PATH`, and you call `pylings` directly: 
 > - `Windows`
 >   - `$HOME/AppData/Local/Programs/Python/Python313/`
 > - `Linux`
->   -  `$HGME/.local/bin`
+>   -  `$HOME/.local/bin`
 
 ### Commands/Arguments
-Pylings v1.0.0 supports additional developer-friendly commands:
+Pylings v1.1.0 supports additional developer-friendly commands:
 - `update [--path path/to/initialised-pylings]` updates the workspace with the current version:
   - Useful after upgrading Pylings via `pip install --upgrade pylings`
   - Defaults to the current working directory (`cwd`)
   - Adds new exercises and removes obsolete ones from the workspace
+
+    ![](./images/pylings_update.png)
+
 - `run`, starts pylings from a specific exercise:
   - `pylings run exercises/01_variables/variables1.py`
   - Triggers welcome message if it's your first time
@@ -151,6 +155,8 @@ Pylings v1.0.0 supports additional developer-friendly commands:
   - Accepts paths with or without the `exercises/` prefix
   - Use `--source workspace` (default) to run from local files
   - Use `--source package` to run the exercise bundled with the installed Pylings package
+- `reset`, resets an exercise non-interactively:
+  - `pylings reset exercises/01_variables/variables1.py`
 - `sol`, executes a solution file non-interactively:
   - `pylings solution 01_variables/variables1.py`
   - Accepts paths with or without the `solutions/` prefix
