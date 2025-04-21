@@ -1,3 +1,7 @@
+## v1.1.1
+  - badge for deploying to pylings
+  - updated workflow for better deployment
+
 ## v1.1.0
 
 - refactoring
