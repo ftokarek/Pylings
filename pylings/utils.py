@@ -116,6 +116,13 @@ class PylingsUtils:
             "--source", choices=["workspace", "package"], default="package",
             help="Select path context: workspace or package"
         )
+        reset_parser = subparsers.add_parser(
+            "reset", help="Reset an exercise non-interactively."
+        )
+        reset_parser.add_argument(
+            "file", type=str,
+            help="Path to the exercise file, e.g., exercises/00_intro/intro1.py"
+        )
 
         return parser.parse_args()
 
@@ -163,6 +170,13 @@ class PylingsUtils:
                 log.error("Invalid exercise path: %s (%s)",args.file, e)
                 sys.exit(1)
 
+        elif args.command == "reset":
+            path = Path(args.file)
+            try:
+                exercise_manager.reset_exercise_by_path(path)
+            except FileNotFoundError as e:
+                log.error("Invalid exercise path: %s (%s)",args.file, e)
+                sys.exit(1)
         return False
 
     @staticmethod

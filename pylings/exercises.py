@@ -377,6 +377,42 @@ class ExerciseManager:
             exit (1)
         return self.run_exercise(root, source)
 
+    def reset_exercise_by_path(self, path: Path):
+        """Reset a specific exercise given its path.
+
+        Args:
+            path (Path): Path to the exercise file to reset.
+        """
+        log.debug("ExerciseManager.reset_exercise_by_path: %s", path)
+        path = path.resolve()
+        exercises_dir = EXERCISES_DIR.resolve()
+
+        if not path.exists():
+            print(f"Exercise path not found: {path}")
+            exit(1)
+
+        if exercises_dir not in path.parents:
+            print("Path must be under exercises/")
+            exit(1)
+
+        try:
+            rel_path = path.relative_to(exercises_dir)
+            log.debug("ExerciseManager.reset_exercise_by_path.rel_path: %s", rel_path)
+        except ValueError:
+            print("Path must be under exercises/")
+            exit(1)
+
+        backup_path = BACKUP_DIR / rel_path
+        log.debug("ExerciseManager.reset_exercise_by_path.backup_path: %s", backup_path)
+        if not backup_path.exists():
+            print(f"No backup found for {rel_path}")
+            exit(1)
+
+        copy(backup_path, path)
+        print(f"Reset exercise: {rel_path}")
+        exit(0)
+
+
     def toggle_hint(self):
         """Toggles whether the hint for the current exercise should be displayed."""
         log.debug("ExerciseManager.toggle_hint")
