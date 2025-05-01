@@ -43,8 +43,8 @@ print(f"First base:{first_base}")
 print(f"Third base:{third_base}")
 print(f"Last base:{last_base}")
 
-print(f"First Five base:{first_five_base}")
-print(f"Middle base:{middle_base}")
-print(f"Last Five base:{last_five_base}")
+print(f"First Five base:{first_five_bases}")
+print(f"Middle base:{middle_bases}")
+print(f"Last Five base:{last_five_bases}")
 
 print(f"DNA Sequence Reversed: {reversed_dna}")
