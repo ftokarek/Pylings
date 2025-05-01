@@ -1,3 +1,8 @@
+## v1.1.2
+  - fix variable name mismatch in {backups,exercises,solutions}\variables5.py
+  - fix update message
+  - add code of conduct
+
 ## v1.1.1
   - badge for deploying to pylings
   - updated workflow for better deployment
