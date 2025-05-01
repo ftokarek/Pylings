@@ -288,8 +288,6 @@ class PylingsUtils:
             )
             print("To update your exercises with new content only, run:")
             print("   pylings update\n")
-            print("To upgrade the package itself:")
-            print("   pip install --upgrade pylings\n")
             sys.exit(1)
 
     @staticmethod
