@@ -12,7 +12,7 @@
     <img src="https://img.shields.io/pypi/v/pylings?style=for-the-badge" alt="PyPI">
   </a>
   <a href="https://pypi.org/project/pylings/">
-    <img src="https://img.shields.io/pypi/dm/pylings?style=for-the-badge" alt="Downloads">
+	<img alt="Dynamic Regex Badge" src="https://img.shields.io/badge/dynamic/regex?url=https%3A%2F%2Fpepy.tech%2Fprojects%2Fpylings&search=%3C%2Fsvg%3E%5Cs*(%5B%5E%3C%5D%2B)%5Cs*%3C%2Fdiv%3E&replace=%241&style=for-the-badge&label=Downloads">
   </a>
   <a href="https://github.com/CompEng0001/pylings/stargazers">
     <img src="https://img.shields.io/github/stars/CompEng0001/pylings?style=for-the-badge" alt="GitHub Stars">
