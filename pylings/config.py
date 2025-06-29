@@ -161,7 +161,8 @@ class ConfigManager:
                 if exercise_name == ce_name:
                     hint = data.get("hint", "")
                     log.debug("Hint found: %s", {hint})
-                    return f"{HINT_TITLE}\n\n{hint.replace("[", "\\[")}"
+                    escaped_hint = hint.replace('[', '\\[')
+                    return f"{HINT_TITLE}\n\n{escaped_hint}"
 
         log.debug("No hint for: %s", {ce_name})
         return NO_HINT_MESSAGE
