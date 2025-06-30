@@ -7,5 +7,5 @@ This module initializes the pylings package and sets the version.
 Attributes:
     __version__ (str): The current version of the pylings package.
 """
-__version__ = "1.1.2"
+__version__ = "1.2.0"
 # End-of-file (EOF)

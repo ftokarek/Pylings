@@ -1,3 +1,14 @@
+## v1.2.0
+- add dynamic theme support with `themes.toml` configuration
+- replace hardcoded colour constants with dynamic theme loading
+- add support for storing active theme in `.pylings.toml`
+- add multiple built-in colour themes
+- enable user to specify their own theme in `pylings.toml`
+- update UI to apply theme background colors
+- clean up screen styles and add horizontal padding for better layout
+- fix f-string quote and backslash escape for Python <3.12 compatibility
+- add `None` check for `importlib.util.find_spec` origin to avoid type errors
+
 ## v1.1.2
   - fix variable name mismatch in {backups,exercises,solutions}\variables5.py
   - fix update message
