@@ -78,3 +78,13 @@ LIGHT_BLUE = "#88c0d0"
 RESET = "/"
 UNDERLINE = "underline"
 BACKGROUND = "#2e3440"
+
+[tender]
+GREEN = "#c9d05c"
+RED = "#f43753"
+ORANGE = "#dc9656"
+LIGHT_BLUE = "#b3deef"
+RESET = "/"
+UNDERLINE = "underline"
+BACKGROUND = "#282828"
+
