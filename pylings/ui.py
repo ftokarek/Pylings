@@ -15,7 +15,7 @@ from textual.widgets import  ListView, ListItem, Static
 from pylings.constants import (DONE,DONE_MESSAGE, EXERCISES_DIR,EXERCISE_DONE,
                                EXERCISE_ERROR, EXERCISE_OUTPUT, LIST_VIEW,
                                LIST_VIEW_NEXT, MAIN_VIEW, MAIN_VIEW_NEXT, PENDING,
-                               BACKGROUND_COLOR
+                               BACKGROUND
 )
 from pylings.exercises import ExerciseManager
 from pylings.utils import PylingsUtils
@@ -66,7 +66,7 @@ class PylingsUI(App):
     def on_mount(self):
         """Update UI with initial exercise details."""
         log.debug("PylingsUI.on_mount: Entered")
-        self.screen.styles.background = BACKGROUND_COLOR
+        self.screen.styles.background = BACKGROUND
         self.update_exercise_content()
         sidebar = self.query_one("#sidebar", Vertical)
         main_content = self.query_one("#main", Vertical)

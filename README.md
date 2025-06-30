@@ -184,6 +184,42 @@ See the footer of the list for all possibilities.
 
 </div>
 
+## Themes
+
+As of v1.2.0 you can set a theme. Currently there are two ways, builtin or custom
+
+- Builtin:
+  - `default`
+  - `dark`
+  - `high_contrast`
+  - `catppuccin_mocha`
+  - `catppuccin_macchiato`
+  - `gruvbox_dark`
+  - `onedark`
+  - `solarized_dark`
+  - `nord`
+  - `tender`
+  
+- Custom
+  - `custom`
+
+The following fields are available for customising: 
+
+```toml
+[theme]
+name = "default" # default is a builtin, change from list above, or change the values below using "custom"
+GREEN = "bold green"
+RED = "bold red"
+ORANGE = "bold orange"
+LIGHT_BLUE = "bold lightblue"
+BACKGROUND = "#1e1e2e"
+```
+
+>[!NOTE]
+> - If you have updated to `v1.2.0`, you will need to add the above in manually, luckily, the `default` will load
+> - Use HEX colours or refer to: https://textual.textualize.io/styles/color/#syntax
+> - For font styling refer to: https://textual.textualize.io/styles/text_style/
+
 ## Contributing
 
 See [CONTRIBUTING.md](https://github.com/CompEng0001/pylings/blob/main/CONTRIBUTING.md) 🔗
