@@ -253,7 +253,11 @@ class PylingsUtils:
         Returns:
             Path: Path to the root of the installed package.
         """
-        return Path(importlib.util.find_spec("pylings").origin).parent
+        spec = importlib.util.find_spec("pylings")
+        if spec is None or spec.origin is None:
+            # Handle the error or provide a fallback path
+            raise ImportError("Cannot find 'pylings' module or origin path")
+        return Path(spec.origin).parent
 
     @staticmethod
     def get_workspace_version() -> Optional[str]:
@@ -337,7 +341,8 @@ class PylingsUtils:
             Text: Rich text object with embedded link.
         """
         uri = target_path.absolute().as_uri()
-        formatted = f"{prefix}/{display.replace('\\', '/')}"
+        fixed_display = display.replace('\\', '/')
+        formatted = f"{prefix}/{fixed_display}"
         text = Text(label)
         text.append(f"{GREEN}{formatted}{RESET_COLOR}", style=f" link {uri}")
         return text
