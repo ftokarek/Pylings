@@ -64,6 +64,11 @@ def init_workspace(path: str = None, force: bool = False):
 
             [theme]
             name = "default"
+            GREEN = "bold green"
+            RED = "bold red"
+            ORANGE = "bold orange"
+            LIGHT_BLUE = "bold lightblue"
+            BACKGROUND = "#1e1e2e"
         ''')
     )
     initialise_git(target_dir)
