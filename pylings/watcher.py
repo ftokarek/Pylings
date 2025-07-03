@@ -72,6 +72,7 @@ class Watcher:
         self.stop()
         log.debug("Watcher.restart.new_exercise_path: %s",new_exercise_path)
         self.start(new_exercise_path)
+        log.debug(f"Watcher.restart.start: ${new_exercise_path}")
         log.debug("Watcher.restart: started")
 
     class ChangeHandler(FileSystemEventHandler):

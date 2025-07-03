@@ -184,16 +184,32 @@ class PylingsUI(App):
         completed_exercises = self.exercise_manager.completed_count
 
         bar_length = 55
-        progress_fraction = completed_exercises / total_exercises if total_exercises > 0 else 0
+        if total_exercises > 0:
+            progress_fraction = completed_exercises / total_exercises
+        else:
+            progress_fraction = 0
+        log.debug("PylingsUI.update_progress_bar.progress_fraction: %s", progress_fraction)
 
         filled = int(progress_fraction * bar_length)
-        remaining = bar_length - filled - 1
+        if filled > bar_length:
+            filled = bar_length
 
         progress_bar = Text("Progress: [", style="bold")
-        progress_bar.append("#" * filled, style="green")
-        progress_bar.append(">", style="green")
-        progress_bar.append("-" * remaining, style="red")
-        progress_bar.append(f"]   {completed_exercises}/{total_exercises}", style="bold")
+
+        # Green part
+        if filled > 0:
+            progress_bar.append("#" * filled, style="green")
+
+        # Arrow if not full
+        if filled < bar_length:
+            progress_bar.append(">", style="green")
+
+            # Remaining red part
+            remaining = bar_length - filled - 1
+            if remaining > 0:
+                progress_bar.append("-" * remaining, style="red")
+
+        progress_bar.append(f"]   {completed_exercises:>3}/{total_exercises:>3}", style="bold")
         log.debug("PylingsUI.update_progress_bar.progress_bar: %s", progress_bar)
         progress_bar_widget.update(progress_bar)
 
@@ -258,7 +274,14 @@ class PylingsUI(App):
         log.debug("PylingsUI.toggle_list_view.sidebar.selected_index: %s",selected_index)
 
     def update_exercise_content(self):
-        """Update displayed exercise details, refresh output, and efficiently update the list."""
+        """Update exercise rows in the list view.
+
+        If no index is supplied, all rows will be updated. This ensures that the display
+        text for each exercise reflects its current status.
+
+        Args:
+            index (int | None): The index of the exercise to update. If None, all rows are updated.
+        """
         log.debug("PylingsUI.update_exercise_content: Entered")
 
         exercise_path = self.current_exercise or "No exercise selected"
@@ -269,42 +292,56 @@ class PylingsUI(App):
 
         list_view = self.query_one("#exercise-list", ListView)
         selected_index = list_view.index or 0
-        self.update_list_row(selected_index)
+        self.update_list_row()
         self.restore_list_selection(selected_index)
-
-        # Show completion notice briefly
-        #self.finished_check_progress_notice(clear=False)
-        #self.set_timer(2.0, lambda: self.finished_check_progress_notice(clear=True))
         self.update_progress_bar()
 
-    def update_list_row(self, index: int):
-        """Update the display text for the exercise at the given index in the list.
+    def update_list_row(self, index: int | None = None):
+        """Update the display text for a single exercise row at the given index.
 
-        If the exercise status has changed, the line is updated accordingly.
+        The display text is updated only if it differs from the current display.
+        The row text is formatted as "<STATUS> <EXERCISE_NAME>".
 
         Args:
-            index (int): Index of the exercise to update.
+            idx (int): The index of the list view row to update.
+            name (str): The name of the exercise corresponding to the row.
+            list_view (ListView): The ListView widget containing the exercise rows.
+            exercise_keys (list): The list of exercise names in order.
         """
         list_view = self.query_one("#exercise-list", ListView)
         exercise_keys = list(self.exercise_manager.exercises.keys())
 
-        if 0 <= index < len(exercise_keys):
+        if index is not None:
+            if not (0 <= index < len(exercise_keys)):
+                log.warning(f"update_list_row: supplied index {index} out of range")
+                return
             name = exercise_keys[index]
-            if self.exercise_manager.exercises[name]["status"] == "DONE":
-                new_status = DONE
-            else:
-                new_status = PENDING
+            log.debug(f"update_list_row: using supplied index {index}, name: {name}")
+            self._update_list_row_at(index, name, list_view, exercise_keys)
+        else:
+            log.debug("update_list_row: updating entire list")
+            for idx, name in enumerate(exercise_keys):
+                self._update_list_row_at(idx, name, list_view, exercise_keys)
 
-            new_display = f"{new_status} {name}"
 
-            list_item = list_view.children[index]
+    def _update_list_row_at(self, idx: int, name: str, list_view, exercise_keys):
+        exercise_data = self.exercise_manager.exercises[name]
+        new_status = DONE if exercise_data["status"] == "DONE" else PENDING
+        new_display = f"{new_status} {name}"
+
+        if 0 <= idx < len(list_view.children):
+            list_item = list_view.children[idx]
             static_widget = list_item.query_one(Static)
             renderable = static_widget.renderable
             current_display = renderable.plain if hasattr(renderable, 'plain') else str(renderable)
 
             if current_display != new_display:
-                log.debug("Updating line %s: %s -> %s",index,current_display,new_display)
+                log.debug("Updating line %s: %s -> %s", idx, current_display, new_display)
                 static_widget.update(new_display)
+        else:
+            log.warning(f"update_list_row: index {idx} out of range of list_view.children")
+
+
 
     def restore_list_selection(self, index: int):
         """Restore focus and visibility for the given list item index.
