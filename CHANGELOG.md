@@ -1,3 +1,8 @@
+## v1.2.1
+- Fix for list view not updating when not current exercise, was indexed exercise. Will also update entire list when called.
+- Progress bar updates with respect to DONE and PENDING correctly
+- Some extra logging
+
 ## v1.2.0
 - add dynamic theme support with `themes.toml` configuration
 - replace hardcoded colour constants with dynamic theme loading
