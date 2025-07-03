@@ -58,6 +58,7 @@ class ExerciseManager:
 
         self.current_exercise = EXERCISES_DIR / self.config_manager.get_lasttime_exercise()
         self.current_exercise_state = self.exercises[self.current_exercise.name]["status"]
+        self.completed_count = sum(1 for ex in self.exercises.values() if ex["status"] == "DONE")
 
     def _evaluate_exercises_ordered(self, exercise_paths):
         """Runs each exercise and returns results in original order.
@@ -100,16 +101,15 @@ class ExerciseManager:
             result (CompletedProcess): The result of executing the file.
 
         Returns:
-            tuple[str, str]: Previous and new status values.
+            str: new status values.
         """
-        prev_status = self.exercises[name]["status"]
         new_status = "DONE" if result.returncode == 0 else "PENDING"
         self.exercises[name].update({
             "status": new_status,
             "output": self._format_output(result.stdout) if result.returncode == 0 else "",
             "error": self._format_output(result.stderr) if result.returncode != 0 else None
         })
-        return prev_status, new_status
+        return new_status
 
     def run_exercise(self, path: Path, source: str = "workspace"):
         """Runs a Python exercise file and returns the result.
@@ -183,16 +183,17 @@ class ExerciseManager:
 
         result = self.run_exercise(self.current_exercise)
         name = self.current_exercise.name
-        prev_status, new_status = self._update_exercise_status(name, result)
+        new_status = self._update_exercise_status(name, result)
         self.current_exercise_state = new_status
 
-        if prev_status != "DONE" and new_status == "DONE":
-            self.completed_count += 1
-        elif prev_status == "DONE" and new_status != "DONE":
-            self.completed_count -= 1
+        #if prev_status != "DONE" and new_status == "DONE":
+        #    self.completed_count += 1
+        #elif prev_status == "DONE" and new_status != "DONE":
+        #    self.completed_count -= 1
+        self.completed_count = sum(1 for ex in self.exercises.values() if ex["status"] == "DONE")
 
-        self.completed_count = max(0, min(self.completed_count, len(self.exercises)))
-
+        #self.completed_count = max(0, min(self.completed_count, len(self.exercises)))
+        log.debug(f"ExerciseManager.update_exercise_output.self.completed_count: ${self.completed_count}")
         if self.completed_count == len(self.exercises) and not self.completed_flag:
             print(FINISHED)
             self.completed_flag = True
@@ -216,6 +217,7 @@ class ExerciseManager:
                 progress_callback(path.name, i, len(results))
 
         self.completed_count = sum(1 for ex in self.exercises.values() if ex["status"] == "DONE")
+        log.debug(f"ExerciseManager.check_all_exercises.self.completed_count: ${self.completed_count}")
         self.current_exercise = current_exercise_path
 
     def next_exercise(self):
