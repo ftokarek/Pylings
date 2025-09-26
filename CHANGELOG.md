@@ -1,3 +1,11 @@
+## v1.2.2
+- Fixed dependency drifts:
+  - textual==2.1.2,
+  - psutil==7.0.0,
+  - watchdog==6.0.0,
+  - rich==13.9.4,
+  - toml==0.10.2
+
 ## v1.2.1
 - Fix for list view not updating when not current exercise, was indexed exercise. Will also update entire list when called.
 - Progress bar updates with respect to DONE and PENDING correctly
