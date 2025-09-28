@@ -1,7 +1,7 @@
 [workspace]
 version = "1.2.2"
 firsttime = false
-current_exercise = "01_variables/variables3.py"
+current_exercise = "01_variables/variables4.py"
 
 [theme]
 name = "default"

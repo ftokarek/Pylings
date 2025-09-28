@@ -12,27 +12,27 @@ first_name = "John"
 last_name = "Cleese"
 
 # TODO: Concatenate first_name and last_name with a space in between
-full_name = __ 
+full_name = first_name+ " "+ last_name
 
 # === CONCATENATION WITH NUMBERS ===
 # TODO: Convert number to string and concatenate with a message
 
-age = 50
+age = "50"
 
 # TODO: Concatenate "I am " + age + " years old." (age must be converted to a string)
-message = __
+message = "I am " + str(age) + " years old."
 
 # === CONCATENATION USING F-STRINGS ===
 # TODO: Use an f-string to format a message with name and age
 
 # TODO: Use f"{full_name} is {age} years old."
-f_string_message = __
+f_string_message = f"{full_name} is {age} years old."
 
 # === CONCATENATION USING .FORMAT() ===
 # TODO: Use .format() method to create a message
 
 # TODO: Use "{} is {} years old.".format(full_name, age)
-format_message = __  
+format_message = "{} is {} years old.".format(full_name,age)
 
 # === STRING MULTIPLICATION ===
 # TODO: Repeat a string multiple times using the * operator
@@ -40,7 +40,7 @@ format_message = __
 repeat_word = "Hello"
 
 # TODO: Repeat "Hello" 3 times (output: "HelloHelloHello")
-multiplied_string = __ 
+multiplied_string = repeat_word*3
 
 # === TESTS ===
 # Call the variables to test concatenation methods
