@@ -1,0 +1,12 @@
+[workspace]
+version = "1.2.2"
+firsttime = false
+current_exercise = "01_variables/variables1.py"
+
+[theme]
+name = "default"
+GREEN = "bold green"
+RED = "bold red"
+ORANGE = "bold orange"
+LIGHT_BLUE = "bold lightblue"
+BACKGROUND = "#1e1e2e"
