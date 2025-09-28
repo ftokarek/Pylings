@@ -6,25 +6,17 @@ Uncomment and complete each section to pass all tests.
 """
 
 # === VARIABLE ASSIGNMENT AND ARITHMETIC ===
-# TODO: Assign correct values to revenue and cost, then calculate profit.
+# Solution: Assign correct values to revenue and cost, then calculate profit.
 
-# TODO: Assign a positive integer value
-revenue = 1000
-
-# TODO: Assign a non-negative integer value
-cost = 400
-
-# TODO: Calculate profit (revenue - cost)
-profit = revenue-cost
+revenue = 10000  # Assign a positive integer value
+cost = 6000  # Assign a non-negative integer value
+profit = revenue - cost  # Calculate profit (revenue - cost)
 
 # === STRING MULTIPLICATION FOR VISUALIZATION ===
-# TODO: Create a visual representation of cost and profit using '#' characters.
+# Solution: Create a visual representation of cost and profit using '#' characters.
 
-# TODO: Scale cost proportionally using '#' * (cost / revenue) * 25
-cost_bar = '#' * int((cost / revenue) * 25)
-
-# TODO: Scale profit proportionally using '#' * (profit / revenue) * 25
-profit_bar = '#' * int((profit / revenue) * 25)
+cost_bar = '#' * int((cost / revenue) * 25)  # Scale cost proportionally
+profit_bar = '#' * int((profit / revenue) * 25)  # Scale profit proportionally
 
 # === TESTS ===
 # Call the variables to test calculations
