@@ -8,36 +8,24 @@ In DNA each letter is defined as a `base`, we can interchange `base` with `index
 """
 
 # === DNA STRING INDEXING ===
-# TODO: Extract specific characters from the DNA sequence
+# Solution: Extract specific characters from the DNA sequence
 
 dna_sequence = "AGCTTAGGCTA"
-
-# TODO: Extract the first base of dna_sequence
-first_base =  dna_sequence[0]
-
-# TODO: Extract the last base of dna_sequence
-last_base =   dna_sequence[-1]
-
-# TODO: Extract the third base of dna_sequence
-third_base = dna_sequence[2]
+first_base = dna_sequence[0]  # Extract the first base of dna_sequence
+last_base = dna_sequence[-1]  # Extract the last base of dna_sequence
+third_base = dna_sequence[2]  # Extract the third base of dna_sequence
 
 # === DNA STRING SLICING ===
-# TODO: Extract substrings using slicing
+# Solution: Extract substrings using slicing
 
-# TODO: Extract the first five bases of dna_sequence
-first_five_bases = dna_sequence[:5]
-
-# TODO: Extract the last five bases of dna_sequence
-last_five_bases = dna_sequence[-5:  ]
-
-# TODO: Extract the middle four bases (assuming dna_sequence has 10+ bases)
-middle_bases = dna_sequence[4:8]
+first_five_bases = dna_sequence[:5]  # Extract the first five bases of dna_sequence
+last_five_bases = dna_sequence[-5:]  # Extract the last five bases of dna_sequence
+middle_bases = dna_sequence[4:8]  # Extract the middle four bases (assuming dna_sequence has 10+ bases)
 
 # === DNA REVERSE COMPLEMENT (BASIC) ===
-# TODO: Reverse the DNA sequence using slicing
+# Solution: Reverse the DNA sequence using slicing
 
-# TODO: Reverse dna_sequence using slicing
-reversed_dna = dna_sequence[::-1]
+reversed_dna = dna_sequence[::-1]  # Reverse dna_sequence using slicing
 
 # === TESTS ===
 # Call the variables to test DNA string indexing and slicing
