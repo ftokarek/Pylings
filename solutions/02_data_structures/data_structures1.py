@@ -11,10 +11,12 @@ which can be of different data types:
 - Each item in a list has a specific index, starting from 0.
 
 - Lists can contain items of different data types (e.g., integers, strings, other lists).
+
+
 """
 
 # TODO: Initialize a list of fruits with "apple", "banana" and "cherry"
-fruits = ["apple", "banana", "cherry"]
+fruits = ["apple","banana", "cherry"]
 
 # DO NOT TOUCH
 assert fruits == ["apple", "banana", "cherry"], f"Expected ['apple', 'banana', 'cherry'], but got {fruits}"
@@ -27,7 +29,7 @@ fruits.append("pineapple")
 assert fruits == ["apple", "banana", "cherry", "pineapple"], f"Expected ['apple', 'banana', 'cherry', 'pineapple'], but got {fruits}"
 
 # TODO: Insert "elderflower" into index 3 of fruits
-fruits.insert(3, "elderflower")
+fruits.insert(3,"elderflower")
 
 # DO NOT TOUCH
 assert fruits == ["apple", "banana", "cherry", "elderflower", "pineapple"], f"Expected ['apple', 'elderberry', 'banana', 'cherry', 'date'], but got {fruits}"
