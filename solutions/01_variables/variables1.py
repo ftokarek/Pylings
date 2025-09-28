@@ -5,19 +5,19 @@ Your goal is to practice working with variables in Python.
 """
 
 # TODO: Assign the name of your operating system to the variable 'MY_OS'
-MY_OS = 'MacOS'
+MY_OS = "Linux" 
 
 # TODO: Assign a whole NUMBER to the variable `NUMBER`.
-NUMBER = 1
+NUMBER = 10
 
 # TODO: Assign a float value to the `FRACTIONAL` variable
-FRACTIONAL =1.5
+FRACTIONAL = 3.14
 
 # TODO: Create a new variable 'IS_LEARNING_PYTHON' and set it to True.
 IS_LEARNING_PYTHON = True
 
 # TODO: Finish definition of 'NUMBER_INCREMENTED' by incrementing `NUMBER` by 1.
-NUMBER_INCREMENTED = NUMBER+1
+NUMBER_INCREMENTED = NUMBER + 1 
 
 # === TESTS ===
 # DO NOT TOUCH
