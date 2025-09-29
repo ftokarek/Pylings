@@ -9,21 +9,73 @@ Follow the TODO instructions and complete each section to pass all tests.
 
 Define the __init__ method
     - Initialize attributes: title, author, genre, year, and availability (set to True by default)
- 
+"""
+def __init__(self, title, author, genre, year):
+    self.title = title
+    self.author = author
+    self.genre = genre
+    self.year = year
+    self.available = True
+        
+        
+"""
 Define the borrow() method
     - Check if the book is available
     - If available, set it to unavailable and return True
     - If not available, return False
+"""
 
+def borrow(self):
+    if self.available:
+        self.available = False
+        return True
+    return False
+
+"""
 Define the return_book() method
     - Set the book's availability back to True
     - Return True if the book was successfully returned, otherwise False
+"""
+def return_book(self):
+    if not self.available:
+        self.available = True
+        return True
+    return False
 
+"""
 Define the __str__ method
     - Return a string with book details and availability status
     - Format: "Title by Author (Genre, Year) - Available/Unavailable"
 """
+def __str__(self):
+    status = "Available" if self.available else "Unavailable"
+    return f"{self.title} by {self.author} ({self.genre}, {self.year}) - {status}"
 
+class Book:
+    def __init__(self, title, author, genre, year):
+        self.title = title
+        self.author = author
+        self.genre = genre
+        self.year = year
+        self.available = True
+
+    def borrow(self):
+        if self.available:
+            self.available = False
+            return True
+        return False
+
+    def return_book(self):
+        if not self.available:
+            self.available = True
+            return True
+        return False
+
+    def __str__(self):
+        status = "Available" if self.available else "Unavailable"
+        return f"{self.title} by {self.author} ({self.genre}, {self.year}) - {status}"
+    
+    
 """
 TODO: Define the Library class
 
@@ -44,7 +96,42 @@ Define the return_book() method
 Define the display_books() method
     - Loop through all books and print their status using their __str__ method
 """
-
+def __init__(self):
+    self.books = []
+def add_book(self, book):
+    self.books.append(book)
+def borrow_book(self, title):
+    for book in self.books:
+        if book.title == title:
+            return book.borrow()
+    return False
+def return_book(self, title):
+    for book in self.books: 
+        if book.title == title:
+            return book.return_book()
+    return False
+def display_books(self):
+    for book in self.books:
+        print(book)
+class Library:
+    def __init__(self):
+        self.books = []
+    def add_book(self, book):
+        self.books.append(book)
+    def borrow_book(self, title):
+        for book in self.books:
+            if book.title == title:
+                return book.borrow()
+        return False
+    def return_book(self, title):
+        for book in self.books:
+            if book.title == title:
+                return book.return_book()
+        return False
+    def display_books(self):
+        for book in self.books:
+            print(book)
+            
 # Tests to check if your code works
 library = Library()
 book1 = Book("1984", "George Orwell", "Dystopian", 1949)

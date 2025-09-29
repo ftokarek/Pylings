@@ -1,7 +1,7 @@
 [workspace]
 version = "1.2.2"
 firsttime = false
-current_exercise = "06_oop/oop3.py"
+current_exercise = "07_quiz/quiz1.py"
 
 [theme]
 name = "default"
