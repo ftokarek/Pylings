@@ -10,25 +10,23 @@ In Python, a dictionary is an unordered collection of key-value pairs:
 - Values can be of any data type and can be duplicated.
 
 - Dictionaries allow fast access to values when you know the key.
+
 """
 
 # TODO: Initialize a dictionary with programming book titles as keys and a dictionary of details (author, year, price) as values:
-# "Clean Code": {"author": "Robert C. Martin", "year": 2008, "price": 30},
-# "The Pragmatic Programmer": {"author": "Andrew Hunt and David Thomas", "year": 1999, "price": 25},
-# "Introduction to Algorithms": {"author": "Cormen, Leiserson, Rivest, and Stein", "year": 2009, "price": 100},
-# "Python Crash Course": {"author": "Eric Matthes", "year": 2015, "price": 40}
-books = {"Clean Code": {"author": "Robert C. Martin", "year": 2008, "price": 30},
-            "The Pragmatic Programmer": {"author": "Andrew Hunt and David Thomas", "year": 1999, "price": 25},
-            "Introduction to Algorithms": {"author": "Cormen, Leiserson, Rivest, and Stein", "year": 2009, "price": 100},
-            "Python Crash Course": {"author": "Eric Matthes", "year": 2015, "price": 40}}
-
+books = {
+    "Clean Code": {"author": "Robert C. Martin", "year": 2008, "price": 30},
+    "The Pragmatic Programmer": {"author": "Andrew Hunt and David Thomas", "year": 1999, "price": 25},
+    "Introduction to Algorithms": {"author": "Cormen, Leiserson, Rivest, and Stein", "year": 2009, "price": 100},
+    "Python Crash Course": {"author": "Eric Matthes", "year": 2015, "price": 40}
+}
 
 # DO NOT TOUCH
 assert books == {
     "Clean Code": {"author": "Robert C. Martin", "year": 2008, "price": 30},
     "The Pragmatic Programmer": {"author": "Andrew Hunt and David Thomas", "year": 1999, "price": 25},
-    "Introduction to Algorithms": {"author": "Cormen, Leiserson, Rivest, and Stein", "year": 2009, "price": 100},
-    "Python Crash Course": {"author": "Eric Matthes", "year": 2015, "price": 40}
+    "Introduction to Algorithms": {"author": "CLRS", "year": 2009, "price": 100},
+    "Design Patterns": {"author": "Erich Gamma et al.", "year": 1994, "price": 50}
 }, f"Expected correct dictionary, but got {books}"
 print(f"Books: {books}")
 
