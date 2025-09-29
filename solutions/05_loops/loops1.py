@@ -2,11 +2,11 @@
 Loops Exercise 1 (loops1.py)
 This exercise introduces basic looping constructs in Python: for loops and while loops.
 Follow the TODO instructions and fix any issues.
-Uncomment and complete each section to pass all tests.
+Complete each section to pass all tests.
 """
 
 # === FOR LOOP ===
-# TODO: Modify the function so that it returns a list of numbers from 1 to n using a for loop
+# Solution: Write a function that returns a list of numbers from 1 to n using a for loop
 
 def generate_numbers(n):
     numbers = []
@@ -15,7 +15,7 @@ def generate_numbers(n):
     return numbers
 
 # === WHILE LOOP ===
-# TODO: Modify the function so that it sums numbers from 1 to n using a while loop and returns the total
+# Solution: Write a function that sums numbers from 1 to n using a while loop
 
 def sum_numbers(n):
     total = 0
@@ -26,7 +26,7 @@ def sum_numbers(n):
     return total
 
 # === LOOP WITH CONDITIONALS ===
-# TODO: Modify the function so that it returns a list of even numbers from 1 to n using a loop and condition
+# Solution: Write a function that returns a list of even numbers from 1 to n using a loop and condition
 
 def even_numbers(n):
     evens = []
