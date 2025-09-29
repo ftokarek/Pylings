@@ -1,7 +1,7 @@
 [workspace]
 version = "1.2.2"
 firsttime = false
-current_exercise = "02_data_structures/data_structures4.py"
+current_exercise = "03_functions/functions1.py"
 
 [theme]
 name = "default"

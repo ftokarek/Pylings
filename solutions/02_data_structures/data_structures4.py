@@ -7,9 +7,10 @@ In Python, a set is an unordered collection of unique items:
 - Sets do not allow duplicate values.
 - Sets are unordered, meaning there is no indexing or ordering of elements.
 - Sets support various operations like union, intersection, difference, and more.
+
 """
 
-## DO NOT TOUCH
+# TODO: Initialize a list of items with some duplicates
 item_list = ["item1", "item2", "item3", "item1", "item4", "item2", "item5"]
 
 # TODO: Convert the list to a set to remove duplicates
