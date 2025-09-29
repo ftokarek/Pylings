@@ -72,4 +72,5 @@ assert result_five == "a is greater than b", f"[FAIL] Expected 'a is greater tha
 result_six = is_greater_than_or_equal(20, 20)
 assert result_six == "a is greater than or equal to b", f"[FAIL] Expected 'a is greater than or equal to b', got '{result_six}'"
 
+
 print(f"\n{result_one}\n{result_two}\n{result_three}\n{result_four}\n{result_five}\n{result_six}.")
