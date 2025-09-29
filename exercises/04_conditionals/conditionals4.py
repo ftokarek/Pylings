@@ -13,8 +13,17 @@ Available from Python 3.10 onwards.
 # - Any other value: "Unknown Status"
 
 def http_status(code: int) -> str:
-    pass
-
+    if code == 200:
+        return "OK"
+    elif code == 301:
+        return "Moved Permanently"
+    elif code == 404:
+        return "Not Found"
+    elif code == 500:
+        return "Internal Server Error"
+    else:
+        return "Unknown Status"
+    
 # === TESTS ===
 import inspect
 
