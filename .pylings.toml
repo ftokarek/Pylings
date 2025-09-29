@@ -1,7 +1,7 @@
 [workspace]
 version = "1.2.2"
 firsttime = false
-current_exercise = "04_conditionals/conditionals2.py"
+current_exercise = "04_conditionals/conditionals3.py"
 
 [theme]
 name = "default"
