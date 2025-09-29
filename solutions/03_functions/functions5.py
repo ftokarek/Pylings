@@ -8,7 +8,7 @@ This exercise introduces returning multiple values from a function using tuples.
 # Return these three values as a tuple
 
 def basic_stats(a: float, b: float) -> tuple:
-    return a+b, a*b, (a+b)/2
+    return (a + b, a * b, (a + b) / 2)
 
 # === TESTS ===
 import inspect
