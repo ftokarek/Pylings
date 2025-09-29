@@ -7,39 +7,38 @@ Follow the TODO instructions and complete each section to pass all tests.
 
 # TODO: Handle the error, generically, when dividing two numbers
 def safe_divide(a, b):
-    if b == 0:
-        return "Cannot divide by zero!" 
-    return a / b
-
     # Attempt to divide a by b
     # If b is zero, catch the error and return "Cannot divide by zero!"
-    
-    
+    try:
+        return a / b
+    except:
+        return "Cannot divide by zero!"
+
+    pass
 
 
 # TODO: Handle the error, generically, when converting a string to an integer
 def string_to_int(s):
-    try:
-        return int(s)
-    except ValueError:
-        return "Invalid integer input"
-    
     # Attempt to convert the string s to an integer
     # If conversion fails, return "Invalid integer input."
-    
+    try:
+        return int(s)
+
+    except:
+        return "Invalid integer input"
+    pass
 
 
 # TODO: Handle the error, generically, when accessing a list element
 def access_list_element(lst, index):
-    try:
-        return lst[index]
-    except IndexError:
-        return "Index out of range"
-    
     # Attempt to return the element at the given index
     # If the index is out of range, return "Index out of range."
-    
-
+    # lst, has 5 indicies, refer to sample_list
+    try:
+        return lst[index]
+    except:
+        return "Index out of range"
+    pass
 
 
 # === TESTS ===
