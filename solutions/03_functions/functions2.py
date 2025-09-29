@@ -2,24 +2,23 @@
 Functions Exercise 2 (functions2.py)
 This exercise introduces functions with parameters, return values, and basic operations.
 Follow the TODO instructions and fix any issues.
-Complete each section to pass all tests.
+Uncomment and complete each section to pass all tests.
 """
 
 # === FUNCTION WITH MULTIPLE PARAMETERS ===
 # TODO: Define a function that multiplies two numbers and returns the result
 
 def multiply_numbers(a, b):
-    return a * b 
+    # TODO: Return the product of a and b
+    return a * b
 
 # === FUNCTION WITH DEFAULT PARAMETER ===
 # TODO: Define a function that returns a greeting with an optional name parameter
 # If no name is provided, default to "Guest"
 
-def welcome_message(name="Guest"):  
-    if name:
-        return f"Hello, {name}!"
-    else:
-        return "Hello, Guest!"
+def welcome_message(name="Guest"):
+    # TODO: Return a greeting message "Hello, name!" that includes the name
+    return f"Hello, {name}!"
 
 # === TESTS ===
 # Call the functions with various inputs to test all conditions
