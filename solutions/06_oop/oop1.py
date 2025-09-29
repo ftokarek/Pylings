@@ -8,26 +8,19 @@ Follow the TODO instructions and complete each section to pass all tests.
 # Define the Car class below
 class Car:
     def __init__(self, brand):
-        # TODO: Initialize the brand attribute with the provided brand
+        # Initialize the brand attribute with the provided brand
         self.brand = brand
-        # TODO: Initialize the speed attribute to 0
+        # Initialize the speed attribute to 0
         self.speed = 0
-        
-    
 
     def accelerate(self, amount):
-        # TODO: Increase the car's speed by the given amount
+        # Increase the car's speed by the given amount
         self.speed += amount
-        
 
     def brake(self, amount):
-        # TODO: Decrease the car's speed by the given amount
-        self.speed -= amount
-        if self.speed < 0:
-            self.speed = 0
-        # TODO: Ensure the speed does not go below 0
-        
-        
+        # Decrease the car's speed by the given amount
+        # Ensure the speed does not go below 0
+        self.speed = max(0, self.speed - amount)
 
 # DO NOT TOUCH 
 car = Car("Toyota")
