@@ -11,11 +11,15 @@ import time
 counter = 0  # Shared resource
 lock = threading.Lock()  # TODO: Use this lock to prevent race conditions
 
+
 # TODO: Define a function safe_increment that:
 # - Uses `lock` to safely increment `counter` 1000 times
 # - If lock is not used, race conditions may cause incorrect results
 def safe_increment():
-    pass
+    global counter
+    for _ in range(1000):
+        with lock:  # automatyczne acquire() / release()
+            counter += 1
 
 
 def main():
@@ -32,12 +36,12 @@ def main():
     threads = []
 
     for _ in range(5):
-        # TODO: Spawn a new thread that runs `safe_increment`
-        pass
+        thread = threading.Thread(target=safe_increment)
+        threads.append(thread)
+        thread.start()
 
     for thread in threads:
-        # TODO: Ensure all threads finish execution
-        pass
+        thread.join()
 
     print(f"Final counter value: {counter}")
 
