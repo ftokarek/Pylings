@@ -8,10 +8,11 @@ Follow the TODO instructions and complete each section.
 import threading
 import time
 
-semaphore = threading.Semaphore(3)  # TODO: Limit concurrent access to 3 threads
+semaphore = threading.Semaphore(3)  # Limit concurrent access to 3 threads
 active_threads = 0  # Track active threads
 active_threads_lock = threading.Lock()  # Lock to modify active_threads safely
 max_threads_reached = 0  # Track the highest number of concurrent threads
+
 
 # TODO: Implement `access_resource` to enforce semaphore limits.
 def access_resource(thread_id):
@@ -25,7 +26,28 @@ def access_resource(thread_id):
     - Print `"Thread {thread_id} done"`.
     - Safely decrement `active_threads` and release the semaphore.
     """
-    pass  # TODO: Implement function logic
+    global active_threads, max_threads_reached
+
+    # acquire semaphore slot
+    semaphore.acquire()
+    try:
+        with active_threads_lock:
+            active_threads += 1
+            if active_threads > max_threads_reached:
+                max_threads_reached = active_threads
+
+            # check concurrency condition
+            assert active_threads <= 3, f"Too many threads active! ({active_threads})"
+
+        print(f"Thread {thread_id} accessing resource")
+        time.sleep(0.1)
+        print(f"Thread {thread_id} done")
+
+        with active_threads_lock:
+            active_threads -= 1
+    finally:
+        # release semaphore slot
+        semaphore.release()
 
 
 def main():
@@ -43,18 +65,23 @@ def main():
     threads = []
 
     for i in range(6):
-        # TODO: Spawn a new thread that runs `access_resource(i)`
-        pass
+        thread = threading.Thread(target=access_resource, args=(i,))
+        threads.append(thread)
+        thread.start()
 
     for thread in threads:
-        # TODO: Ensure all threads finish execution
-        pass
+        thread.join()
 
     # Ensure active_threads is back to zero
     assert active_threads == 0, f"Error: active_threads should be 0 after execution, but got {active_threads}"
 
     # Ensure max concurrent threads never exceeded 3
-    assert max_threads_reached <= 3 and max_threads_reached > 0, f"Error: More than 3 threads ran concurrently! Max observed: {max_threads_reached}"
+    assert 0 < max_threads_reached <= 3, (
+        f"Error: More than 3 threads ran concurrently! Max observed: {max_threads_reached}"
+    )
+
+    print(f"Max concurrent threads observed: {max_threads_reached}")
+
 
 if __name__ == "__main__":
     main()

@@ -1,7 +1,7 @@
 [workspace]
 version = "1.2.2"
 firsttime = false
-current_exercise = "09_threading/threading2.py"
+current_exercise = "09_threading/threading3.py"
 
 [theme]
 name = "default"
