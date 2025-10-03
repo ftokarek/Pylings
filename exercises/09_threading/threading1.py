@@ -11,16 +11,23 @@ Follow the TODO instructions and complete each section.
 import threading
 import time
 
-def worker(thread_id):
+
+def worker(thread_id, results, lock):
     """
     This function represents the work done by each thread.
     It should:
     - Record the start time
     - Sleep for 1 second
     - Print "Thread {thread_id} done"
-    - Return the elapsed time
+    - Return the elapsed time (store it in results)
     """
-    pass  # TODO: Implement worker function
+    start_time = time.time()
+    time.sleep(1)
+    elapsed = time.time() - start_time
+    print(f"Thread {thread_id} done")
+    # zapisz wynik bezpiecznie do listy
+    with lock:
+        results[thread_id] = elapsed
 
 
 def main():
@@ -30,20 +37,19 @@ def main():
     - Ensure all threads finish execution using `.join()`
     - Collect their return values in the `results` list
     """
-
     threads = []
-    
-    for i in range(5):
-        # TODO: Spawn a new thread that runs `worker(i)`
-        pass
+    results = [None] * 5  # miejsce na wyniki
+    lock = threading.Lock()
 
-    results = []
+    for i in range(5):
+        thread = threading.Thread(target=worker, args=(i, results, lock))
+        threads.append(thread)
+        thread.start()
 
     for thread in threads:
-        # TODO: Collect the results of all threads into the `results` list.
-        pass
+        thread.join()
 
-    if len(results) != 5:
+    if len(results) != 5 or any(r is None for r in results):
         raise RuntimeError("Oh no! Some thread isn't done yet!")
 
     print()
