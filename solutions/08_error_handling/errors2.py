@@ -10,49 +10,46 @@ Follow the TODO instructions and complete each section to pass all tests.
 # TODO: Ensure the function returns the correct exception type
 # Implement each function to return the actual exception type
 
-
 # TODO: Catch the correct error when dividing by zero
-def catch_zero_division(a, b):  # TODO: Return the actual exception type
+def catch_zero_division(a, b):
     try:
         return a / b
-    except ZeroDivisionError as e:
-        return type(e)
+    except:
+        return ZeroDivisionError  # TODO: Return the actual exception type
 
 
 # TODO: Catch the correct error when converting an invalid string to an integer
 def catch_value_error(value):
     try:
         return int(value)
-    except ValueError as e:
-        return type(e)
+    except:
+        return ValueError  # TODO: Return the actual exception type
 
 
 # TODO: Catch the correct error when accessing an invalid list index
 def catch_index_error(lst, index):
     try:
         return lst[index]
-    except IndexError as e:
-        return type(e)
+    except:
+        return IndexError  # TODO: Return the actual exception type
 
 
-# TODO: Catch the correct error when accessing a non-existent dictionary key
+# TODO: Catch the correct errorwhen accessing a non-existent dictionary key
 def catch_key_error(dictionary, key):
     try:
         return dictionary[key]
-    except KeyError as e:
-        return type(e)
-
+    except:
+        return KeyError  # TODO: Return the actual exception type
 
 # DO NOT TOUCH #
 # This function demonstrates a generic exception handler
 # With the use of type(), we can return the type from generic exception
 def generic_exception(a, b):
-    try:
-        return b / a  # poprawione żeby działało
+    try: 
+        return  b / c
     except Exception as e:
         print(f"Exception: {type(e)}")
-    return None
-
+    pass
 
 generic_exception(1, 0)  # Should print an exception message
 
@@ -73,7 +70,7 @@ result_three = catch_index_error(sample_list, 5)
 assert result_three == IndexError, f"Expected: IndexError, but got {result_three}"
 
 # Testing catch_key_error
-sample_dict = {"name": "Guido van Rossum"}
+sample_dict = {"name": "Alice"}
 result_four = catch_key_error(sample_dict, "age")
 assert result_four == KeyError, f"Expected: KeyError, but got {result_four}"
 
